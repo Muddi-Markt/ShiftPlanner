@@ -1,0 +1,14 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@page "/"
+
+
+<PageTitle>Index</PageTitle>
+<AuthorizeView>
+    <Authorized>
+        Willkommen @context.User.FindFirst("preferred_username")?.Value
+    </Authorized>
+
+    <NotAuthorized>
+        Du bist nicht eingeloggt!
+    </NotAuthorized>
+</AuthorizeView>

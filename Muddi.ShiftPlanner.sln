@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Client", "Muddi.ShiftPlanner.Client\Muddi.ShiftPlanner.Client.csproj", "{945B7C11-7064-4CA8-8AF4-C9F71FE50E9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Shared", "Muddi.ShiftPlanner.Shared\Muddi.ShiftPlanner.Shared.csproj", "{8EB4C779-D3AB-44EE-8110-C7D600185009}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{3173C785-C62C-4E58-A939-F124214B748D}"
+	ProjectSection(SolutionItems) = preProject
+		docker\docker-compose.yml = docker\docker-compose.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlaner.Tests.Unit", "Muddi.ShiftPlaner.Tests.Unit\Muddi.ShiftPlaner.Tests.Unit.csproj", "{BC1DB81F-F177-434D-8266-11CF99880A0C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AC5258DF-B5A9-4510-89C5-B30C0DDB6846}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{5057D602-84E6-40D0-B1FB-54B5E1275ECB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{13B183E3-AAB9-4F0C-AA14-C69B63E61FEC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{945B7C11-7064-4CA8-8AF4-C9F71FE50E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{945B7C11-7064-4CA8-8AF4-C9F71FE50E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{945B7C11-7064-4CA8-8AF4-C9F71FE50E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{945B7C11-7064-4CA8-8AF4-C9F71FE50E9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EB4C779-D3AB-44EE-8110-C7D600185009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EB4C779-D3AB-44EE-8110-C7D600185009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EB4C779-D3AB-44EE-8110-C7D600185009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EB4C779-D3AB-44EE-8110-C7D600185009}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC1DB81F-F177-434D-8266-11CF99880A0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC1DB81F-F177-434D-8266-11CF99880A0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC1DB81F-F177-434D-8266-11CF99880A0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC1DB81F-F177-434D-8266-11CF99880A0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BC1DB81F-F177-434D-8266-11CF99880A0C} = {AC5258DF-B5A9-4510-89C5-B30C0DDB6846}
+		{945B7C11-7064-4CA8-8AF4-C9F71FE50E9B} = {5057D602-84E6-40D0-B1FB-54B5E1275ECB}
+		{8EB4C779-D3AB-44EE-8110-C7D600185009} = {13B183E3-AAB9-4F0C-AA14-C69B63E61FEC}
+	EndGlobalSection
+EndGlobal

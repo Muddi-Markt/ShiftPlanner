@@ -1,0 +1,19 @@
+﻿@page "/locations/{Id:guid}"
+<h3>@_location.Name</h3>
+
+<RadzenScheduler TItem="AppointmentData"
+                 style="height: 768px;"
+                 @ref="_scheduler"
+                 SlotRender=@OnSlotRender
+                 Data=@_appointments
+                 StartProperty="Start"
+                 EndProperty="End"
+                 TextProperty="Text" SelectedIndex="2"
+                 AppointmentRender=@OnAppointmentRender
+                 SlotSelect="OnSlotSelect"
+                 AppointmentSelect="OnAppointmentSelect">
+    
+    <RadzenDayView/>
+    <RadzenWeekView StartTime="TimeSpan.Zero" EndTime="TimeSpan.FromHours(24)" MinutesPerSlot="120" />
+    <RadzenMonthView/>
+</RadzenScheduler>
