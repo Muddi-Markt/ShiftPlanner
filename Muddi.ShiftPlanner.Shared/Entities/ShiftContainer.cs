@@ -10,7 +10,8 @@ public class ShiftContainer
 	public DateTime EndTime { get; }
 	public TimeSpan TotalTime { get; }
 	public int TotalShifts { get; }
-	private readonly ShiftFramework _framework;
+	public ShiftFramework Framework { get; }
+	public IEnumerable<DateTime> ShiftStartTimes => _shifts.Keys;
 
 	public ShiftContainer(ShiftFramework framework, DateTime startTime, int totalShifts)
 	{
@@ -18,21 +19,33 @@ public class ShiftContainer
 		EndTime = startTime + framework.TimePerShift * totalShifts;
 		TotalTime = EndTime - StartTime;
 		TotalShifts = totalShifts;
-		_framework = framework;
-		_shifts = GetStartTimes()
-			.ToImmutableDictionary(v => v, k => (ICollection<Shift>)new List<Shift>());
+		Framework = framework;
+		_shifts = StartTimes()
+			.ToImmutableSortedDictionary(v => v, k => (ICollection<Shift>)new List<Shift>());
+
+		IEnumerable<DateTime> StartTimes()
+		{
+			var current = StartTime;
+			for (var i = 0; i < TotalShifts; i++)
+			{
+				yield return current;
+				current = current.Add(Framework.TimePerShift);
+			}
+		}
 	}
 
 
 	private readonly IImmutableDictionary<DateTime, ICollection<Shift>> _shifts;
 
+
 	internal void AddShift(Shift shift)
 	{
 		if (!_shifts.TryGetValue(shift.StartTime, out var collection))
-			throw new KeyNotFoundException($"{shift.StartTime} is no valid start date for this shift");
-		if (collection.Count(t => t.Role == shift.Role) >= _framework.GetCountForRole(shift.Role))
+			throw new StartTimeNotInContainerException(shift.StartTime);
+		if (collection.Count(t => t.Role == shift.Role) >= Framework.GetCountForRole(shift.Role))
 			throw new TooManyWorkersException(shift);
-		if (collection.Any(t => t == shift))
+		if (collection.Any(t => t.StartTime == shift.StartTime
+		                        && t.User == shift.User))
 			throw new AmbiguousMatchException("A shift for the same time and for the same user is already set");
 		collection.Add(shift);
 	}
@@ -42,28 +55,36 @@ public class ShiftContainer
 		_shifts.Single(t => t.Value.Contains(shift)).Value.Remove(shift);
 	}
 
-	public IReadOnlyCollection<Shift> GetShiftsAtGivenTime(DateTime date)
+	public IReadOnlyCollection<Shift> GetShiftsAtGivenTime(DateTime startTime)
 	{
-		return _shifts[date].ToImmutableArray();
+		return _shifts[startTime].ToImmutableArray();
 	}
 
-	private IEnumerable<DateTime> GetStartTimes()
+	public IEnumerable<ShiftRole> GetAvailableRolesAtGivenTime(DateTime startTime)
 	{
-		var current = StartTime;
-		for (var i = 0; i < TotalShifts; i++)
+		var rolesCount = new Dictionary<ShiftRole, int>(Framework.RolesCount);
+		foreach (var shift in _shifts[startTime])
 		{
-			yield return current;
-			current = current.Add(_framework.TimePerShift);
+			rolesCount[shift.Role]--;
 		}
+
+		return rolesCount.Where(t => t.Value > 0).Select(t => t.Key);
 	}
 
-	public IEnumerable<Shift> GetAllShifts()
-	{
-		return _shifts.SelectMany(t => t.Value);
-	}
 
-	public bool IsShiftInContainer(Shift shift)
+	public IEnumerable<Shift> GetAllShifts() => _shifts.SelectMany(t => t.Value);
+	public bool DoesShiftFitInContainer(Shift shift) => DoesShiftFitInContainer(shift.StartTime);
+	public bool DoesShiftFitInContainer(DateTime startTime) => startTime >= StartTime && startTime < EndTime;
+
+	public DateTime GetBestShiftStartTimeForTime(DateTime startTime)
 	{
-		return shift.StartTime >= StartTime && shift.StartTime < EndTime;
+		startTime -= Framework.TimePerShift;
+		foreach (var shiftStartTime in ShiftStartTimes)
+		{
+			if (shiftStartTime > startTime)
+				return shiftStartTime;
+		}
+
+		throw new StartTimeNotInContainerException(startTime);
 	}
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Muddi.ShiftPlanner.Client;
-using Muddi.ShiftPlanner.Client.Extensions.ServiceCollection;
 
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);

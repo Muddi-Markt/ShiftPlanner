@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Radzen;
 
-namespace Muddi.ShiftPlanner.Client.Extensions.ServiceCollection;
+namespace Muddi.ShiftPlanner.Client;
 
 public static class RadzenExtensions
 {

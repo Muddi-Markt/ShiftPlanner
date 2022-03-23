@@ -1,11 +1,10 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@page "/"
+﻿@page "/"
 
 
 <PageTitle>Index</PageTitle>
 <AuthorizeView>
     <Authorized>
-        Willkommen @context.User.FindFirst("preferred_username")?.Value
+        Willkommen @context.User.Identity.Name
     </Authorized>
 
     <NotAuthorized>

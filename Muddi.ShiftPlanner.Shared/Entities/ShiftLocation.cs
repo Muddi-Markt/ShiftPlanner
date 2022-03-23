@@ -19,22 +19,23 @@ public class ShiftLocation
 		Path = "/locations/" + Id;
 	}
 
-	public void AddContainer(ShiftContainer container)
+	public void AddContainer(ShiftContainer container) => _containers.Add(container);
+
+	public void AddShift(WorkingUserBase user, DateTime start, ShiftRole role)
 	{
-		_containers.Add(container);
+		var container = GetShiftContainerByTime(start);
+		var shift = new Shift(user, start, start + container.Framework.TimePerShift, role);
+		container.AddShift(shift);
 	}
 
-	public void AddShift(Shift shift)
-	{
-		GetShiftContainer(shift).AddShift(shift);
-	}
+    public IEnumerable<Shift> GetAllShifts()
+    {
+	    return Containers.SelectMany(t => t.GetAllShifts());
+    }
 
-	public void RemoveShift(Shift shift)
-	{
-		GetShiftContainer(shift).RemoveShift(shift);
-	}
-
-	private ShiftContainer GetShiftContainer(Shift shift) => _containers.Single(t => t.IsShiftInContainer(shift));
+    public void RemoveShift(Shift shift) => GetShiftContainer(shift).RemoveShift(shift);
+	public ShiftContainer GetShiftContainerByTime(DateTime startTime) => _containers.Single(t => t.DoesShiftFitInContainer(startTime));
+	private ShiftContainer GetShiftContainer(Shift shift) => _containers.Single(t => t.DoesShiftFitInContainer(shift));
 }
 
 public enum ShiftLocationTypes

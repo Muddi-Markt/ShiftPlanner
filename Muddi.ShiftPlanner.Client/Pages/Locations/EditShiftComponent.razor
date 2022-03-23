@@ -1,52 +1,84 @@
-﻿@inject DialogService DialogService
-
-<RadzenTemplateForm TItem="AppointmentData" Data="@Appointment" Submit=@OnSubmit>
+﻿@using Muddi.ShiftPlanner.Client.Entities
+@inject DialogService DialogService
+<RadzenTemplateForm TItem="TemplateFormShiftParameter" Data="@ShiftParameter" Submit=@OnSubmit>
     <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
-            <RadzenLabel Text="Text" />
+            <RadzenLabel Text="Text"/>
         </div>
         <div class="col">
-            <RadzenTextBox @bind-Value="@Appointment.Text" Name="Text" />
-            <RadzenRequiredValidator Text="Title is required" Component="Text" />
+            <RadzenTextBox Value="@(ShiftParameter.ShiftToEdit?.User.Name ?? ShiftParameter.User.Name)" Name="Person" ReadOnly="true"/>
         </div>
     </div>
     <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
-            <RadzenLabel Text="Start" />
+            <RadzenLabel Text="Start"/>
         </div>
         <div class="col">
-            <RadzenDatePicker @bind-Value="@Appointment.Start" Name="Start" ShowTime="true" />
-            <RadzenRequiredValidator Text="Start is required" Component="Start" />
+            <RadzenDropDown TValue="DateTime" Data="@ShiftParameter.Container.ShiftStartTimes" @bind-Value="ShiftParameter.StartTime">
+                <Template Context="dateTime">@(((DateTime)dateTime).ToString("HH:mm"))</Template>
+            </RadzenDropDown>
         </div>
     </div>
     <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
-            <RadzenLabel Text="End" />
+            <RadzenLabel Text="Ende"/>
         </div>
         <div class="col">
-            <RadzenDatePicker Name="End" @bind-Value="@Appointment.End" ShowTime="true" />
-            <RadzenRequiredValidator Component="End" Text="End is required" />
+            <RadzenTextBox Name="End" Value="@((ShiftParameter.StartTime + ShiftParameter.Container.Framework.TimePerShift).ToString("HH:mm"))" ReadOnly="true"/>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Rolle"/>
+        </div>
+        <div class="col">
+            @if (_availableRoles.Length == 0)
+            {
+                <RadzenTextBox Value="Keine freien Slots frei, bitte wähle eine andere Schicht"></RadzenTextBox>
+            }
+            else
+            {
+                <RadzenDropDown TValue="ShiftRole" Data="@_availableRoles" @bind-Value="@ShiftParameter.Role">
+                    <Template Context="role">@(((ShiftRole)role).Name)</Template>
+                </RadzenDropDown>
+            }
         </div>
     </div>
     <div class="row">
         <div class="col-md-3"></div>
         <div class="col">
-            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+            @if (isAllowedToEdit)
+            {
+                <RadzenButton ButtonType="ButtonType.Submit" Text="Eintragen"/>
+            }
         </div>
     </div>
 </RadzenTemplateForm>
+
 @code {
 
+
     [Parameter]
-    public AppointmentData Appointment { get; set; }
+    public TemplateFormShiftParameter ShiftParameter { get; set; }
+
+    private bool isAllowedToEdit;
 
     protected override void OnParametersSet()
     {
-        if (Appointment is null) throw new ArgumentException("Appointment not set");
+        if (ShiftParameter is null) throw new ArgumentNullException(nameof(ShiftParameter));
+        _availableRoles = ShiftParameter.Container.GetAvailableRolesAtGivenTime(ShiftParameter.StartTime).ToArray();
+
+        isAllowedToEdit = ShiftParameter.User.UserRole >= UserRoles.Manager
+                          || ShiftParameter.ShiftToEdit is null
+                          || (ShiftParameter.ShiftToEdit is {} shift && shift.User == ShiftParameter.User)
+            ;
     }
 
-    void OnSubmit(AppointmentData model)
+    void OnSubmit(TemplateFormShiftParameter model)
     {
         DialogService.Close(model);
     }
+
+
+    private ShiftRole[] _availableRoles;
 }

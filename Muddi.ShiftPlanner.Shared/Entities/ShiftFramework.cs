@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Muddi.ShiftPlanner.Shared.Entities;
 
 public class ShiftFramework
@@ -5,11 +7,11 @@ public class ShiftFramework
 	public ShiftFramework(TimeSpan timePerShift, Dictionary<ShiftRole, int> rolesCount)
 	{
 		TimePerShift = timePerShift;
-		_rolesCount = rolesCount;
+		RolesCount = rolesCount.ToImmutableDictionary();
 	}
 
 	public TimeSpan TimePerShift { get; }
-	private readonly IReadOnlyDictionary<ShiftRole, int> _rolesCount;
+	public IImmutableDictionary<ShiftRole, int> RolesCount;
 
-	internal int GetCountForRole(ShiftRole role) => _rolesCount[role];
+	internal int GetCountForRole(ShiftRole role) => RolesCount[role];
 }

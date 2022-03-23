@@ -34,7 +34,17 @@
                 <div class="container-fluid h-100" >
                     <div class="row h-100 align-content-between justify-content-around">
                         <div class="col-12 pt-4 pb-5 px-3 px-lg-5">
-                            @Body
+                            <ErrorBoundary>
+                                <ChildContent>
+                                    @Body
+                                </ChildContent>
+                                <ErrorContent>
+                                    <div class="blazor-error-boundary">
+                                        @context.Message <br />
+                                    </div>
+                                    <button class="rz-button" onClick="window.location.reload();">Reload</button>                                    
+                                </ErrorContent>
+                            </ErrorBoundary>
                         </div>
                         <p class="mt-5 md-3 text-center">
                             <RadzenLabel Text="MUDDI Markt Shift Planer, &copy; 2022 Max Reble, "></RadzenLabel>
