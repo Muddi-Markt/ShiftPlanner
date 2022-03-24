@@ -26,7 +26,7 @@ public class ShiftTests
 	public void ShiftLocation_FullTest_ShouldSucceed()
 	{
 		var secondContainerSecondShiftStart = new DateTime(2022, 03, 23, 3, 30, 0, DateTimeKind.Utc);
-		var startTime = DateTimeOffset.Parse("22.03.2022 20:00:00", null, DateTimeStyles.AssumeUniversal).UtcDateTime;
+		var startTime = new DateTime(2022, 03, 22, 20, 00, 0, DateTimeKind.Utc);
 		var shiftDuration = TimeSpan.FromMinutes(90);
 		int shiftsThatDay = 4;
 		int shiftsThatDay2 = 2;
