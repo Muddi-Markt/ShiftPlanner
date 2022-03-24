@@ -21,11 +21,12 @@ public class ShiftLocation
 
 	public void AddContainer(ShiftContainer container) => _containers.Add(container);
 
-	public void AddShift(WorkingUserBase user, DateTime start, ShiftRole role)
+	public Shift AddShift(WorkingUserBase user, DateTime start, ShiftRole role)
 	{
 		var container = GetShiftContainerByTime(start);
 		var shift = new Shift(user, start, start + container.Framework.TimePerShift, role);
 		container.AddShift(shift);
+		return shift;
 	}
 
     public IEnumerable<Shift> GetAllShifts()

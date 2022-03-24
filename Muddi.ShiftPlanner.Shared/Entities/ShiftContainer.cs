@@ -42,11 +42,12 @@ public class ShiftContainer
 	{
 		if (!_shifts.TryGetValue(shift.StartTime, out var collection))
 			throw new StartTimeNotInContainerException(shift.StartTime);
-		if (collection.Count(t => t.Role == shift.Role) >= Framework.GetCountForRole(shift.Role))
-			throw new TooManyWorkersException(shift);
 		if (collection.Any(t => t.StartTime == shift.StartTime
 		                        && t.User == shift.User))
 			throw new AmbiguousMatchException("A shift for the same time and for the same user is already set");
+		if (collection.Count(t => t.Role == shift.Role) >= Framework.GetCountForRole(shift.Role))
+			throw new TooManyWorkersException(shift);
+
 		collection.Add(shift);
 	}
 

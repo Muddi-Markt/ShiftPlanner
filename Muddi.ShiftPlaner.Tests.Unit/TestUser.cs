@@ -6,7 +6,7 @@ namespace Muddi.ShiftPlaner.Tests.Unit;
 
 public class TestUser : WorkingUserBase
 {
-	public TestUser(Guid keycloakId) : base(keycloakId)
+	public TestUser(string name) : base(Guid.NewGuid(), name)
 	{
 	}
 }
