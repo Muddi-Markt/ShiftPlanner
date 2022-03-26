@@ -44,7 +44,7 @@ public class ShiftContainer
 			throw new StartTimeNotInContainerException(shift.StartTime);
 		if (collection.Any(t => t.StartTime == shift.StartTime
 		                        && t.User == shift.User))
-			throw new AmbiguousMatchException("A shift for the same time and for the same user is already set");
+			throw new UserAlreadyAssignedException(shift);
 		if (collection.Count(t => t.Role == shift.Role) >= Framework.GetCountForRole(shift.Role))
 			throw new TooManyWorkersException(shift);
 
@@ -74,18 +74,19 @@ public class ShiftContainer
 
 
 	public IEnumerable<Shift> GetAllShifts() => _shifts.SelectMany(t => t.Value);
-	public bool DoesShiftFitInContainer(Shift shift) => DoesShiftFitInContainer(shift.StartTime);
-	public bool DoesShiftFitInContainer(DateTime startTime) => startTime >= StartTime && startTime < EndTime;
+	public bool IsTimeWithinContainer(DateTime time) => time >= StartTime && time < EndTime;
 
 	public DateTime GetBestShiftStartTimeForTime(DateTime startTime)
 	{
 		startTime -= Framework.TimePerShift;
+		DateTime last = default;
 		foreach (var shiftStartTime in ShiftStartTimes)
 		{
+			last = shiftStartTime;
 			if (shiftStartTime > startTime)
 				return shiftStartTime;
 		}
 
-		throw new StartTimeNotInContainerException(startTime);
+		return last;
 	}
 }

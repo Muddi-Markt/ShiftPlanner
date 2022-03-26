@@ -60,7 +60,7 @@
             <RadzenPanelMenu Match="NavLinkMatch.Prefix">
                 @foreach (var place in _shiftPlaces)
                 {
-                    <RadzenPanelMenuItem @bind-Expanded=@place.Expanded Text="@place.Name" Path="@place.Path" Icon="@place.Icon"/>
+                    <RadzenPanelMenuItem Text="@place.Name" Path="@place.Path" Icon="@place.Icon"/>
                 }
             </RadzenPanelMenu>
         </ChildContent>

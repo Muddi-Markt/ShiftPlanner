@@ -5,21 +5,42 @@ namespace Muddi.ShiftPlanner.Shared.Exceptions;
 
 public class DateTimeNotUtcException : MuddiException
 {
-	public DateTimeNotUtcException(string caller = "Time") : base($"{caller} is not in UTC format")
+	public DateTimeNotUtcException(string caller = "Time")
+		: base($"{caller} is not in UTC format")
 	{
 	}
 }
 
 public class TooManyWorkersException : MuddiException
 {
-	public TooManyWorkersException(Shift shift) : base($"Too many workers for role {shift.Role} applied")
+	public TooManyWorkersException(Shift shift)
+		: base($"Too many workers for role {shift.Role} applied")
+	{
+	}
+}
+
+public class UserAlreadyAssignedException : MuddiException
+{
+	public UserAlreadyAssignedException(Shift shift)
+		: base($"Shift with start time {shift.StartTime} and user {shift.User} already assigned")
 	{
 	}
 }
 
 public class StartTimeNotInContainerException : MuddiException
 {
-	public StartTimeNotInContainerException(DateTime shift) : base($"Start time {shift} is not valid for this shift container")
+	public StartTimeNotInContainerException(DateTime shift)
+		: base($"Start time {shift} is not valid for this shift container")
+	{
+	}
+}
+
+public class ContainerTimeOverlapsException : MuddiException
+{
+	public ContainerTimeOverlapsException(ShiftContainer container, ShiftContainer overlapContainer)
+		: base($"Container starting at {container.StartTime} and ends at {container.EndTime} " +
+		       "overlaps with container " +
+		       $"starting at {overlapContainer.StartTime} and ends at {overlapContainer.EndTime}")
 	{
 	}
 }

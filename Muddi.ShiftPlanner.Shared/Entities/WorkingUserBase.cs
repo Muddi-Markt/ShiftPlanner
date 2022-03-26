@@ -36,7 +36,7 @@ public abstract class WorkingUserBase : IEquatable<WorkingUserBase>
 	{
 		if (ReferenceEquals(null, obj)) return false;
 		if (ReferenceEquals(this, obj)) return true;
-		if (obj.GetType() != this.GetType()) return false;
+		if (obj.GetType() != GetType()) return false;
 		return Equals((WorkingUserBase)obj);
 	}
 
@@ -54,4 +54,6 @@ public abstract class WorkingUserBase : IEquatable<WorkingUserBase>
 	{
 		return !Equals(left, right);
 	}
+
+	public override string ToString() => $"{Name} ({KeycloakId})";
 }
