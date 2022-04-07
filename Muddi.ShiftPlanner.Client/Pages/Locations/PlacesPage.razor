@@ -1,4 +1,6 @@
 ﻿@page "/locations/{Id:guid}"
+
+
 <h3>@_location.Name</h3>
 
 <RadzenScheduler TItem="Shift"
@@ -9,11 +11,12 @@
                  StartProperty="StartTime"
                  EndProperty="EndTime"
                  TextProperty="Title" 
+                 TodayText="Heute"
                  SelectedIndex="1"
                  AppointmentRender=@OnAppointmentRender
                  SlotSelect="OnSlotSelect"
-                 AppointmentSelect="OnAppointmentSelect">
+                 AppointmentSelect="OnShiftSelect">
     
-    <RadzenDayView/>
-    <RadzenWeekView StartTime="TimeSpan.Zero" EndTime="TimeSpan.FromHours(24)" MinutesPerSlot="30" TimeFormat="HH:mm" />
+    <RadzenDayView Text="Tag"/>
+    <RadzenWeekView Text="Woche" StartTime="TimeSpan.Zero" EndTime="TimeSpan.FromHours(24)" MinutesPerSlot="30" TimeFormat="HH:mm" />
 </RadzenScheduler>

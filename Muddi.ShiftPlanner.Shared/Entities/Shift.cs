@@ -10,7 +10,7 @@ public class Shift : IEquatable<Shift>
 		Role = role;
 	}
 
-	public string Title => User.Name;
+	public string Title => (User.Name.Contains(' ') ? User.Name[..User.Name.IndexOf(' ')] : User.Name) + "\n" + Role.Name;
 	public WorkingUserBase User { get; }
 	public DateTime StartTime { get; }
 	public DateTime EndTime { get; }

@@ -52,6 +52,13 @@ public class ShiftLocation
 		?? throw new StartTimeNotInContainerException(startTime);
 
 	private ShiftContainer GetShiftContainer(Shift shift) => GetShiftContainerByTime(shift.StartTime);
+
+	public void UpdateShift(Shift shift, ShiftRole role, WorkingUserBase user)
+	{
+		throw new NotImplementedException();
+		// new Shift()
+		// GetShiftContainer(shift).UpdateShift(shift,)
+	}
 }
 
 public enum ShiftLocationTypes

@@ -43,6 +43,7 @@ public class ShiftMockService
         ShiftPlaces[0].AddShift(new TestUser("Test 1"), container1.StartTime, RoleBeverages);
         ShiftPlaces[0].AddShift(new TestUser("Test 2"), container1.StartTime, RoleTap);
         ShiftPlaces[0].AddShift(new TestUser("Test 3"), container1.StartTime, RoleCash);
+        ShiftPlaces[0].AddShift(new TestUser("Test 4"), container1.StartTime, RoleMuddiInCharge);
     }
 
     public static IEnumerable<ShiftLocation> GetAllShiftPlaces() => ShiftPlaces;

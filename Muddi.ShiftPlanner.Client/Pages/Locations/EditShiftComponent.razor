@@ -3,7 +3,7 @@
 <RadzenTemplateForm TItem="TemplateFormShiftParameter" Data="@ShiftParameter" Submit=@OnSubmit>
     <div class="row" style="margin-bottom: 16px">
         <div class="col-md-3">
-            <RadzenLabel Text="Text"/>
+            <RadzenLabel Text="Benutzer"/>
         </div>
         <div class="col">
             <RadzenTextBox Value="@(ShiftParameter.ShiftToEdit?.User.Name ?? ShiftParameter.User.Name)" Name="Person" ReadOnly="true"/>
@@ -14,9 +14,19 @@
             <RadzenLabel Text="Start"/>
         </div>
         <div class="col">
-            <RadzenDropDown TValue="DateTime" Data="@ShiftParameter.Container.ShiftStartTimes" @bind-Value="ShiftParameter.StartTime">
-                <Template Context="dateTime">@(((DateTime)dateTime).ToString("HH:mm"))</Template>
-            </RadzenDropDown>
+            @* @if (isAllowedToEdit)
+            {
+                <RadzenDropDown TValue="DateTime"
+                                Data="@ShiftParameter.Container.ShiftStartTimes"
+                                @bind-Value="ShiftParameter.StartTime">
+                    <Template Context="dateTime">@(((DateTime)dateTime).ToString("HH:mm"))</Template>
+                </RadzenDropDown>
+            }
+            else
+            {*@
+            <RadzenTextBox Name="Start" Value="@((ShiftParameter.StartTime).ToString("HH:mm"))" ReadOnly="@(!isAllowedToEdit)"/>
+
+
         </div>
     </div>
     <div class="row" style="margin-bottom: 16px">
@@ -32,15 +42,22 @@
             <RadzenLabel Text="Rolle"/>
         </div>
         <div class="col">
-            @if (_availableRoles.Length == 0)
+            @if (isAllowedToEdit)
             {
-                <RadzenTextBox Value="Keine freien Slots frei, bitte wähle eine andere Schicht"></RadzenTextBox>
+                @if (_availableRoles.Any())
+                {
+                    <RadzenDropDown TValue="ShiftRole" Disabled="@(!isAllowedToEdit)" Data="@_availableRoles" @bind-Value="@ShiftParameter.Role">
+                        <Template Context="role">@(((ShiftRole)role).Name)</Template>
+                    </RadzenDropDown>
+                }
+                else
+                {
+                    <RadzenTextBox Value="Keine freien Slots frei"></RadzenTextBox>
+                }
             }
             else
             {
-                <RadzenDropDown TValue="ShiftRole" Data="@_availableRoles" @bind-Value="@ShiftParameter.Role">
-                    <Template Context="role">@(((ShiftRole)role).Name)</Template>
-                </RadzenDropDown>
+                <RadzenTextBox Name="End" Value="@ShiftParameter.Role!.Name" ReadOnly="true"/>
             }
         </div>
     </div>
@@ -49,36 +66,8 @@
         <div class="col">
             @if (isAllowedToEdit)
             {
-                <RadzenButton ButtonType="ButtonType.Submit" Text="Eintragen"/>
+                <RadzenButton ButtonType="ButtonType.Submit" Disabled="@(ShiftParameter.Role is null)" Text="Eintragen"/>
             }
         </div>
     </div>
 </RadzenTemplateForm>
-
-@code {
-
-
-    [Parameter]
-    public TemplateFormShiftParameter ShiftParameter { get; set; }
-
-    private bool isAllowedToEdit;
-
-    protected override void OnParametersSet()
-    {
-        if (ShiftParameter is null) throw new ArgumentNullException(nameof(ShiftParameter));
-        _availableRoles = ShiftParameter.Container.GetAvailableRolesAtGivenTime(ShiftParameter.StartTime).ToArray();
-
-        isAllowedToEdit = ShiftParameter.User.UserRole >= UserRoles.Manager
-                          || ShiftParameter.ShiftToEdit is null
-                          || (ShiftParameter.ShiftToEdit is {} shift && shift.User == ShiftParameter.User)
-            ;
-    }
-
-    void OnSubmit(TemplateFormShiftParameter model)
-    {
-        DialogService.Close(model);
-    }
-
-
-    private ShiftRole[] _availableRoles;
-}
