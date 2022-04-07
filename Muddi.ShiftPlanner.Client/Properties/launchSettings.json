@@ -8,6 +8,12 @@
     }
   },
   "profiles": {
+    "Watch": {
+      "commandName": "Executable",
+      "executablePath": "dotnet.exe",
+      "workingDirectory": "$(ProjectDir)",
+      "commandLineArgs": "watch run"
+    },
     "Muddi.ShiftPlanner.Client": {
       "commandName": "Project",
       "dotnetRunMessages": true,
