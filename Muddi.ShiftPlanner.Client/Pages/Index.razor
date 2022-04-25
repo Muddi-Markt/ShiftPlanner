@@ -1,13 +1,37 @@
 ﻿@page "/"
-
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject IAccessTokenProvider _accessTokenProvider;
+@inject NavigationManager _navigationManager;
 
 <PageTitle>Index</PageTitle>
 <AuthorizeView>
     <Authorized>
         Willkommen @context.User.Identity.Name
+        Dein Token: @_token
     </Authorized>
 
     <NotAuthorized>
         Du bist nicht eingeloggt!
+        <a href="/authentication/login">Login</a>
     </NotAuthorized>
 </AuthorizeView>
+
+@code{
+
+    private string _token;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var t = await _accessTokenProvider.RequestAccessToken();
+        if (t.TryGetToken(out var tok))
+            _token = tok.Value;
+        else
+        {
+            _token = $"Failed to obtain token. Status: {t.Status}";
+            Console.WriteLine(t.RedirectUrl);
+            if (t.Status == AccessTokenResultStatus.RequiresRedirect)
+                _navigationManager.NavigateTo(t.RedirectUrl);
+        }
+    }
+
+}

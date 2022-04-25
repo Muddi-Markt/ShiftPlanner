@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Authorization;
-
+﻿
 namespace Muddi.ShiftPlanner.Client;
 
 public static class MuddiConnectExtension
