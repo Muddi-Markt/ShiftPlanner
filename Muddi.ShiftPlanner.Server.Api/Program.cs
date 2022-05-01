@@ -1,6 +1,6 @@
 using FastEndpoints;
 using FastEndpoints.Security;
-using Muddi.ShiftPlaner.Server.Api.ExtensionMethods;
+using Muddi.ShiftPlanner.Server.Api.ExtensionMethods;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

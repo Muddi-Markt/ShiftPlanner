@@ -12,8 +12,9 @@ public static class MuddiConnectExtension
         services.AddOidcAuthentication(options =>
         {
             options.UserOptions.NameClaim = "preferred_username";
-
-            configuration.Bind(options.ProviderOptions);
+            
+            options.ProviderOptions.ClientId = configuration["MuddiConnect:Audience"];
+            options.ProviderOptions.Authority = configuration["MuddiConnect:Authority"];
             options.ProviderOptions.ResponseType = "code";
             options.ProviderOptions.DefaultScopes.Add("roles");
             options.ProviderOptions.DefaultScopes.Add("email");

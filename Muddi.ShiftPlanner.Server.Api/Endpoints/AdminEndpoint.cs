@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 
-namespace Muddi.ShiftPlaner.Server.Api.Endpoints;
+namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
 public class AdminEndpoint : EndpointWithoutRequest
 {

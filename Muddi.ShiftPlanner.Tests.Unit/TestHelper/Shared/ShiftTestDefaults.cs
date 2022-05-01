@@ -9,7 +9,7 @@ using Muddi.ShiftPlanner.Shared.Exceptions;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-namespace Muddi.ShiftPlaner.Tests.Unit.Shared;
+namespace Muddi.ShiftPlanner.Tests.Unit.Shared;
 
 public static class ShiftTestDefaults
 {

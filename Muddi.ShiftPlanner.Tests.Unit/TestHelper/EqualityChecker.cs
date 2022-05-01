@@ -3,7 +3,7 @@ using FluentAssertions;
 
 // ReSharper disable EqualExpressionComparison
 
-namespace Muddi.ShiftPlaner.Tests.Unit;
+namespace Muddi.ShiftPlanner.Tests.Unit;
 
 public static class EqualityChecker
 {

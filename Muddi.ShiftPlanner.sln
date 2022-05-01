@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{3173C7
 		docker\docker-compose.yml = docker\docker-compose.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlaner.Tests.Unit", "Muddi.ShiftPlaner.Tests.Unit\Muddi.ShiftPlaner.Tests.Unit.csproj", "{BC1DB81F-F177-434D-8266-11CF99880A0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Tests.Unit", "Muddi.ShiftPlanner.Tests.Unit\Muddi.ShiftPlanner.Tests.Unit.csproj", "{BC1DB81F-F177-434D-8266-11CF99880A0C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AC5258DF-B5A9-4510-89C5-B30C0DDB6846}"
 EndProject
@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{13B183
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{FE185E5A-869C-4D1A-8EC1-6CD8D2A409BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlaner.Server.Api", "Muddi.ShiftPlaner.Server.Api\Muddi.ShiftPlaner.Server.Api.csproj", "{86410B38-5695-4F50-BB3E-5C8C722C1CF2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Server.Api", "Muddi.ShiftPlanner.Server.Api\Muddi.ShiftPlanner.Server.Api.csproj", "{86410B38-5695-4F50-BB3E-5C8C722C1CF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

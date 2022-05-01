@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Muddi.ShiftPlaner.Server.Api.ExtensionMethods;
+namespace Muddi.ShiftPlanner.Server.Api.ExtensionMethods;
 
 public static class ServiceCollectionExtentions
 {
@@ -19,7 +19,7 @@ public static class ServiceCollectionExtentions
 		Go to Mapper
 		Create new
 		Select Audience
-		Included Custom Audience: shift-planner-api
+		Included Custom Audience: shift-planner
 		
 	*/
 	public static void AddAuthenticationMuddiConnect(this IServiceCollection services, IConfiguration configuration)
@@ -43,7 +43,7 @@ public static class ServiceCollectionExtentions
 					ValidIssuer = authority,
 
 					NameClaimType = "preferred_username",
-					ValidAudience = "shift-planner",
+					ValidAudience = muddiConfig["Audience"],
 					ValidateAudience = true,
 					ValidateLifetime = true,
 					ValidateIssuerSigningKey = true,

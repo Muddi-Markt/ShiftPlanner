@@ -5,7 +5,7 @@ using Muddi.ShiftPlanner.Shared.Entities;
 using Muddi.ShiftPlanner.Shared.Exceptions;
 using Xunit;
 
-namespace Muddi.ShiftPlaner.Tests.Unit.Shared;
+namespace Muddi.ShiftPlanner.Tests.Unit.Shared;
 
 using static ShiftTestDefaults;
 

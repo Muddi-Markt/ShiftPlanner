@@ -4,7 +4,7 @@ using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Exceptions;
 using Xunit;
 
-namespace Muddi.ShiftPlaner.Tests.Unit;
+namespace Muddi.ShiftPlanner.Tests.Unit;
 
 public class ExtensionTests
 {
