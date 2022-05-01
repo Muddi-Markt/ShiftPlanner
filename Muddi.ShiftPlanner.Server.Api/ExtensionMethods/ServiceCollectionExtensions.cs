@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Muddi.ShiftPlanner.Server.Api.ExtensionMethods;
 
-public static class ServiceCollectionExtentions
+public static class ServiceCollectionExtensions
 {
 	/*	To make this work you need to configure Keycloak first:
 	 

@@ -3,32 +3,32 @@ version: '3.6'
 services:
   keycloak:
     restart: unless-stopped
-    image: quay.io/keycloak/keycloak:15.0.2
-    command: -Dkeycloak.profile.feature.upload_scripts=enabled
+    image: quay.io/keycloak/keycloak:18.0
+    command: start-dev #see https://www.keycloak.org/server/configuration-production
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgresql
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
-      DB_PASSWORD: verySecurePasswordForDevelopment
+      DB_PASSWORD: superDuperSecret
       KEYCLOAK_LOGLEVEL: INFO
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
       - "28080:8080"
     depends_on:
       - postgresql
   postgresql:
-    image: postgres:13
+    image: postgres:14
     restart: unless-stopped
     environment:
-      POSTGRES_USER: keycloak
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: verySecurePasswordForDevelopment
-      POSTGRES_DB: keycloak
     ports:
       - "25432:5432"
     volumes:
       - postgresql_data:/var/lib/postgresql/data
+      - ./config/postgresql/initdb:/docker-entrypoint-initdb.d
 volumes:
   postgresql_data:

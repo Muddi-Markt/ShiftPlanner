@@ -13,8 +13,8 @@ public static class MuddiConnectExtension
         {
             options.UserOptions.NameClaim = "preferred_username";
             
-            options.ProviderOptions.ClientId = configuration["MuddiConnect:Audience"];
-            options.ProviderOptions.Authority = configuration["MuddiConnect:Authority"];
+            options.ProviderOptions.ClientId = configuration["Audience"];
+            options.ProviderOptions.Authority = configuration["Authority"];
             options.ProviderOptions.ResponseType = "code";
             options.ProviderOptions.DefaultScopes.Add("roles");
             options.ProviderOptions.DefaultScopes.Add("email");
