@@ -7,11 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="FastEndpoints" Version="4.0.0" />
+      <PackageReference Include="FastEndpoints" Version="4.1.0" />
       <PackageReference Include="FastEndpoints.Security" Version="4.0.0" />
+      <PackageReference Include="FastEndpoints.Swagger" Version="4.1.0" />
+      <PackageReference Include="Mapster" Version="7.3.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.4">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Serilog" Version="2.10.0" />
       <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Muddi.ShiftPlanner.Server.Database\Muddi.ShiftPlanner.Server.Database.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,8 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Muddi.ShiftPlanner.Server.Api.Filters;
+using Muddi.ShiftPlanner.Server.Database.Contexts;
 
 namespace Muddi.ShiftPlanner.Server.Api.ExtensionMethods;
 
@@ -70,5 +72,10 @@ public static class ServiceCollectionExtensions
 					}
 				};
 			});
+	}
+
+	public static void AddDatabaseMigrations(this IServiceCollection services)
+	{
+		services.AddTransient<IStartupFilter, DatabaseMigrationStartupFilter<ShiftPlannerContext>>();
 	}
 }
