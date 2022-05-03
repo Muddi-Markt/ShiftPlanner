@@ -1,0 +1,42 @@
+﻿using Mapster;
+using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Muddi.ShiftPlanner.Server.Database.Entities;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.Locations;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Locations;
+
+namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations;
+
+public class CreateEndpoint : CrudCreateEndpoint<CreateLocationRequest, GetLocationResponse, GetEndpoint>
+{
+	public CreateEndpoint(ShiftPlannerContext database) : base(database)
+	{
+	}
+
+	protected override void CrudConfigure()
+	{
+		Post("/locations");
+		Options(t => t.Produces(StatusCodes.Status404NotFound));
+	}
+
+	public override async Task<GetLocationResponse?> CrudExecuteAsync(CreateLocationRequest req, CancellationToken ct)
+	{
+		var type = await Database.ShiftLocationTypes.FirstOrDefaultAsync(t => t.Id == req.TypeId, ct);
+		if (type is null)
+		{
+			await SendNotFoundAsync(nameof(req.TypeId));
+			return null;
+		}
+
+		var location = new ShiftLocation
+		{
+			Id = Guid.NewGuid(),
+			Name = req.Name,
+			Type = type,
+			Containers = new List<ShiftContainer>()
+		};
+		Database.Add(location);
+		await Database.SaveChangesAsync(ct);
+		return location.Adapt<GetLocationResponse>();
+	}
+}
