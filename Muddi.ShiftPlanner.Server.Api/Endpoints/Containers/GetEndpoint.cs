@@ -1,7 +1,6 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Containers;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
 
@@ -18,7 +17,8 @@ public class GetEndpoint : CrudGetEndpoint<GetContainerResponse>
 
 	public override async Task<GetContainerResponse?> MuddiExecuteAsync(Guid id, CancellationToken ct)
 		=> (await Database.Containers
-				.Include(t => t.ShiftFramework)
+				.Include(t => t.Framework)
+				.ThenInclude(f => f.ShiftTypeCounts)
 				.FirstOrDefaultAsync(l => l.Id == id, cancellationToken: ct))
 			?.Adapt<GetContainerResponse>();
 }

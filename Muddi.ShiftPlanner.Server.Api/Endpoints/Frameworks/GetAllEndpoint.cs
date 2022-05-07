@@ -1,12 +1,11 @@
-﻿using Mapster;
+﻿using FastEndpoints;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Containers;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Frameworks;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Frameworks;
 
-public class GetAllEndpoint : CrudGetAllEndpoint<GetFrameworkResponse>
+public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetFrameworkResponse>
 {
 	public GetAllEndpoint(ShiftPlannerContext database) : base(database)
 	{
@@ -17,11 +16,11 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetFrameworkResponse>
 		Get("/frameworks");
 	}
 
-	public override async Task<ICollection<GetFrameworkResponse>> CrudExecuteAsync(CancellationToken ct)
+	public override async Task<List<GetFrameworkResponse>> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
 	{
 		return await Database.ShiftFrameworks
 			.Include(t => t.ShiftTypeCounts)
 			.Select(t => t.Adapt<GetFrameworkResponse>())
-			.ToArrayAsync(cancellationToken: ct);
+			.ToListAsync(cancellationToken: ct);
 	}
 }

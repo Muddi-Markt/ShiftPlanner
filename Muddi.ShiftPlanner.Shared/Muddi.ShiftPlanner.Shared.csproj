@@ -10,5 +10,8 @@
             <_Parameter1>Muddi.ShiftPlaner.Tests.Unit</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Refit" Version="6.3.2" />
+    </ItemGroup>
 
 </Project>

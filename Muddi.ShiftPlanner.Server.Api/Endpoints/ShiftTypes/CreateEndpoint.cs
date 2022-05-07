@@ -1,5 +1,4 @@
 ﻿using Mapster;
-using Muddi.ShiftPlanner.Server.Api.Contracts.Requests;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
 
@@ -27,9 +26,4 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateShiftTypeRequest, GetShif
 		await Database.SaveChangesAsync(ct);
 		return type.Adapt<GetShiftTypesResponse>();
 	}
-}
-
-public class CreateShiftTypeRequest
-{
-	public string Name { get; set; }
 }

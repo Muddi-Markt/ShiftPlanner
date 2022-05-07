@@ -1,8 +1,6 @@
 ﻿using Mapster;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.LocationTypes;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.LocationTypes;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.LocationTypes;
 

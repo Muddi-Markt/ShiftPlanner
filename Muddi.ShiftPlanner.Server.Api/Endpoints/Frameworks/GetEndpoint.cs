@@ -1,7 +1,6 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Frameworks;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Frameworks;
 

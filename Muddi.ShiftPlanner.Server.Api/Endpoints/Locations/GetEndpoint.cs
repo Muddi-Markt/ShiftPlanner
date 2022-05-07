@@ -1,7 +1,6 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Locations;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations;
 
@@ -20,7 +19,7 @@ public class GetEndpoint : CrudGetEndpoint<GetLocationResponse>
 		(await Database.ShiftLocations
 			.Include(t => t.Type)
 			.Include(t => t.Containers)
-			.ThenInclude(c => c.ShiftFramework)
+			.ThenInclude(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)
 			.FirstOrDefaultAsync(l => l.Id == id, cancellationToken: ct))
 		?.Adapt<GetLocationResponse>();

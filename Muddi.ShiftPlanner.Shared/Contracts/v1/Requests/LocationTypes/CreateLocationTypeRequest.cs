@@ -1,4 +1,4 @@
-﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.LocationTypes;
+﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 
 public class CreateLocationTypeRequest
 {

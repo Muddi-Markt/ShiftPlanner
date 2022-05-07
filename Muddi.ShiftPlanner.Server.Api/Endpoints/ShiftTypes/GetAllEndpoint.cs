@@ -1,12 +1,11 @@
 ﻿using FastEndpoints;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Muddi.ShiftPlanner.Server.Api.Contracts.Responses;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.ShiftTypes;
 
-public class GetAllEndpoint : CrudGetAllEndpoint<GetShiftTypesResponse>
+public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetShiftTypesResponse>
 {
 	public GetAllEndpoint(ShiftPlannerContext database) : base(database)
 	{
@@ -17,8 +16,10 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetShiftTypesResponse>
 		Get("/shift-types");
 	}
 
-	public override async Task<ICollection<GetShiftTypesResponse>> CrudExecuteAsync(CancellationToken ct)
+	public override async Task<List<GetShiftTypesResponse>> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
 	{
-		return await Database.ShiftLocationTypes.Select(t => t.Adapt<GetShiftTypesResponse>()).ToArrayAsync(ct);
+		return await Database.ShiftTypes
+			.Select(t => t.Adapt<GetShiftTypesResponse>())
+			.ToListAsync(ct);
 	}
 }

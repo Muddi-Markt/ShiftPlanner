@@ -1,9 +1,7 @@
-﻿using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Frameworks;
-
-namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.Frameworks;
+﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 
 public class CreateFrameworkRequest
 {
-	public int TimePerShift { get; set; }
+	public int SecondsPerShift { get; set; }
 	public IList<ShiftFrameworkTypeCountDto> TypeCounts { get; set; }
 }

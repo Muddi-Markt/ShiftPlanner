@@ -1,8 +1,6 @@
 ﻿using Mapster;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.Frameworks;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Frameworks;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Frameworks;
 
@@ -22,7 +20,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateFrameworkRequest, GetFram
 		var framework = new ShiftFramework
 		{
 			Id = Guid.NewGuid(),
-			TimePerShift = req.TimePerShift,
+			SecondsPerShift = req.SecondsPerShift,
 			ShiftTypeCounts = new List<ShiftFrameworkTypeCount>()
 		};
 		framework.ShiftTypeCounts.AddRange(req.TypeCounts.Select(t => new ShiftFrameworkTypeCount()

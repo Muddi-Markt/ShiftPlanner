@@ -1,11 +1,11 @@
-﻿using Mapster;
+﻿using FastEndpoints;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Locations;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations;
 
-public class GetAllEndpoint : CrudGetAllEndpoint<GetLocationResponse>
+public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetLocationResponse>
 {
 	public GetAllEndpoint(ShiftPlannerContext database) : base(database)
 	{
@@ -16,13 +16,12 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetLocationResponse>
 		Get("/locations");
 	}
 
-	public override async Task<ICollection<GetLocationResponse>> CrudExecuteAsync(CancellationToken ct) =>
+	public override async Task<List<GetLocationResponse>> CrudExecuteAsync(EmptyRequest _, CancellationToken ct) =>
 		await Database.ShiftLocations
 			.Include(t => t.Type)
 			.Include(t => t.Containers)
-			.ThenInclude(c => c.ShiftFramework)
+			.ThenInclude(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)
 			.Select(t => t.Adapt<GetLocationResponse>())
-			.ToArrayAsync(cancellationToken: ct);
-	
+			.ToListAsync(cancellationToken: ct);
 }

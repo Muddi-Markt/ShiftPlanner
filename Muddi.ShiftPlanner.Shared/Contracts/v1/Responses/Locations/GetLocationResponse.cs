@@ -1,8 +1,4 @@
-﻿using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Containers;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Frameworks;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.LocationTypes;
-
-namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Locations;
+﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 
 public class GetLocationResponse : IMuddiResponse
 {

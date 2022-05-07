@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.Containers;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Containers;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
 
@@ -34,8 +32,9 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 		{
 			Id = Guid.NewGuid(),
 			Start = req.Start,
+			End = req.Start + framework.TimePerShift * req.TotalShifts,
 			TotalShifts = req.TotalShifts,
-			ShiftFramework = framework
+			Framework = framework
 		};
 
 		Database.Containers.Add(container);

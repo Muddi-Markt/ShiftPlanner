@@ -1,7 +1,4 @@
-﻿using FastEndpoints;
-using Muddi.ShiftPlanner.Server.Api.Contracts.Requests;
-using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
+﻿using Muddi.ShiftPlanner.Server.Database.Contexts;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
@@ -9,6 +6,7 @@ public abstract class CrudGetEndpoint<TResponse> : CrudEndpoint<DefaultGetReques
 	where TResponse : notnull, new()
 {
 	public abstract Task<TResponse?> MuddiExecuteAsync(Guid id, CancellationToken ct);
+
 	public override void Configure()
 	{
 		Options(t =>

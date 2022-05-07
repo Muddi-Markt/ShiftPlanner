@@ -1,4 +1,4 @@
-﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.Locations;
+﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 
 public class AddLocationsContainerRequest
 {

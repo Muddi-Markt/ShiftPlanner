@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests.Locations;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Locations;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations;
 

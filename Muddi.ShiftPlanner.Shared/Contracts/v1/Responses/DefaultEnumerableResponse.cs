@@ -1,6 +1,6 @@
-﻿namespace Muddi.ShiftPlanner.Server.Api.Contracts.Responses;
+﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 
 public class DefaultEnumerableResponse<TResponse>
 {
-	public IEnumerable<TResponse> Data { get; set; }
+	public ICollection<TResponse> Data { get; set; }
 }
