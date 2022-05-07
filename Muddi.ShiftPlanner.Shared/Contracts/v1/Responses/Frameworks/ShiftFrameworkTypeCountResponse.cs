@@ -1,7 +1,7 @@
 ﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 
-public class ShiftFrameworkTypeCountDto
+public class ShiftFrameworkTypeCountResponse
 {
-	public Guid ShiftTypeId { get; set; }
+	public GetShiftTypesResponse ShiftType { get; set; }
 	public int Count { get; set; }
 }

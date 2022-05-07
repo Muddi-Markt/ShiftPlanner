@@ -20,6 +20,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetFrameworkRespo
 	{
 		return await Database.ShiftFrameworks
 			.Include(t => t.ShiftTypeCounts)
+			.ThenInclude(c => c.ShiftType)
 			.Select(t => t.Adapt<GetFrameworkResponse>())
 			.ToListAsync(cancellationToken: ct);
 	}

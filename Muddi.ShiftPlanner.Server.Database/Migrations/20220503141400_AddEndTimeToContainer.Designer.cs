@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Muddi.ShiftPlanner.Server.Database.Migrations
 {
     [DbContext(typeof(ShiftPlannerContext))]
-    partial class ShiftPlannerContextModelSnapshot : ModelSnapshot
+    [Migration("20220503141400_AddEndTime ToContainer")]
+    partial class AddEndTimeToContainer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,11 +109,6 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
                     b.Property<int>("SecondsPerShift")
                         .HasColumnType("integer")
                         .HasColumnName("seconds_per_shift");
@@ -146,9 +143,6 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
 
                     b.HasIndex("ShiftFrameworkId")
                         .HasDatabaseName("ix_shift_framework_type_count_shift_framework_id");
-
-                    b.HasIndex("ShiftTypeId")
-                        .HasDatabaseName("ix_shift_framework_type_count_shift_type_id");
 
                     b.ToTable("shift_framework_type_count", (string)null);
                 });
@@ -250,23 +244,12 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
 
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.ShiftFrameworkTypeCount", b =>
                 {
-                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.ShiftFramework", "ShiftFramework")
+                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.ShiftFramework", null)
                         .WithMany("ShiftTypeCounts")
                         .HasForeignKey("ShiftFrameworkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_shift_framework_type_count_shift_frameworks_shift_framework_id");
-
-                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.ShiftType", "ShiftType")
-                        .WithMany()
-                        .HasForeignKey("ShiftTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_shift_framework_type_count_shift_types_shift_type_id");
-
-                    b.Navigation("ShiftFramework");
-
-                    b.Navigation("ShiftType");
+                        .HasConstraintName("fk_shift_framework_type_count_shift_frameworks_shift_framework");
                 });
 
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.ShiftLocation", b =>
