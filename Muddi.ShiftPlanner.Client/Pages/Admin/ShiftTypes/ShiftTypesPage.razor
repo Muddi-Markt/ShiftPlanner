@@ -1,0 +1,26 @@
+﻿@page "/admin/shift-types"
+@inherits GetAllPageBase<GetShiftTypesResponse, CreateShiftTypeDialog>
+
+<RadzenButton Icon="add" Click="Create"></RadzenButton>
+<RadzenDataGrid @ref="DataGrid" TItem="GetShiftTypesResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">
+    <Columns>
+        <RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Delete" Width="70px">
+            <Template>
+                <RadzenButton Icon="delete" Click="@(() => DeleteItem(context, context.Name))"></RadzenButton>
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Name">
+            <Template>@context.Name</Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+
+    protected override Task<IReadOnlyCollection<GetShiftTypesResponse>> LoadData() => ShiftApi.ShiftTypesGetAll();
+    protected override string NameOfEntity => "Schicht Typ";
+    protected override Task Delete(GetShiftTypesResponse request) => ShiftApi.DeleteShiftType(request.Id);
+
+}

@@ -1,0 +1,80 @@
+﻿@page "/admin/locations"
+@using Muddi.ShiftPlanner.Shared.Api
+@inject IMuddiShiftApi ShiftApi;
+@inject DialogService DialogService;
+
+<RadzenButton Icon="add" Click="CreateLocation"></RadzenButton>
+<RadzenDataGrid @ref="_dataGrid" TItem="GetLocationResponse" Data="@_data" LoadData="LoadData" IsLoading="@_isLoading">
+    <Columns>
+        <RadzenDataGridColumn TItem="GetLocationResponse" Title="Delete" Width="70px">
+            <Template><RadzenButton Icon="delete" Click="() => DeleteItem(context)"></RadzenButton></Template>
+        </RadzenDataGridColumn>
+        
+        <RadzenDataGridColumn TItem="GetLocationResponse" Title="Name">
+            <Template>@context.Name</Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="GetLocationResponse" Title="Typ">
+            <Template>@context.Type.Name</Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    private IEnumerable<GetLocationResponse> _data;
+    private bool _isLoading;
+
+
+    private async Task LoadData(LoadDataArgs obj)
+    {
+        _isLoading = true;
+        try
+        {
+            _data = await ShiftApi.LocationsGetAll();
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Confirm(ex.Message, "Failed to fetch data");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateLocation()
+    {
+        if (await DialogService.OpenAsync<CreateLocationDialog>("Create Location") is true)
+        {
+            ReloadData();
+        }
+    }
+
+    private RadzenDataGrid<GetLocationResponse>? _dataGrid;
+
+    private async Task DeleteItem(GetLocationResponse getLocationResponse)
+    {
+        if (await DialogService.Confirm($"Are you sure that you want delete {getLocationResponse.Name}? This can't be undone.") is true)
+        {
+            try
+            {
+                await ShiftApi.DeleteLocationAsync(getLocationResponse.Id);
+                ReloadData();
+                
+            }
+            catch (Refit.ApiException ex)
+            {
+                await DialogService.Confirm(ex.Message);
+            }
+        }
+        
+    }
+
+    private void ReloadData()
+    {
+        if (_dataGrid is null)
+            return;
+        _dataGrid.Reload();
+    }
+
+}

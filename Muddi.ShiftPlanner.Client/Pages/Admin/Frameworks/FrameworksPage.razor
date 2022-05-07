@@ -1,0 +1,45 @@
+﻿@page "/admin/frameworks"
+@inherits GetAllPageBase<GetFrameworkResponse, CreateFrameworkDialog>
+
+<RadzenButton Icon="add" Click="Create"></RadzenButton>
+<RadzenButton Icon="refresh" Click="LoadGridData"></RadzenButton>
+<RadzenDataGrid @ref="DataGrid" TItem="GetFrameworkResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">
+    <Columns>
+        <RadzenDataGridColumn TItem="GetFrameworkResponse" Title="Aktion" Width="100px">
+            <Template>
+                <RadzenButton Icon="edit" Click="@(() => Edit(context))"></RadzenButton>
+                <RadzenButton Icon="delete" Style="background: #f00" Click="@(() => DeleteItem(context, context.Name))"></RadzenButton>
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="GetFrameworkResponse" Title="Name">
+            <Template>@context.Name</Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="GetFrameworkResponse" Title="Zeit pro Schicht">
+            <Template>@TimeSpan.FromSeconds(context.SecondsPerShift).ToString()</Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="GetFrameworkResponse" Title="Zu vergebene Schichten">
+
+            <Template>
+                <div>
+                    @foreach (var type in context.ShiftTypeCounts)
+                    {
+                        <div>@($"{type.Count}x {type.ShiftType.Name}")</div>
+                    }
+                </div>
+
+            </Template>
+        </RadzenDataGridColumn>
+
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+
+    protected override Task<IReadOnlyCollection<GetFrameworkResponse>> LoadData() => ShiftApi.FrameworksGetAll();
+    protected override string NameOfEntity => "Framework";
+    protected override Task Delete(GetFrameworkResponse request) => ShiftApi.DeleteFramework(request.Id);
+
+}
