@@ -5,7 +5,7 @@ using Muddi.ShiftPlanner.Shared.Entities;
 // ReSharper disable once CheckNamespace
 namespace Muddi.ShiftPlanner.Tests.Unit.Shared;
 
-public class TestUser : WorkingUserBase, IEquatable<TestUser>
+public class TestUser : EmployeeBase, IEquatable<TestUser>
 {
 	public TestUser(string name) : base(Guid.NewGuid(), name)
 	{
@@ -14,5 +14,5 @@ public class TestUser : WorkingUserBase, IEquatable<TestUser>
 	{
 	}
 
-	public bool Equals(TestUser? other) => Equals((WorkingUserBase?)other);
+	public bool Equals(TestUser? other) => Equals((EmployeeBase?)other);
 }

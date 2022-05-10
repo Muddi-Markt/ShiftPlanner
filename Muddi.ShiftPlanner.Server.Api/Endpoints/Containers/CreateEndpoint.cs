@@ -27,6 +27,15 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 			await SendNotFoundAsync(nameof(req.FrameworkId));
 			return null;
 		}
+		
+		var location = await Database.ShiftLocations
+			.Include(t => t.Containers)
+			.FirstOrDefaultAsync(t => t.Id == req.LocationId, cancellationToken: ct);
+		if (location is null)
+		{
+			await SendNotFoundAsync(nameof(req.LocationId));
+			return null;
+		}
 
 		var container = new ShiftContainer
 		{
@@ -34,10 +43,12 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 			Start = req.Start,
 			End = req.Start + framework.TimePerShift * req.TotalShifts,
 			TotalShifts = req.TotalShifts,
-			Framework = framework
+			Framework = framework,
 		};
 
+		
 		Database.Containers.Add(container);
+		location.Containers.Add(container);
 		await Database.SaveChangesAsync(ct);
 		return container.Adapt<GetContainerResponse>();
 	}

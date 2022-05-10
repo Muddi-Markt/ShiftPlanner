@@ -1,10 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Muddi.ShiftPlanner.Server.Api.Filters;
+using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Refit;
 
-namespace Muddi.ShiftPlanner.Server.Api.ExtensionMethods;
+namespace Muddi.ShiftPlanner.Server.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -23,15 +24,25 @@ public static class ServiceCollectionExtensions
 		Select Audience
 		Included Custom Audience: shift-planner
 		
+		*** Add User with view-users roles ***
+		btw: This is sooo stupid... I dont know why, but since Version 17 or so of fckn Keycloak
+		it is not possible anymore to login with the admin user... nvm, here is how to solve it:
+		Create User 
+		Edit User and set password
+		Go to Role Mapping
+		Client Roles: realm-managment
+		Add view-users
+		This will be the AdminUser and AdminPassword
 	*/
 	public static void AddAuthenticationMuddiConnect(this IServiceCollection services, IConfiguration configuration)
 	{
 		var muddiConfig = configuration.GetSection("MuddiConnect");
+		var authority = muddiConfig["Authority"];
+		services.AddSingleton<KeycloakService>();
+
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(o =>
 			{
-				var authority = muddiConfig["Authority"];
-
 				o.MetadataAddress = authority.TrimEnd('/') + "/.well-known/openid-configuration";
 				o.RequireHttpsMetadata = false;
 				o.SaveToken = true;
@@ -57,22 +68,23 @@ public static class ServiceCollectionExtensions
 					OnForbidden = c => { return c.Response.WriteAsync("You do not have the rights to access this entity"); },
 					OnAuthenticationFailed = c =>
 					{
-						c.NoResult();
-
-						c.Response.StatusCode = 500;
-						c.Response.ContentType = "text/plain";
-
-
 						// if (Environment.IsDevelopment())
 						// {
 						// 	return c.Response.WriteAsync(c.Exception.ToString());
 						// }
 
-						return c.Response.WriteAsync(c.Exception.Message);
+						return Task.CompletedTask;
 					}
 				};
 			});
 	}
+
+	private static RefitSettings? KeycloakSettings(IServiceProvider arg)
+	{
+		var service = arg.GetService<KeycloakService>();
+		return new RefitSettings { AuthorizationHeaderValueGetter = service.GetToken };
+	}
+
 
 	public static void AddDatabaseMigrations(this IServiceCollection services)
 	{

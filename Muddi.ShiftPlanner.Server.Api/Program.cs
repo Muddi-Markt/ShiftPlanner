@@ -2,7 +2,7 @@ using System.Data.Common;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
-using Muddi.ShiftPlanner.Server.Api.ExtensionMethods;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Extensions;
 using Npgsql;
 using Serilog;

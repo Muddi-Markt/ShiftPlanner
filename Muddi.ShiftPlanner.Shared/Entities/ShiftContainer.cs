@@ -6,6 +6,7 @@ namespace Muddi.ShiftPlanner.Shared.Entities;
 
 public class ShiftContainer
 {
+	public Guid Id { get; }
 	public DateTime StartTime { get; }
 	public DateTime EndTime { get; }
 	public TimeSpan TotalTime { get; }
@@ -13,12 +14,13 @@ public class ShiftContainer
 	public ShiftFramework Framework { get; }
 	public IEnumerable<DateTime> ShiftStartTimes => _shifts.Keys;
 
-	public ShiftContainer(ShiftFramework framework, DateTime startTime, int totalShifts)
+	public ShiftContainer(Guid id, ShiftFramework framework, DateTime startTime, int totalShifts)
 	{
 		StartTime = startTime.ThrowIfNotUtc();
 		EndTime = startTime + framework.TimePerShift * totalShifts;
 		TotalTime = EndTime - StartTime;
 		TotalShifts = totalShifts;
+		Id = id;
 		Framework = framework;
 		_shifts = StartTimes()
 			.ToImmutableSortedDictionary(v => v, k => (ICollection<Shift>)new List<Shift>());
@@ -45,7 +47,7 @@ public class ShiftContainer
 		if (collection.Any(t => t.StartTime == shift.StartTime
 		                        && t.User == shift.User))
 			throw new UserAlreadyAssignedException(shift);
-		if (collection.Count(t => t.Role == shift.Role) >= Framework.GetCountForRole(shift.Role))
+		if (collection.Count(t => t.Type == shift.Type) >= Framework.GetCountForRole(shift.Type))
 			throw new TooManyWorkersException(shift);
 
 		collection.Add(shift);
@@ -61,12 +63,12 @@ public class ShiftContainer
 		return _shifts[startTime].ToImmutableArray();
 	}
 
-	public IEnumerable<ShiftRole> GetAvailableRolesAtGivenTime(DateTime startTime)
+	public IEnumerable<ShiftType> GetAvailableRolesAtGivenTime(DateTime startTime)
 	{
-		var rolesCount = new Dictionary<ShiftRole, int>(Framework.RolesCount);
+		var rolesCount = new Dictionary<ShiftType, int>(Framework.RolesCount);
 		foreach (var shift in _shifts[startTime])
 		{
-			rolesCount[shift.Role]--;
+			rolesCount[shift.Type]--;
 		}
 
 		return rolesCount.Where(t => t.Value > 0).Select(t => t.Key);

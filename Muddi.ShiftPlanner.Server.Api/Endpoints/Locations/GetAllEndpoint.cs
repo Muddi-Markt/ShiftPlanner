@@ -18,8 +18,8 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetLocationRespon
 
 	public override async Task<List<GetLocationResponse>> CrudExecuteAsync(EmptyRequest _, CancellationToken ct) =>
 		await Database.ShiftLocations
-			.Include(t => t.Type)
-			.Include(t => t.Containers)
+			.Include(l => l.Type)
+			.Include(l => l.Containers.OrderBy(q => q.Start))
 			.ThenInclude(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)
 			.Select(t => t.Adapt<GetLocationResponse>())

@@ -2,25 +2,25 @@ namespace Muddi.ShiftPlanner.Shared.Entities;
 
 public class Shift : IEquatable<Shift>
 {
-	internal Shift(WorkingUserBase user, DateTime startTime, DateTime endTime, ShiftRole role)
+	internal Shift(EmployeeBase user, DateTime startTime, DateTime endTime, ShiftType type)
 	{
 		User = user;
 		StartTime = startTime;
 		EndTime = endTime;
-		Role = role;
+		Type = type;
 	}
 
-	public string Title => (User.Name.Contains(' ') ? User.Name[..User.Name.IndexOf(' ')] : User.Name) + "\n" + Role.Name;
-	public WorkingUserBase User { get; }
+	public string Title => (User.Name.Contains(' ') ? User.Name[..User.Name.IndexOf(' ')] : User.Name) + "\n" + Type.Name;
+	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }
 	public DateTime EndTime { get; }
-	public ShiftRole Role { get; }
+	public ShiftType Type { get; }
 
 	public bool Equals(Shift? other)
 	{
 		if (ReferenceEquals(null, other)) return false;
 		if (ReferenceEquals(this, other)) return true;
-		return User.Equals(other.User) && StartTime.Equals(other.StartTime) && EndTime.Equals(other.EndTime) && Role.Equals(other.Role);
+		return User.Equals(other.User) && StartTime.Equals(other.StartTime) && EndTime.Equals(other.EndTime) && Type.Equals(other.Type);
 	}
 
 	public override bool Equals(object? obj)
@@ -33,7 +33,7 @@ public class Shift : IEquatable<Shift>
 
 	public override int GetHashCode()
 	{
-		return HashCode.Combine(User, StartTime, EndTime, Role);
+		return HashCode.Combine(User, StartTime, EndTime, Type);
 	}
 
 	public static bool operator ==(Shift? left, Shift? right)

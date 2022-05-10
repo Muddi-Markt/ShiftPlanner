@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Muddi.ShiftPlanner.Shared.Exceptions;
 using Radzen;
@@ -14,29 +15,31 @@ namespace Muddi.ShiftPlanner.Client.Pages.Locations;
 public partial class PlacesPage
 {
 	[Inject] private DialogService DialogService { get; set; } = default!;
+	[Inject] private IShiftService ShiftService { get; set; } = default!;
 	[Parameter] public Guid Id { get; set; }
 	[CascadingParameter] public Task<AuthenticationState> AuthenticationState { get; set; }
 
 	private ShiftLocation _location;
 	private MuddiConnectUser _user;
 
-	private IEnumerable<Shift> Appointments => _location.GetAllShifts();
+	private IEnumerable<Shift> Shifts { get; set; }
 
 	private RadzenScheduler<Shift> _scheduler;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		var state = await AuthenticationState;
-		_location = await ShiftMockService.GetPlaceByIdAsync(Id);
+		_location = await ShiftService.GetLocationsByIdAsync(Id);
 		_user = MuddiConnectUser.CreateFromClaimsPrincipal(state.User);
 		_frameworkBackgroundColors.Reset();
 		_shiftRoleBackgroundColors.Reset();
+		Shifts = await ShiftService.GetAllShiftsFromLocationAsync(Id);
 	}
 
 
 	private async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
 	{
-		var container = _location.GetShiftContainerByTime(args.Start);
+		ShiftContainer container = _location.GetShiftContainerByTime(args.Start);
 		DateTime startTime = container.GetBestShiftStartTimeForTime(args.Start);
 		var parameter = new TemplateFormShiftParameter(container, _user, startTime);
 		TemplateFormShiftParameter data = await DialogService.OpenAsync<EditShiftComponent>("Füge Schicht hinzu",
@@ -78,7 +81,7 @@ public partial class PlacesPage
 	{
 		// Never call StateHasChanged in AppointmentRender - would lead to infinite loop
 
-		args.Attributes["style"] = $"background: {_shiftRoleBackgroundColors.GetColor(args.Data.Role)}";
+		args.Attributes["style"] = $"background: {_shiftRoleBackgroundColors.GetColor(args.Data.Type)}";
 	}
 
 	private void OnSlotRender(SchedulerSlotRenderEventArgs args)
@@ -112,7 +115,7 @@ public partial class PlacesPage
 		"rgba(255,0,0,.4)"
 	});
 
-	private readonly ColorSelector<ShiftRole> _shiftRoleBackgroundColors = new(new[]
+	private readonly ColorSelector<ShiftType> _shiftRoleBackgroundColors = new(new[]
 	{
 		"rgba(255,40,220)",
 		"rgba(0,0,200)",

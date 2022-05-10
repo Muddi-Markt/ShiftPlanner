@@ -19,7 +19,7 @@ public partial class EditShiftComponent
 		                  || ShiftParameter.ShiftToEdit is null
 		                  || (ShiftParameter.ShiftToEdit is { } shift && shift.User == ShiftParameter.User);
 
-		ShiftParameter.Role ??= ShiftParameter.ShiftToEdit?.Role ?? _availableRoles.FirstOrDefault();
+		ShiftParameter.Role ??= ShiftParameter.ShiftToEdit?.Type ?? _availableRoles.FirstOrDefault();
 		
 		if (isAllowedToEdit && ShiftParameter.Role is not null && !_availableRoles.Contains(ShiftParameter.Role))
 			_availableRoles.Add(ShiftParameter.Role);
@@ -31,5 +31,5 @@ public partial class EditShiftComponent
 	}
 
 
-	private List<ShiftRole> _availableRoles = new();
+	private List<ShiftType> _availableRoles = new();
 }

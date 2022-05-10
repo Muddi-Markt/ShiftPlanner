@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Muddi.ShiftPlanner.Client;
+using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.Api;
 using Refit;
 
@@ -13,6 +14,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddRadzen();
 builder.Services.AddMuddiConnect(builder.Configuration.GetSection("MuddiConnect"));
+builder.Services.AddScoped<IShiftService,ShiftService>();
 
 builder.Services
 	.AddRefitClient<IMuddiShiftApi>()

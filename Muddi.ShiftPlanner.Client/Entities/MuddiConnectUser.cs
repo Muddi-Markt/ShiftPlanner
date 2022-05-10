@@ -7,7 +7,7 @@ using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Entities;
 
-public sealed class MuddiConnectUser : WorkingUserBase
+public sealed class MuddiConnectUser : EmployeeBase
 {
 	private MuddiConnectUser(Guid keycloakId, string name, string email) : base(keycloakId, name)
 	{

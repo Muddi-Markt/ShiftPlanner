@@ -1,6 +1,6 @@
 namespace Muddi.ShiftPlanner.Shared.Entities;
 
-public record ShiftRole(Guid Id, string Name);
+public record ShiftType(Guid Id, string Name);
 
 public enum UserRoles
 {
@@ -10,9 +10,16 @@ public enum UserRoles
 	Admin
 }
 
-public abstract class WorkingUserBase : IEquatable<WorkingUserBase>
+public class Employee : EmployeeBase
 {
-	public WorkingUserBase(Guid keycloakId, string name)
+	public Employee(Guid keycloakId, string name) : base(keycloakId, name)
+	{
+	}
+}
+
+public abstract class EmployeeBase : IEquatable<EmployeeBase>
+{
+	public EmployeeBase(Guid keycloakId, string name)
 	{
 		UserRole = UserRoles.Worker; //TODO make roles with keycloak
 		KeycloakId = keycloakId;
@@ -25,7 +32,7 @@ public abstract class WorkingUserBase : IEquatable<WorkingUserBase>
 	public UserRoles UserRole { get; }
 
 
-	public bool Equals(WorkingUserBase? other)
+	public bool Equals(EmployeeBase? other)
 	{
 		if (ReferenceEquals(null, other)) return false;
 		if (ReferenceEquals(this, other)) return true;
@@ -37,7 +44,7 @@ public abstract class WorkingUserBase : IEquatable<WorkingUserBase>
 		if (ReferenceEquals(null, obj)) return false;
 		if (ReferenceEquals(this, obj)) return true;
 		if (obj.GetType() != GetType()) return false;
-		return Equals((WorkingUserBase)obj);
+		return Equals((EmployeeBase)obj);
 	}
 
 	public override int GetHashCode()
@@ -45,12 +52,12 @@ public abstract class WorkingUserBase : IEquatable<WorkingUserBase>
 		return KeycloakId.GetHashCode();
 	}
 
-	public static bool operator ==(WorkingUserBase? left, WorkingUserBase? right)
+	public static bool operator ==(EmployeeBase? left, EmployeeBase? right)
 	{
 		return Equals(left, right);
 	}
 
-	public static bool operator !=(WorkingUserBase? left, WorkingUserBase? right)
+	public static bool operator !=(EmployeeBase? left, EmployeeBase? right)
 	{
 		return !Equals(left, right);
 	}

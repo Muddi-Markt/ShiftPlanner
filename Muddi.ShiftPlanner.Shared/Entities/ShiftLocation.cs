@@ -8,19 +8,20 @@ public class ShiftLocation
 	public static string LocationsPath = "/locations/{0}";
 	public Guid Id { get; }
 	public string Name { get; }
-	public ShiftLocationTypes Type { get; }
+	public GetLocationTypesResponse Type { get; }
 	public string Path { get; }
 	public string? Icon { get; }
 	public IReadOnlyList<ShiftContainer> Containers => _containers;
 	
-	private readonly List<ShiftContainer> _containers = new();
+	private readonly List<ShiftContainer> _containers;
 
-	public ShiftLocation(string name, ShiftLocationTypes type)
+	public ShiftLocation(Guid id, string name, GetLocationTypesResponse type, IEnumerable<ShiftContainer> shiftContainers)
 	{
 		Name = name;
 		Type = type;
-		Id = Guid.NewGuid(); //TODO get from database
+		Id = id;
 		Path = string.Format(LocationsPath, Id);
+		_containers = new(shiftContainers);
 	}
 
 	public void AddContainer(ShiftContainer container)
@@ -32,10 +33,10 @@ public class ShiftLocation
 		_containers.Add(container);
 	}
 
-	public Shift AddShift(WorkingUserBase user, DateTime start, ShiftRole role)
+	public Shift AddShift(EmployeeBase user, DateTime start, ShiftType type)
 	{
 		var container = GetShiftContainerByTime(start);
-		var shift = new Shift(user, start, start + container.Framework.TimePerShift, role);
+		var shift = new Shift(user, start, start + container.Framework.TimePerShift, type);
 		container.AddShift(shift);
 		return shift;
 	}
@@ -53,17 +54,10 @@ public class ShiftLocation
 
 	private ShiftContainer GetShiftContainer(Shift shift) => GetShiftContainerByTime(shift.StartTime);
 
-	public void UpdateShift(Shift shift, ShiftRole role, WorkingUserBase user)
+	public void UpdateShift(Shift shift, ShiftType type, EmployeeBase user)
 	{
 		throw new NotImplementedException();
 		// new Shift()
 		// GetShiftContainer(shift).UpdateShift(shift,)
 	}
-}
-
-public enum ShiftLocationTypes
-{
-	Unknown,
-	Bar,
-	InfoStand
 }

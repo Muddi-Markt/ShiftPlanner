@@ -1,7 +1,5 @@
 ﻿@using Muddi.ShiftPlanner.Shared.Api
-@using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests
-@inject IMuddiShiftApi ShiftApi;
-@inject Radzen.DialogService dialogService
+@inherits UpdateDialogBase<GetLocationResponse>
 <div class="row">
     <div class="col-md-4 align-items-center d-flex">
         <RadzenLabel Text="Name"/>
@@ -21,13 +19,20 @@
                         Data="_data"
                         TextProperty="@nameof(GetLocationTypesResponse.Name)">
         </RadzenDropDown>
-
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Location Typ"/>
+    </div>
+    <div class="col-md-8">
+        
     </div>
 </div>
 <div class="row">
     <div class="col-md-12 text-right">
-        <RadzenButton Click="@((args) => dialogService.Close(false))" ButtonStyle="ButtonStyle.Secondary" Text="Abbrechen" Style="width: 120px" Class="mr-1" />
-        <RadzenButton Click="Create" Text="OK" Style="width: 120px" />
+        <RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
+        <RadzenButton Click="Abort" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
     </div>
 </div>
 
@@ -45,15 +50,22 @@
 
     private GetLocationTypesResponse? _selectedType;
 
-    private async Task Create()
+    
+
+    private string? _name;
+
+    protected override Task Create()
     {
-        await ShiftApi.LocationsCreate(new CreateLocationRequest()
+        return ShiftApi.LocationsCreate(new CreateLocationRequest()
         {
             Name = _name,
             TypeId = _selectedType.Id
         });
-        dialogService.Close(true);
     }
 
-    private string? _name;
+    protected override Task Update()
+    {
+        throw new NotImplementedException();
+    }
+
 }

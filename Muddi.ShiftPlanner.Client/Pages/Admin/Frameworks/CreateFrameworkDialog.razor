@@ -1,30 +1,96 @@
-﻿@inherits UpdateDialogBase<GetFrameworkResponse>
+﻿@using System.Collections
+@inherits UpdateDialogBase<GetFrameworkResponse>
 <div class="row">
-    <div class="col-md-4 align-items-center d-flex">
-        <RadzenLabel Text="Name"/>
-    </div>
-    <div class="col-md-8">
-        <RadzenTextBox @bind-Value="EntityToEdit.Name" Placeholder="Name"></RadzenTextBox>
-    </div>
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="Name"/>
+	</div>
+	<div class="col-md-8">
+		<RadzenTextBox @bind-Value="EntityToEdit.Name" Placeholder="Name"></RadzenTextBox>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="Zeit pro Schicht (Stunden:Minuten)"/>
+	</div>
+	<div class="col-md-8">
+		<RadzenDatePicker
+			@bind-Value="_timePerShift"
+			ShowTime="true"
+			TimeOnly="true"
+			DateFormat="HH:mm"
+			MinutesStep="5">
+		</RadzenDatePicker>
+
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="Anzahl der Schicht Typen"/>
+	</div>
+	<div class="col-md-8">
+		@foreach (var type in _shiftTypeCount)
+		{
+			<div class="d-flex">
+				<RadzenDropDown AllowClear="true"
+				                LoadData="@LoadShiftTypesAsync"
+				                AllowFiltering="true"
+				                TValue="Guid"
+				                Data=@_shiftTypes
+				                Change="@(o => { type.ShiftTypeId = (Guid)o; _shiftTypes = _shiftTypesRaw;})"
+				                TextProperty="@nameof(GetShiftTypesResponse.Name)"
+				                ValueProperty="@nameof(GetShiftTypesResponse.Id)" Class="w-50"/>
+				<RadzenNumeric @bind-Value="@type.Count" class="w-25"/>
+				<RadzenButton Icon="delete" Click="() => _shiftTypeCount.Remove(type)"></RadzenButton>
+			</div>
+		}
+		<RadzenButton Icon="add" Click="() => _shiftTypeCount.Add(new())"></RadzenButton>
+
+	</div>
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-12 text-right">
-        <RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK" />
-        <RadzenButton Click="Abort" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
-
-    </div>
+	<div class="col-md-12 text-right">
+		<RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
+		<RadzenButton Click="Abort" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
+	</div>
 </div>
 
 @code {
 
-    protected override Task Create()
-        => ShiftApi.FrameworksCreate(new CreateFrameworkRequest()
-        {
-            Name = EntityToEdit.Name
-        });
+	protected override Task Create()
+		=> ShiftApi.FrameworksCreate(new CreateFrameworkRequest()
+		{
+			Name = EntityToEdit.Name,
+			SecondsPerShift = Convert.ToInt32(_timePerShift.TimeOfDay.TotalSeconds),
+			TypeCounts = _shiftTypeCount
+		});
 
-    protected override Task Update()
-        => ShiftApi.FrameworksUpdate(EntityToEdit);
+	protected override Task Update()
+		=> ShiftApi.FrameworksUpdate(EntityToEdit);
 
+	private DateTime _timePerShift = DateTime.Now.Date + TimeSpan.FromMinutes(90);
+
+	readonly List<ShiftFrameworkTypeCountDto> _shiftTypeCount = new() { new ShiftFrameworkTypeCountDto() };
+
+
+	protected override async Task OnParametersSetAsync()
+	{
+		_shiftTypesRaw = await ShiftApi.ShiftTypesGetAll();
+		_shiftTypes = _shiftTypesRaw;
+	}
+
+	private async Task LoadShiftTypesAsync(LoadDataArgs args)
+	{
+		_shiftTypes = _shiftTypesRaw;
+		if (!string.IsNullOrEmpty(args.Filter))
+			_shiftTypes = _shiftTypes.Where(c => c.Name.ToLower().Contains(args.Filter.ToLower()));
+		Console.WriteLine(_shiftTypesRaw.Count);
+		await InvokeAsync(StateHasChanged);
+	}
+
+
+	private IReadOnlyCollection<GetShiftTypesResponse> _shiftTypesRaw = new GetShiftTypesResponse[] { };
+	private IEnumerable<GetShiftTypesResponse> _shiftTypes = Enumerable.Empty<GetShiftTypesResponse>();
 }

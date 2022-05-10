@@ -82,5 +82,5 @@ public abstract class GetAllPageBase<TResponse, TCreateDialog> : ComponentBase
 		}
 	}
 
-	private void ReloadData() => DataGrid?.Reload();
+	protected void ReloadData() => DataGrid?.Reload();
 }

@@ -46,8 +46,8 @@
             {
                 @if (_availableRoles.Any())
                 {
-                    <RadzenDropDown TValue="ShiftRole" Disabled="@(!isAllowedToEdit)" Data="@_availableRoles" @bind-Value="@ShiftParameter.Role">
-                        <Template Context="role">@(((ShiftRole)role).Name)</Template>
+                    <RadzenDropDown TValue="ShiftType" Disabled="@(!isAllowedToEdit)" Data="@_availableRoles" @bind-Value="@ShiftParameter.Role">
+                        <Template Context="role">@(((ShiftType)role).Name)</Template>
                     </RadzenDropDown>
                 }
                 else

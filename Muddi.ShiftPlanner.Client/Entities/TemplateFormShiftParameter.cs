@@ -21,8 +21,8 @@ namespace Muddi.ShiftPlanner.Client.Entities
 
 		public Shift? ShiftToEdit { get; }
 		public ShiftContainer Container { get; }
-		public WorkingUserBase User { get; }
+		public EmployeeBase User { get; }
 		public DateTime StartTime { get; set; }
-		public ShiftRole? Role { get; set; }
+		public ShiftType? Role { get; set; }
 	}
 }

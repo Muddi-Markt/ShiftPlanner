@@ -26,34 +26,34 @@ public class GlobalShiftTests
 
 		Action[] actionsShouldThrowTooManyWorkers =
 		{
-			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart, DefaultRole),
-			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart, MuddiInChargeRole),
-			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart, TapRole),
-			() => shiftLocation.AddShift(UserFive, secondContainerSecondShiftStart, DefaultRole)
+			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart, DefaultType),
+			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart, MuddiInChargeType),
+			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart, TapType),
+			() => shiftLocation.AddShift(UserFive, secondContainerSecondShiftStart, DefaultType)
 		};
 		Action[] actionShouldThrowAmbiguousMath =
 		{
-			() => shiftLocation.AddShift(UserOne, secondContainerSecondShiftStart, DefaultRole),
-			() => shiftLocation.AddShift(UserOne, firstContainerShiftStart, DefaultRole),
+			() => shiftLocation.AddShift(UserOne, secondContainerSecondShiftStart, DefaultType),
+			() => shiftLocation.AddShift(UserOne, firstContainerShiftStart, DefaultType),
 		};
 		Action[] actionsShouldThrowStartTimeNotInContainer =
 		{
-			() => shiftLocation.AddShift(UserFive, secondContainerSecondShiftStart.AddMinutes(1), TapRole),
-			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart.Add(shiftDuration * -1), TapRole),
+			() => shiftLocation.AddShift(UserFive, secondContainerSecondShiftStart.AddMinutes(1), TapType),
+			() => shiftLocation.AddShift(UserFive, firstContainerShiftStart.Add(shiftDuration * -1), TapType),
 		};
 
 		shiftLocation.AddContainer(shiftContainer1);
 		shiftLocation.AddContainer(shiftContainer2);
-		shiftLocation.AddShift(UserOne, firstContainerShiftStart, DefaultRole);
-		var shiftUser2 = shiftLocation.AddShift(UserTwo, firstContainerShiftStart, DefaultRole);
+		shiftLocation.AddShift(UserOne, firstContainerShiftStart, DefaultType);
+		var shiftUser2 = shiftLocation.AddShift(UserTwo, firstContainerShiftStart, DefaultType);
 		shiftLocation.RemoveShift(shiftUser2);
-		shiftLocation.AddShift(UserTwo, firstContainerShiftStart, DefaultRole);
-		shiftLocation.AddShift(UserThree, firstContainerShiftStart, MuddiInChargeRole);
-		shiftLocation.AddShift(UserFour, firstContainerShiftStart, TapRole);
-		shiftLocation.AddShift(UserFour, firstContainerShiftStart.Add(shiftDuration), TapRole);
-		shiftLocation.AddShift(UserOne, firstContainerShiftStart + shiftContainer1.TotalTime + shiftDuration, DefaultRole);
+		shiftLocation.AddShift(UserTwo, firstContainerShiftStart, DefaultType);
+		shiftLocation.AddShift(UserThree, firstContainerShiftStart, MuddiInChargeType);
+		shiftLocation.AddShift(UserFour, firstContainerShiftStart, TapType);
+		shiftLocation.AddShift(UserFour, firstContainerShiftStart.Add(shiftDuration), TapType);
+		shiftLocation.AddShift(UserOne, firstContainerShiftStart + shiftContainer1.TotalTime + shiftDuration, DefaultType);
 		var container2Shift2User2 =
-			shiftLocation.AddShift(UserTwo, firstContainerShiftStart + shiftContainer1.TotalTime + shiftDuration, DefaultRole);
+			shiftLocation.AddShift(UserTwo, firstContainerShiftStart + shiftContainer1.TotalTime + shiftDuration, DefaultType);
 
 
 		shiftContainer1.ShiftStartTimes.Should().HaveCount(4);

@@ -1,4 +1,5 @@
 ﻿using System.Reflection.Metadata;
+using Muddi.ShiftPlanner.Shared.Entities;
 using Refit;
 
 namespace Muddi.ShiftPlanner.Shared.Api;
@@ -55,4 +56,17 @@ public interface IMuddiShiftApi
 
 	[Put("/frameworks/{EntityToEdit.Id}")]
 	Task FrameworksUpdate(GetFrameworkResponse entityToEdit);
+
+	[Post("/containers")]
+	Task ContainerCreateAsync(CreateContainerRequest createContainerRequest);
+
+	
+	[Get("/locations")]
+	Task<IReadOnlyCollection<GetLocationResponse>> ShiftLocationsGetAllAsync();
+
+	[Get("/locations/{Id}")]
+	Task<GetLocationResponse> ShiftLocationsGetAsync(Guid id);
+
+	[Get("/locations/{Id}/shifts")]
+	Task<IEnumerable<GetShiftResponse>> LocationsGetAllShifts(Guid id);
 }

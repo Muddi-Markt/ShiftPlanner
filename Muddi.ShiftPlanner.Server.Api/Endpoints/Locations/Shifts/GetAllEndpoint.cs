@@ -23,6 +23,8 @@ public class GetAllEndpoint : CrudGetAllEndpoint<DefaultGetRequest, GetShiftResp
 			.ThenInclude(s => s.Type)
 			.FirstAsync(l => l.Id == req.Id, cancellationToken: ct);
 
+		//TODO populate GetEmployeeResponse in GetShiftResponse with KeycloakService
+		
 		return location.Containers.SelectMany(c => c.Shifts.Select(s => s.Adapt<GetShiftResponse>())).ToList();
 	}
 }

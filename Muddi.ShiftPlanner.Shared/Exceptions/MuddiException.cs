@@ -14,7 +14,7 @@ public class DateTimeNotUtcException : MuddiException
 public class TooManyWorkersException : MuddiException
 {
 	public TooManyWorkersException(Shift shift)
-		: base($"Too many workers for role {shift.Role} applied")
+		: base($"Too many workers for role {shift.Type} applied")
 	{
 	}
 }

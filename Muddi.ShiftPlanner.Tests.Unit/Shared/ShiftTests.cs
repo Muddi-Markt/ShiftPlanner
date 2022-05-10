@@ -14,9 +14,9 @@ public class ShiftTests
 	{
 		var startTime = new DateTime(2022, 07, 23, 12, 00, 00);
 		var timeSpan = TimeSpan.FromMinutes(90);
-		var shift = new Shift(UserOne, startTime, startTime + timeSpan, DefaultRole);
-		var shift2 = new Shift(UserTwo, startTime, startTime + timeSpan, DefaultRole);
-		var shift3 = new Shift(UserOne, startTime, startTime + timeSpan, DefaultRole);
+		var shift = new Shift(UserOne, startTime, startTime + timeSpan, DefaultType);
+		var shift2 = new Shift(UserTwo, startTime, startTime + timeSpan, DefaultType);
+		var shift3 = new Shift(UserOne, startTime, startTime + timeSpan, DefaultType);
 		shift.Title.Should().StartWith(UserOne.Name.Split(' ')[0]);
 		shift.EndTime.Should().Be(startTime + timeSpan);
 		EqualityChecker.Check(shift, shift2, shift3);
