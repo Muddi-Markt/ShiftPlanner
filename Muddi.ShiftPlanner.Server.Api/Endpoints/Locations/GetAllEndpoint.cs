@@ -22,6 +22,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetLocationRespon
 			.Include(l => l.Containers.OrderBy(q => q.Start))
 			.ThenInclude(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)
+			.ThenInclude(c => c.ShiftType)
 			.Select(t => t.Adapt<GetLocationResponse>())
 			.ToListAsync(cancellationToken: ct);
 }

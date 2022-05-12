@@ -19,6 +19,7 @@ builder.Services.AddSwaggerDoc();
 builder.Services.AddAuthenticationMuddiConnect(builder.Configuration);
 builder.Services.AddMuddiShiftPlannerContext(builder.Configuration);
 builder.Services.AddDatabaseMigrations();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

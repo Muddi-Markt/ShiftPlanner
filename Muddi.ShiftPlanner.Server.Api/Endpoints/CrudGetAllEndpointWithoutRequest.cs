@@ -22,7 +22,7 @@ public abstract class CrudGetAllEndpoint<TRequest, TResponse> : CrudEndpoint<TRe
 		Options(t =>
 		{
 			t.Produces<DefaultEnumerableResponse<TResponse>>();
-			t.Produces(StatusCodes.Status204NoContent);
+			// t.Produces(StatusCodes.Status204NoContent);
 		});
 		base.Configure();
 	}
@@ -30,11 +30,15 @@ public abstract class CrudGetAllEndpoint<TRequest, TResponse> : CrudEndpoint<TRe
 	public sealed override async Task HandleAsync(TRequest request, CancellationToken ct)
 	{
 		var val = await CrudExecuteAsync(request, ct);
-		Response = new List<TResponse>(val);
-		if (val.Count == 0)
-		{
-			await SendNoContentAsync(ct);
-		}
+		Response = val;
+
+		//Wow this is a bummer: As refit currently can't handle 204 correctly
+		//we have to return 200 and an empty response...
+		//see https://github.com/reactiveui/refit/issues/1128
+		// if (val.Count == 0)
+		// {
+		// 	await SendAsync(val, StatusCodes.Status204NoContent, ct);
+		// }
 	}
 
 	protected CrudGetAllEndpoint(ShiftPlannerContext database) : base(database)

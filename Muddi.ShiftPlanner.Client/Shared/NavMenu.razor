@@ -1,32 +1,59 @@
 ﻿@using Muddi.ShiftPlanner.Client.Services
 @using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
+@inject DialogService DialogService;
 @inject IShiftService ShiftService;
 <RadzenSidebar Expanded="Expanded" ExpandedChanged="ExpandedChanged" class="demos-sidebar">
-	<ChildContent>
-		<RadzenPanelMenu Match="NavLinkMatch.Prefix">
-			@foreach (var location in _locations)
-			{
-				<RadzenPanelMenuItem Text="@location.Name" Path="@location.Path" Icon="@location.Icon"/>
-			}
-		</RadzenPanelMenu>
-	</ChildContent>
+    <ChildContent>
+
+        <RadzenPanelMenu Match="NavLinkMatch.Prefix">
+            <AuthorizeView>
+                <Authorized>
+                    @foreach (var location in _locations)
+                    {
+                        <RadzenPanelMenuItem Text="@location.Name" Path="@location.Path" Icon="@location.Icon" />
+                    }
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Policy="@MuddiConnectExtension.AdminPolicy">
+                <RadzenPanelMenuItem Text="Admin">
+                    <RadzenPanelMenuItem Text="Locations" Path="/admin/locations"></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Text="Frameworks" Path="/admin/frameworks"></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Text="ShiftTypes" Path="/admin/shift-types"></RadzenPanelMenuItem>
+                </RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Text="Admin"></RadzenPanelMenuItem>
+            </AuthorizeView>
+        </RadzenPanelMenu>
+
+    </ChildContent>
 </RadzenSidebar>
 
-@code{
+@code {
 
-	[Parameter]
-	public bool Expanded { get; set; } = true;
+    [Parameter]
+    public bool Expanded { get; set; } = true;
 
-	[Parameter]
-	public EventCallback<bool> ExpandedChanged { get; set; }
+    [Parameter]
+    public EventCallback<bool> ExpandedChanged { get; set; }
 
 
-	private bool _sidebarExpanded = true;
-	private IEnumerable<ShiftLocation> _locations = Enumerable.Empty<ShiftLocation>();
 
-	protected override async Task OnInitializedAsync()
-	{
-		_locations = await ShiftService.GetAllShiftLocationsAsync();
-	}
+
+    private bool _sidebarExpanded = true;
+    private IEnumerable<ShiftLocation> _locations = Enumerable.Empty<ShiftLocation>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+
+        {
+            _locations = await ShiftService.GetAllShiftLocationsAsync();
+        }
+
+        catch (Exception ex)
+
+        {
+            await DialogService.Error(ex);
+        }
+    }
 
 }

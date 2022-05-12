@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
 	{
 		var muddiConfig = configuration.GetSection("MuddiConnect");
 		var authority = muddiConfig["Authority"];
-		services.AddSingleton<KeycloakService>();
+		services.AddSingleton<IKeycloakService,KeycloakService>();
 
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(o =>
@@ -78,13 +78,6 @@ public static class ServiceCollectionExtensions
 				};
 			});
 	}
-
-	private static RefitSettings? KeycloakSettings(IServiceProvider arg)
-	{
-		var service = arg.GetService<KeycloakService>();
-		return new RefitSettings { AuthorizationHeaderValueGetter = service.GetToken };
-	}
-
 
 	public static void AddDatabaseMigrations(this IServiceCollection services)
 	{

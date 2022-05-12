@@ -7,9 +7,9 @@ namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Employees;
 
 public class GetEndpoint : Endpoint<DefaultGetRequest, GetEmployeeResponse>
 {
-	private readonly KeycloakService _keycloakService;
+	private readonly IKeycloakService _keycloakService;
 
-	public GetEndpoint(KeycloakService keycloakService)
+	public GetEndpoint(IKeycloakService keycloakService)
 	{
 		_keycloakService = keycloakService;
 	}
@@ -26,14 +26,6 @@ public class GetEndpoint : Endpoint<DefaultGetRequest, GetEmployeeResponse>
 		//and we use an wasm frontend, we don't want this (at least for now...)
 		//For further infos see: https://stackoverflow.com/questions/66452108/keycloak-get-users-returns-403-forbidden/66454728#66454728
 		// var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
-		var keycloakUser = await _keycloakService.GetUserById(req.Id);
-		Response = new GetEmployeeResponse()
-		{
-			Email = keycloakUser.Email,
-			Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("Keycloak Id is null")),
-			UserName = keycloakUser.Username,
-			FirstName = keycloakUser.FirstName,
-			LastName = keycloakUser.LastName
-		};
+		Response = await _keycloakService.GetUserById(req.Id);
 	}
 }

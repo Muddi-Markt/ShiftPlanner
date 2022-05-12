@@ -1,15 +1,24 @@
-﻿using Refit;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Refit;
 
 namespace Muddi.ShiftPlanner.Server.Api.Services;
 
-public class KeycloakService
+public interface IKeycloakService
 {
+	Task<string> GetToken();
+	Task<GetEmployeeResponse> GetUserById(Guid reqId);
+}
+
+public class KeycloakService : IKeycloakService
+{
+	private readonly IMemoryCache _cache;
 	private const string Realm = "muddi";
 	private readonly IKeycloakApi _keycloakApi;
 
 
-	public KeycloakService(IConfiguration configuration)
+	public KeycloakService(IConfiguration configuration, IMemoryCache cache)
 	{
+		_cache = cache;
 		var authority = configuration["MuddiConnect:Authority"];
 
 
@@ -50,9 +59,22 @@ public class KeycloakService
 		}
 	}
 
-	public Task<KeycloakUserRepresentation> GetUserById(Guid reqId)
+	public async Task<GetEmployeeResponse> GetUserById(Guid reqId)
 	{
-		//TODO cache keycloak user in local dictionary
-		return _keycloakApi.GetUserById(Realm, reqId);
+		if (!_cache.TryGetValue(reqId, out GetEmployeeResponse response))
+		{
+			var keycloakUser = await _keycloakApi.GetUserById(Realm, reqId);
+			response = new GetEmployeeResponse
+			{
+				Email = keycloakUser.Email,
+				Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("Keycloak Id is null")),
+				UserName = keycloakUser.Username,
+				FirstName = keycloakUser.FirstName,
+				LastName = keycloakUser.LastName
+			};
+			_cache.Set(reqId, response, TimeSpan.FromHours(1));
+		}
+
+		return response;
 	}
 }

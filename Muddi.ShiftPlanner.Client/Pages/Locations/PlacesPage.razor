@@ -1,22 +1,24 @@
 ﻿@page "/locations/{Id:guid}"
+<h3>Test</h3>
+@if (_location is not null)
+{
+    <h3>@_location.Name</h3>
 
-
-<h3>@_location.Name</h3>
-
-<RadzenScheduler TItem="Shift"
+    <RadzenScheduler TItem="Shift"
                  style="height: 768px;"
                  @ref="_scheduler"
                  SlotRender=@OnSlotRender
                  Data=@Shifts
                  StartProperty="StartTime"
                  EndProperty="EndTime"
-                 TextProperty="Title" 
+                 TextProperty="Title"
                  TodayText="Heute"
                  SelectedIndex="1"
                  AppointmentRender=@OnAppointmentRender
                  SlotSelect="OnSlotSelect"
                  AppointmentSelect="OnShiftSelect">
-    
-    <RadzenDayView Text="Tag"/>
-    <RadzenWeekView Text="Woche" StartTime="TimeSpan.Zero" EndTime="TimeSpan.FromHours(24)" MinutesPerSlot="30" TimeFormat="HH:mm" />
-</RadzenScheduler>
+
+        <RadzenDayView Text="Tag" />
+        <RadzenWeekView Text="Woche" StartTime="TimeSpan.Zero" EndTime="TimeSpan.FromHours(24)" MinutesPerSlot="30" TimeFormat="HH:mm" />
+    </RadzenScheduler>
+}

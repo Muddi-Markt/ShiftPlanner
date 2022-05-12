@@ -4,6 +4,8 @@ public static class ResponseExtensions
 {
 	public static DateTime GetEndTime(this GetContainerResponse c)
 	{
+		if (c.Framework is null)
+			return default;
 		return c.Start + TimeSpan.FromSeconds(c.Framework.SecondsPerShift * c.TotalShifts);
 	}
 

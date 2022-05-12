@@ -24,10 +24,10 @@
 				<RadzenDataList Data="context.Containers" AllowPaging="true" WrapItems="true" PageSize="10">
 					<Template Context="c">
 						<div class="d-flex justify-content-between" style="margin: 0; padding: .25rem">
-							<div>@c.Start.ToLocalTime().ToString("ddd, dd.MM. HH:mm") - @c.GetEndTime().ToLocalTime().ToString("ddd, dd.MM. HH:mm")</div>
+							<div>@TextForContainers(c)</div>
 							<RadzenButton Size="ButtonSize.Small" Icon="clear"></RadzenButton>
 						</div>
-						
+
 					</Template>
 				</RadzenDataList>
 				<RadzenButton Icon="add" Click="async () => await AddContainers(context)"></RadzenButton>
@@ -49,6 +49,15 @@
 		await DialogService.OpenAsync<AddLocationContainersDialog>("Füge Container hinzu", parameter);
 		ReloadData();
 		await InvokeAsync(StateHasChanged);
+	}
+
+	private string TextForContainers(GetContainerResponse c)
+	{
+		var localStart = c.Start.ToLocalTime();
+		var localEnd = c.GetEndTime().ToLocalTime();
+		if (localStart.Date == localEnd.Date)
+			return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:HH:mm}";
+		return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:ddd, dd.MM. HH:mm}";
 	}
 
 }

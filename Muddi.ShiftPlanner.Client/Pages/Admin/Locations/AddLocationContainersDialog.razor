@@ -8,7 +8,8 @@
 	<div class="col-md-8">
 		<RadzenDropDown Data="_frameworks"
 		                TValue="GetFrameworkResponse"
-		                ValueChanged="f => EntityToEdit.Framework = f"
+		                @bind-Value="EntityToEdit.Framework"
+		                Change="UpdateEnd"
 		                TextProperty="@nameof(GetFrameworkResponse.Name)">
 		</RadzenDropDown>
 	</div>
@@ -18,35 +19,50 @@
 		<RadzenLabel Text="Start"/>
 	</div>
 	<div class="col-md-8">
-		<RadzenDatePicker @bind-Value="EntityToEdit.Start" Placeholder="Start" ShowTime="true"></RadzenDatePicker>
+		<RadzenDatePicker @bind-Value="EntityToEdit.Start" Placeholder="Start" ShowTime="true" Change="UpdateEnd"></RadzenDatePicker>
 	</div>
 </div>
 <div class="row">
 	<div class="col-md-4 align-items-center d-flex">
-		<RadzenLabel Text="Anzahl der Schichten"/>
+		<RadzenLabel Text="Add for subsequent days"/>
 	</div>
 	<div class="col-md-8">
 		<RadzenNumeric
 			TValue="int"
-			Min="1"
-			Max="24"
-			Placeholder="Anzahl der Schichten"
-			ValueChanged="OnShiftCountChanged">
+			@bind-Value="_subsequentDays"
+			Min="0"
+			Max="30"
+			Placeholder="Total shift count">
 		</RadzenNumeric>
 	</div>
 </div>
 <div class="row">
 	<div class="col-md-4 align-items-center d-flex">
-		<RadzenLabel Text="Ende"/>
+		<RadzenLabel Text="Total shift count"/>
 	</div>
 	<div class="col-md-8">
-		<RadzenDatePicker @bind-Value="_endDate" Placeholder="Ende" Disabled="true" ShowTime="true"></RadzenDatePicker>
+		<RadzenNumeric
+			TValue="int"
+			@bind-Value="EntityToEdit.TotalShifts"
+			Min="1"
+			Max="24"
+			Placeholder="Total shift count"
+			Change="UpdateEnd">
+		</RadzenNumeric>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="End"/>
+	</div>
+	<div class="col-md-8">
+		<RadzenDatePicker @bind-Value="_endDate" Placeholder="End" Disabled="true" ShowTime="true"></RadzenDatePicker>
 	</div>
 </div>
 <div class="row mt-4">
 	<div class="col-md-12 text-right">
 		<RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
-		<RadzenButton Click="Abort" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
+		<RadzenButton Click="Abort" ButtonStyle="ButtonStyle.Danger" Text="Abort" Class="mr-1"/>
 	</div>
 </div>
 
@@ -56,21 +72,27 @@
 	{
 		_frameworks = await ShiftApi.FrameworksGetAll();
 		EntityToEdit.Start = new DateTime(2022, 06, 17, 10, 0, 0, DateTimeKind.Local);
+		EntityToEdit.TotalShifts = 1;
 	}
 
 	[Parameter]
 	public Guid LocationId { get; set; }
 
-	protected override Task Create()
+	protected override async Task Create()
 	{
-		return
-			ShiftApi.ContainerCreateAsync(new CreateContainerRequest
+		if (_subsequentDays < 0)
+			_subsequentDays = 0;
+
+		for (int i = 0; i < _subsequentDays + 1; i++)
+		{
+			await ShiftApi.ContainerCreateAsync(new CreateContainerRequest
 			{
 				FrameworkId = EntityToEdit.Framework.Id,
-				Start = EntityToEdit.Start.ToUniversalTime(),
+				Start = EntityToEdit.Start.AddDays(i).ToUniversalTime(),
 				TotalShifts = EntityToEdit.TotalShifts,
 				LocationId = LocationId
 			});
+		}
 	}
 
 	protected override Task Update()
@@ -81,15 +103,10 @@
 	private DateTime? _endDate;
 	private IEnumerable<GetFrameworkResponse> _frameworks;
 
-	private void OnShiftCountChanged(int i)
+	private void UpdateEnd()
 	{
-		if (i < 1)
-			i = 1;
-		if (i > 24)
-			i = 24;
-		EntityToEdit.TotalShifts = i;
-		if (EntityToEdit.Framework is not null)
-			_endDate = EntityToEdit.GetEndTime();
+		_endDate = EntityToEdit.GetEndTime();
 	}
 
+	private int _subsequentDays;
 }
