@@ -8,19 +8,18 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row mb-3 mt-4">
     <div class="col-md-12 text-right">
-        <RadzenButton Click="@((args) => DialogService.Close(false))" ButtonStyle="ButtonStyle.Secondary" Text="Abbrechen" Style="width: 120px" Class="mr-1"/>
-        <RadzenButton Click="Create" Text="OK" Style="width: 120px"/>
+        <RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
+        <RadzenButton Click="Abort" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
     </div>
 </div>
-
 @code {
 
     protected override Task Create()
-        => ShiftApi.ShiftTypesCreate(new() { Name = EntityToEdit.Name });
+        => ShiftApi.CreateShiftType(new() { Name = EntityToEdit.Name });
 
     protected override Task Update()
-        => ShiftApi.ShiftTypesUpdate(EntityToEdit);
+        => ShiftApi.UpdateShiftType(EntityToEdit);
 
 }

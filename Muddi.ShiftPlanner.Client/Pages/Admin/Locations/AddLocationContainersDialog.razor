@@ -1,7 +1,7 @@
 ﻿@inherits UpdateDialogBase<GetContainerResponse>
 
 
-<div class="row">
+<div class="row mt-1 mb-1 w-100">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="Framework"/>
 	</div>
@@ -14,7 +14,7 @@
 		</RadzenDropDown>
 	</div>
 </div>
-<div class="row">
+<div class="row mt-1 mb-1 w-100">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="Start"/>
 	</div>
@@ -22,7 +22,7 @@
 		<RadzenDatePicker @bind-Value="EntityToEdit.Start" Placeholder="Start" ShowTime="true" Change="UpdateEnd"></RadzenDatePicker>
 	</div>
 </div>
-<div class="row">
+<div class="row mt-1 mb-1 w-100">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="Add for subsequent days"/>
 	</div>
@@ -36,7 +36,7 @@
 		</RadzenNumeric>
 	</div>
 </div>
-<div class="row">
+<div class="row mt-1 mb-1 w-100">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="Total shift count"/>
 	</div>
@@ -51,7 +51,7 @@
 		</RadzenNumeric>
 	</div>
 </div>
-<div class="row">
+<div class="row mt-1 mb-1 w-100">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="End"/>
 	</div>
@@ -59,7 +59,7 @@
 		<RadzenDatePicker @bind-Value="_endDate" Placeholder="End" Disabled="true" ShowTime="true"></RadzenDatePicker>
 	</div>
 </div>
-<div class="row mt-4">
+<div class="row mb-3 mt-4">
 	<div class="col-md-12 text-right">
 		<RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
 		<RadzenButton Click="Abort" ButtonStyle="ButtonStyle.Danger" Text="Abort" Class="mr-1"/>
@@ -70,7 +70,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		_frameworks = await ShiftApi.FrameworksGetAll();
+		_frameworks = await ShiftApi.GetAllFrameworks();
 		EntityToEdit.Start = new DateTime(2022, 06, 17, 10, 0, 0, DateTimeKind.Local);
 		EntityToEdit.TotalShifts = 1;
 	}
@@ -85,7 +85,7 @@
 
 		for (int i = 0; i < _subsequentDays + 1; i++)
 		{
-			await ShiftApi.ContainerCreateAsync(new CreateContainerRequest
+			await ShiftApi.CreateContainer(new CreateContainerRequest
 			{
 				FrameworkId = EntityToEdit.Framework.Id,
 				Start = EntityToEdit.Start.AddDays(i).ToUniversalTime(),

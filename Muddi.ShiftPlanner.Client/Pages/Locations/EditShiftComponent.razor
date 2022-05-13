@@ -24,7 +24,7 @@
             }
             else
             {*@
-            <RadzenTextBox Name="Start" Value="@((ShiftParameter.StartTime).ToString("HH:mm"))" ReadOnly="@(!isAllowedToEdit)"/>
+            <RadzenTextBox Name="Start" Value="@(ShiftParameter.StartTime.ToLocalTime().ToString("HH:mm"))" ReadOnly="@(!isAllowedToEdit)"/>
 
 
         </div>
@@ -34,7 +34,10 @@
             <RadzenLabel Text="Ende"/>
         </div>
         <div class="col">
-            <RadzenTextBox Name="End" Value="@((ShiftParameter.StartTime + ShiftParameter.Container.Framework.TimePerShift).ToString("HH:mm"))" ReadOnly="true"/>
+            <RadzenTextBox 
+                Name="End" 
+                Value="@((ShiftParameter.StartTime + ShiftParameter.Container.Framework.TimePerShift).ToLocalTime().ToString("HH:mm"))" 
+                ReadOnly="true"/>
         </div>
     </div>
     <div class="row" style="margin-bottom: 16px">

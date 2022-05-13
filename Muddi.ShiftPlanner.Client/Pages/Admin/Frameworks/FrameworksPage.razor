@@ -38,7 +38,7 @@
 
 @code {
 
-    protected override Task<IReadOnlyCollection<GetFrameworkResponse>> LoadData() => ShiftApi.FrameworksGetAll();
+    protected override Task<IReadOnlyCollection<GetFrameworkResponse>> LoadData() => ShiftApi.GetAllFrameworks();
     protected override string NameOfEntity => "Framework";
     protected override Task Delete(GetFrameworkResponse request) => ShiftApi.DeleteFramework(request.Id);
 

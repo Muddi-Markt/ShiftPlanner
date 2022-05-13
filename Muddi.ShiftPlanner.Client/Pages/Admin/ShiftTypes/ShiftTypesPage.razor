@@ -19,7 +19,7 @@
 
 @code {
 
-    protected override Task<IReadOnlyCollection<GetShiftTypesResponse>> LoadData() => ShiftApi.ShiftTypesGetAll();
+    protected override Task<IReadOnlyCollection<GetShiftTypesResponse>> LoadData() => ShiftApi.GetAllShiftTypes();
     protected override string NameOfEntity => "Schicht Typ";
     protected override Task Delete(GetShiftTypesResponse request) => ShiftApi.DeleteShiftType(request.Id);
 

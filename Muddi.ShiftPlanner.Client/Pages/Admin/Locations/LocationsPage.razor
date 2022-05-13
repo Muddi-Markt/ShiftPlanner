@@ -21,16 +21,7 @@
 
 		<RadzenDataGridColumn TItem="GetLocationResponse" Title="Container">
 			<Template>
-				<RadzenDataList Data="context.Containers" AllowPaging="true" WrapItems="true" PageSize="10">
-					<Template Context="c">
-						<div class="d-flex justify-content-between" style="margin: 0; padding: .25rem">
-							<div>@TextForContainers(c)</div>
-							<RadzenButton Size="ButtonSize.Small" Icon="clear"></RadzenButton>
-						</div>
-
-					</Template>
-				</RadzenDataList>
-				<RadzenButton Icon="add" Click="async () => await AddContainers(context)"></RadzenButton>
+				<RadzenButton Icon="edit" Click="() => EditContainers(context)"></RadzenButton>
 			</Template>
 		</RadzenDataGridColumn>
 	</Columns>
@@ -39,25 +30,15 @@
 
 @code {
 
-	protected override Task<IReadOnlyCollection<GetLocationResponse>> LoadData() => ShiftApi.LocationsGetAll();
+	protected override Task<IReadOnlyCollection<GetLocationResponse>> LoadData() => ShiftApi.GetAllLocations();
 	protected override string NameOfEntity => "Standort";
 	protected override Task Delete(GetLocationResponse request) => ShiftApi.DeleteLocationAsync(request.Id);
 
-	private async Task AddContainers(GetLocationResponse f)
+	private async Task EditContainers(GetLocationResponse l)
 	{
-		var parameter = new Dictionary<string, object> { [nameof(AddLocationContainersDialog.LocationId)] = f.Id };
-		await DialogService.OpenAsync<AddLocationContainersDialog>("Füge Container hinzu", parameter);
-		ReloadData();
-		await InvokeAsync(StateHasChanged);
-	}
-
-	private string TextForContainers(GetContainerResponse c)
-	{
-		var localStart = c.Start.ToLocalTime();
-		var localEnd = c.GetEndTime().ToLocalTime();
-		if (localStart.Date == localEnd.Date)
-			return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:HH:mm}";
-		return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:ddd, dd.MM. HH:mm}";
+		var locationResponse = await ShiftApi.GetLocationById(l.Id);
+		var parameter = new Dictionary<string, object> { [nameof(EditContainersDialog.EntityToEdit)] = locationResponse };
+		await DialogService.OpenAsync<EditContainersDialog>("Edit containers", parameter);
 	}
 
 }

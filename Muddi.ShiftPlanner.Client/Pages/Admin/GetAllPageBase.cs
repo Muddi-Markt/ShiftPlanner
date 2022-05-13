@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Radzen;
@@ -6,6 +7,7 @@ using Radzen.Blazor;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Admin;
 
+[Authorize(Policy = Policies.IsAdmin)]
 public abstract class GetAllPageBase<TResponse, TCreateDialog> : ComponentBase
 	where TResponse : IMuddiResponse, new()
 	where TCreateDialog : UpdateDialogBase<TResponse>

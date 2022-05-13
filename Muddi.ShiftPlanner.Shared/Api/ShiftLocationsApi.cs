@@ -8,11 +8,13 @@ public interface IMuddiShiftApi
 {
 	#region Locations
 
+	[Get("/locations/{Id}")]
+	Task<GetLocationResponse> GetLocationById(Guid id);
 	[Get("/locations")]
-	Task<IReadOnlyCollection<GetLocationResponse>> LocationsGetAll();
+	Task<IReadOnlyCollection<GetLocationResponse>> GetAllLocations();
 
 	[Post("/locations")]
-	Task LocationsCreate(CreateLocationRequest createLocationRequest);
+	Task CreateLocation(CreateLocationRequest createLocationRequest);
 
 	[Delete("/locations/{Id}")]
 	Task DeleteLocationAsync(Guid id);
@@ -22,51 +24,51 @@ public interface IMuddiShiftApi
 	#region location-types
 
 	[Get("/location-types")]
-	Task<IReadOnlyCollection<GetLocationTypesResponse>> LocationTypesGetAll();
+	Task<IReadOnlyCollection<GetLocationTypesResponse>> GetAllLocationTypes();
 
 	[Post("/location-types")]
-	Task LocationTypesCreate(CreateLocationTypeRequest createLocationTypeRequest);
+	Task CreateLocationType(CreateLocationTypeRequest createLocationTypeRequest);
 
 	#endregion
 
 	#region shift-types
 
 	[Get("/shift-types")]
-	Task<IReadOnlyCollection<GetShiftTypesResponse>> ShiftTypesGetAll();
+	Task<IReadOnlyCollection<GetShiftTypesResponse>> GetAllShiftTypes();
 
 	[Post("/shift-types")]
-	Task ShiftTypesCreate(CreateShiftTypeRequest createShiftTypeRequest);
+	Task CreateShiftType(CreateShiftTypeRequest createShiftTypeRequest);
 
 	[Delete("/shift-types/{Id}")]
 	Task DeleteShiftType(Guid id);
 
 	[Put("/shift-types/{EntityToEdit.Id}")]
-	Task ShiftTypesUpdate(GetShiftTypesResponse entityToEdit);
+	Task UpdateShiftType(GetShiftTypesResponse entityToEdit);
 
 	#endregion
 
 	[Get("/frameworks")]
-	Task<IReadOnlyCollection<GetFrameworkResponse>> FrameworksGetAll();
+	Task<IReadOnlyCollection<GetFrameworkResponse>> GetAllFrameworks();
 
 	[Delete("/frameworks/{Id}")]
 	Task DeleteFramework(Guid id);
 
 	[Post("/frameworks")]
-	Task FrameworksCreate(CreateFrameworkRequest createFrameworkRequest);
+	Task CreateFramework(CreateFrameworkRequest createFrameworkRequest);
 
 	[Put("/frameworks/{EntityToEdit.Id}")]
-	Task FrameworksUpdate(GetFrameworkResponse entityToEdit);
+	Task UpdateFramework(GetFrameworkResponse entityToEdit);
 
 	[Post("/containers")]
-	Task ContainerCreateAsync(CreateContainerRequest createContainerRequest);
-
+	Task CreateContainer(CreateContainerRequest createContainerRequest);
+	[Delete("/containers/{id}")]
+	Task DeleteContainer(Guid id);
 	
-	[Get("/locations")]
-	Task<IReadOnlyCollection<GetLocationResponse>> ShiftLocationsGetAllAsync();
-
-	[Get("/locations/{Id}")]
-	Task<GetLocationResponse> ShiftLocationsGetAsync(Guid id);
-
+	
 	[Get("/locations/{Id}/shifts")]
-	Task<IEnumerable<GetShiftResponse>> LocationsGetAllShifts(Guid id);
+	Task<IEnumerable<GetShiftResponse>> GetAllShiftsForLocation(Guid id);
+
+	[Post("/locations/{Id}/shifts")]
+	Task CreateShift(Guid id, CreateLocationsShiftRequest createLocationsShiftRequest);
+	
 }

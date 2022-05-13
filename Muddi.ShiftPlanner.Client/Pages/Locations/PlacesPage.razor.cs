@@ -22,7 +22,8 @@ public partial class PlacesPage
 	private ShiftLocation _location;
 	private MuddiConnectUser _user;
 
-	private IEnumerable<Shift> Shifts { get; set; }
+	private List<Shift> Shifts { get; set; }
+	private DateTime StartDate { get; } = (DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate);
 
 	private RadzenScheduler<Shift> _scheduler;
 
@@ -33,14 +34,15 @@ public partial class PlacesPage
 		_user = MuddiConnectUser.CreateFromClaimsPrincipal(state.User);
 		_frameworkBackgroundColors.Reset();
 		_shiftRoleBackgroundColors.Reset();
-		Shifts = await ShiftService.GetAllShiftsFromLocationAsync(Id);
+		Shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id)).ToList();
 	}
 
 
 	private async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
 	{
-		ShiftContainer container = _location.GetShiftContainerByTime(args.Start);
-		DateTime startTime = container.GetBestShiftStartTimeForTime(args.Start);
+		var start = args.Start.ToUniversalTime(); 
+		ShiftContainer container = _location.GetShiftContainerByTime(start);
+		DateTime startTime = container.GetBestShiftStartTimeForTime(start).ToUniversalTime();
 		var parameter = new TemplateFormShiftParameter(container, _user, startTime);
 		TemplateFormShiftParameter data = await DialogService.OpenAsync<EditShiftComponent>("Füge Schicht hinzu",
 			new Dictionary<string, object> { { nameof(EditShiftComponent.ShiftParameter), parameter } });
@@ -48,7 +50,12 @@ public partial class PlacesPage
 		{
 			try
 			{
-				_location.AddShift(_user, data.StartTime, data.Role);
+				var shift = _location.AddShift(_user, data.StartTime, data.Role);
+				Shifts.Add(shift.ToLocalTime());
+				await _scheduler.Reload();
+				await InvokeAsync(StateHasChanged);
+				await ShiftService.AddShiftToLocation(_location,shift);
+				
 			}
 			catch (MuddiException ex)
 			{
@@ -56,7 +63,7 @@ public partial class PlacesPage
 			}
 
 			// Either call the Reload method or reassign the Data property of the Scheduler
-			await _scheduler.Reload();
+			
 			// await InvokeAsync(StateHasChanged);
 		}
 	}
@@ -97,8 +104,8 @@ public partial class PlacesPage
 			{
 				foreach (var container in _location.Containers)
 				{
-					var c = _frameworkBackgroundColors.GetColor(container);
-					if (args.Start >= container.StartTime && args.Start < container.EndTime)
+					var c = _frameworkBackgroundColors.GetColor(container.Framework.Id);
+					if (args.Start >= container.StartTime.ToLocalTime() && args.Start < container.EndTime.ToLocalTime())
 						args.Attributes["style"] = $"background: {c};";
 				}
 
@@ -107,7 +114,7 @@ public partial class PlacesPage
 		}
 	}
 
-	private readonly ColorSelector<ShiftContainer> _frameworkBackgroundColors = new(new[]
+	private readonly ColorSelector<Guid> _frameworkBackgroundColors = new(new[]
 	{
 		"rgba(255,220,40,.4)",
 		"rgba(0,0,255,.4)",

@@ -1,9 +1,19 @@
-﻿using Muddi.ShiftPlanner.Shared;
+﻿using Muddi.ShiftPlanner.Client.Entities;
+using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Api;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Services;
+
+public interface IShiftService
+{
+	Task<IEnumerable<ShiftLocation>> GetAllShiftLocationsAsync();
+	Task<ShiftLocation> GetLocationsByIdAsync(Guid id);
+	Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id);
+	Task AddShiftToLocation(ShiftLocation location, Shift shift);
+}
 
 public class ShiftService : IShiftService
 {
@@ -16,20 +26,30 @@ public class ShiftService : IShiftService
 
 	public async Task<IEnumerable<ShiftLocation>> GetAllShiftLocationsAsync()
 	{
-		var dtos = await _shiftApi.ShiftLocationsGetAllAsync();
+		var dtos = await _shiftApi.GetAllLocations();
 		return dtos.Select(t => t.MapToShiftLocation());
 	}
 
 	public async Task<ShiftLocation> GetLocationsByIdAsync(Guid id)
 	{
-		var dto = await _shiftApi.ShiftLocationsGetAsync(id);
+		var dto = await _shiftApi.GetLocationById(id);
 
 		return dto.MapToShiftLocation();
 	}
 
 	public async Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id)
 	{
-		var dtos = await _shiftApi.LocationsGetAllShifts(id);
+		var dtos = await _shiftApi.GetAllShiftsForLocation(id);
 		return dtos.Select(t => t.MapToShift());
+	}
+
+	public async Task AddShiftToLocation(ShiftLocation location, Shift shift)
+	{
+		await _shiftApi.CreateShift(location.Id, new CreateLocationsShiftRequest
+		{
+			EmployeeKeycloakId = shift.User.KeycloakId,
+			ShiftTypeId = shift.Type.Id,
+			Start = shift.StartTime
+		});
 	}
 }

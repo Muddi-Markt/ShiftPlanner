@@ -1,0 +1,57 @@
+﻿@inherits UpdateDialogBase<GetLocationResponse>
+
+<RadzenDataList Data="EntityToEdit.Containers" AllowPaging="true" WrapItems="true" PageSize="10">
+	<Template Context="c">
+		<div class="d-flex justify-content-between" style="margin: 0; padding: .25rem">
+			<div>@TextForContainers(c)</div>
+			<RadzenButton Size="ButtonSize.Small" Icon="clear" Click="() => RemoveContainer(c)"></RadzenButton>
+		</div>
+
+	</Template>
+</RadzenDataList>
+<RadzenButton Icon="add" Click="AddContainers"></RadzenButton>
+
+@code {
+
+	protected override Task Create()
+		=> ShiftApi.CreateLocationType(new() { Name = EntityToEdit.Name });
+
+	protected override Task Update()
+	{
+		throw new NotImplementedException();
+	}
+	
+	private async Task AddContainers()
+	{
+		var parameter = new Dictionary<string, object> { [nameof(AddLocationContainersDialog.LocationId)] = EntityToEdit.Id };
+		var hasChanged = await DialogService.OpenAsync<AddLocationContainersDialog>("Füge Container hinzu", parameter);
+		if (hasChanged == true)
+			await Refresh();
+	}
+
+	private async Task RemoveContainer(GetContainerResponse c)
+	{
+		var d = await DialogService.Confirm("Are you sure that you want to delete this container? This can't be undone!");
+		if (d.HasValue && d.Value)
+		{
+			await ShiftApi.DeleteContainer(c.Id);
+			await Refresh();
+		}
+	}
+
+	private async Task Refresh()
+	{
+		EntityToEdit = await ShiftApi.GetLocationById(EntityToEdit.Id);
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private static string TextForContainers(GetContainerResponse c)
+	{
+		var localStart = c.Start.ToLocalTime();
+		var localEnd = c.GetEndTime().ToLocalTime();
+		if (localStart.Date == localEnd.Date)
+			return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:HH:mm}";
+		return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:ddd, dd.MM. HH:mm}";
+	}
+
+}

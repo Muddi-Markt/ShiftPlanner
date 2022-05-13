@@ -8,12 +8,11 @@ namespace Muddi.ShiftPlanner.Client;
 
 public static class MuddiConnectExtension
 {
-    public const string AdminPolicy = "Admin";
     public static void AddMuddiConnect(this IServiceCollection services, IConfigurationSection configuration)
     {
         services.AddAuthorizationCore(options =>
         {
-            options.AddPolicy(AdminPolicy, policy => policy.RequireRole("admin"));
+            options.AddPolicy(Policies.IsAdmin, policy => policy.RequireRole("admin"));
         });
         services.AddOidcAuthentication(options =>
         {

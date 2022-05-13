@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Exceptions;
 
 namespace Muddi.ShiftPlanner.Shared.Entities;
@@ -12,7 +13,7 @@ public class ShiftLocation
 	public string Path { get; }
 	public string? Icon { get; }
 	public IReadOnlyList<ShiftContainer> Containers => _containers;
-	
+
 	private readonly List<ShiftContainer> _containers;
 
 	public ShiftLocation(Guid id, string name, GetLocationTypesResponse type, IEnumerable<ShiftContainer> shiftContainers)
