@@ -37,6 +37,12 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 			return null;
 		}
 
+		if (location.Containers.Any(c => c.Start == req.Start))
+		{
+			await SendConflictAsync("A container with the same starting time already exist");
+			return null;
+		}
+
 		var container = new ShiftContainer
 		{
 			Id = Guid.NewGuid(),
