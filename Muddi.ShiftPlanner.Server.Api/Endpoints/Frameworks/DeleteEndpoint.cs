@@ -10,16 +10,18 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.SuperAdmin);
 		Delete("/frameworks/{Id}");
 	}
 
-	public override async Task<bool> CrudExecuteAsync(Guid id, CancellationToken ct)
+	protected override async Task<DeleteResponse> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
 		var entity = await Database.ShiftFrameworks.FindAsync(new object?[] { id }, cancellationToken: ct);
 		if (entity is null)
-			return false;
+			return DeleteResponse.NotFound;
+		//TODO remove all corresponding container
 		Database.Remove(entity);
 		await Database.SaveChangesAsync(ct);
-		return true;
+		return DeleteResponse.OK;
 	}
 }

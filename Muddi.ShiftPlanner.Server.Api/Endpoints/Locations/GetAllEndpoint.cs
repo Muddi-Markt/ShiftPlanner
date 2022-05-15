@@ -13,6 +13,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetLocationRespon
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Editor, ApiRoles.Viewer);
 		Get("/locations");
 	}
 

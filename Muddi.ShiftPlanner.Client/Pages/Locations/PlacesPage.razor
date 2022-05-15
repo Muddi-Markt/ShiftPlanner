@@ -1,6 +1,5 @@
 ﻿@page "/locations/{Id:guid}"
 @using System.Globalization
-<h3>Test</h3>
 @if (_location is not null)
 {
     <h3>@_location.Name</h3>
@@ -17,8 +16,8 @@
                  TodayText="Heute"
                  SelectedIndex="1"
                  AppointmentRender=@OnAppointmentRender
-                 SlotSelect="OnSlotSelect"
-                 AppointmentSelect="OnShiftSelect">
+                 SlotSelect=@OnSlotSelect
+                 AppointmentSelect=@OnShiftSelect>
 
         <RadzenDayView Text="Tag" />
         <RadzenWeekView Text="Woche" StartTime="TimeSpan.Zero" EndTime="TimeSpan.FromHours(24)" MinutesPerSlot="30" TimeFormat="HH:mm" />

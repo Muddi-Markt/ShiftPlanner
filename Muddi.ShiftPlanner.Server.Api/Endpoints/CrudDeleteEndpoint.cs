@@ -5,7 +5,7 @@ namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
 public abstract class CrudDeleteEndpoint : CrudEndpoint<DefaultGetRequest, EmptyResponse>
 {
-	public abstract Task<bool> CrudExecuteAsync(Guid id, CancellationToken ct);
+	protected abstract Task<DeleteResponse> CrudExecuteAsync(Guid id, CancellationToken ct);
 
 	public override void Configure()
 	{
@@ -19,17 +19,34 @@ public abstract class CrudDeleteEndpoint : CrudEndpoint<DefaultGetRequest, Empty
 
 	public sealed override async Task HandleAsync(DefaultGetRequest req, CancellationToken ct)
 	{
-		var success = await CrudExecuteAsync(req.Id, ct);
-		if (!success)
+		var res = await CrudExecuteAsync(req.Id, ct);
+		switch (res)
 		{
-			await SendNotFoundAsync(ct);
-			return;
+			case DeleteResponse.NotFound:
+				await SendNotFoundAsync(ct);
+				return;
+			case DeleteResponse.OK:
+				await SendNoContentAsync(ct);
+				return;
+			//On other only return as the CrudExecuteAsync method already sent an response
+			case DeleteResponse.Other:
+			default:
+				return;
 		}
-
-		await SendNoContentAsync(ct);
 	}
 
 	protected CrudDeleteEndpoint(ShiftPlannerContext database) : base(database)
 	{
+	}
+
+	protected enum DeleteResponse
+	{
+		
+		OK,
+		NotFound,
+		/// <summary>
+		/// When this is used you have to call SendAsync or similar
+		/// </summary>
+		Other
 	}
 }

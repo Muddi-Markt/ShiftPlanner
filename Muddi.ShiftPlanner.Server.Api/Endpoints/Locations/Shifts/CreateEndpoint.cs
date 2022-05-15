@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
+using Muddi.ShiftPlanner.Shared;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations.Shifts;
 
@@ -13,6 +14,7 @@ public class AddShiftEndpoint : CrudEndpoint<CreateLocationsShiftRequest, EmptyR
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Editor);
 		Post("/locations/{Id:guid}/shifts");
 	}
 

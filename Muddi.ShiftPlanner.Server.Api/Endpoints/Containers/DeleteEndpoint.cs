@@ -10,16 +10,17 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.SuperAdmin);
 		Delete("/containers/{Id}");
 	}
 
-	public override async Task<bool> CrudExecuteAsync(Guid id, CancellationToken ct)
+	protected override async Task<DeleteResponse> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
 		var entity = await Database.Containers.FindAsync(new object?[] { id }, cancellationToken: ct);
 		if (entity is null)
-			return false;
+			return DeleteResponse.NotFound;
 		Database.Remove(entity);
 		await Database.SaveChangesAsync(ct);
-		return true;
+		return DeleteResponse.OK;
 	}
 }

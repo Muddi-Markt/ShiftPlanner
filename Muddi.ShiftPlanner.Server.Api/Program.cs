@@ -25,7 +25,9 @@ var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
+#if DEBUG
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+#endif
 app.UseFastEndpoints();
 app.UseOpenApi();
 app.UseSwaggerUi3(s => s.ConfigureDefaults());

@@ -2,6 +2,7 @@
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Radzen;
+using Refit;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Admin;
 
@@ -27,7 +28,12 @@ public abstract class UpdateDialogBase<TResponse> : ComponentBase , IUpdateDialo
 		}
 		catch (Exception ex)
 		{
-			await DialogService.Error(ex);
+			string text = ex.Message;
+			if (ex is ApiException apiException)
+			{
+				text += $"\r\n{apiException.Content}";
+			}
+			await DialogService.Error(text, ex.GetType().Name);
 		}
 	}
 	protected void Abort()

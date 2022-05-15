@@ -1,4 +1,5 @@
 ﻿using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Muddi.ShiftPlanner.Shared;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Shifts;
 
@@ -10,16 +11,32 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Editor);
 		Delete("/shifts/{Id:guid}");
 	}
 
-	public override async Task<bool> CrudExecuteAsync(Guid id, CancellationToken ct)
+	protected override async Task<DeleteResponse> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
 		var entity = await Database.Shifts.FindAsync(new object?[] { id }, cancellationToken: ct);
 		if (entity is null)
-			return false;
+			return DeleteResponse.NotFound;
+
+		if (User.GetKeycloakId() != entity.EmployeeKeycloakId)
+		{
+			await SendForbiddenAsync(ct);
+			return DeleteResponse.Other;
+		}
+
+		//Don't allow user to remove shifts after a certain time
+		//TODO This needs to be set via Api by an admin in the future
+		if (DateTime.UtcNow.Date.AddDays(-1).AddHours(16) >= entity.Start)
+		{
+			await SendLockedAsync("You are not allowed to remove the shift anymore. Ask an admin.");
+			return DeleteResponse.Other;
+		}
+
 		Database.Remove(entity);
 		await Database.SaveChangesAsync(ct);
-		return true;
+		return DeleteResponse.OK;
 	}
 }

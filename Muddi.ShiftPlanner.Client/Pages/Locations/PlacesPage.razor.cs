@@ -29,12 +29,19 @@ public partial class PlacesPage
 
 	protected override async Task OnParametersSetAsync()
 	{
-		var state = await AuthenticationState;
-		_location = await ShiftService.GetLocationsByIdAsync(Id);
-		_user = MuddiConnectUser.CreateFromClaimsPrincipal(state.User);
-		_frameworkBackgroundColors.Reset();
-		_shiftRoleBackgroundColors.Reset();
-		Shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id)).ToList();
+		try
+		{
+			var state = await AuthenticationState;
+			_location = await ShiftService.GetLocationsByIdAsync(Id);
+			_user = MuddiConnectUser.CreateFromClaimsPrincipal(state.User);
+			_frameworkBackgroundColors.Reset();
+			_shiftRoleBackgroundColors.Reset();
+			Shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id)).ToList();
+		}
+		catch (Exception ex)
+		{
+			await DialogService.Error(ex, "Error while setting parameter of places page");
+		}
 	}
 
 

@@ -17,6 +17,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<DefaultGetRequest, GetShiftResp
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Editor, ApiRoles.Viewer);
 		Get("/locations/{Id:guid}/shifts");
 	}
 

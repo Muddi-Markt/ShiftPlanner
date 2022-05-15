@@ -7,7 +7,7 @@ public class AdminEndpoint : EndpointWithoutRequest
 	public override void Configure()
 	{
 		Get("/admin");
-		Roles("admin");
+		Roles(ApiRoles.Admin);
 	}
 
 	public override Task HandleAsync(CancellationToken ct)

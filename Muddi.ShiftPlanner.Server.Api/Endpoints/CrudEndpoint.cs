@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Serilog.Parsing;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
@@ -17,16 +18,29 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 
 	public override void Configure()
 	{
+		Roles(ApiRoles.Admin);//Can be replaced in CrudConfigure() but default is Admin
 		CrudConfigure();
-#if DEBUG
-		AllowAnonymous();
-#endif
+// #if DEBUG
+		// AllowAnonymous();
+// #endif
 		Options(t => t.Produces<TResponse>());
 		Throttle(60, 60);
 	}
 
+	
+	//We don't need to pass the CancellationToken as the methods itself have it already
 	protected Task SendNotFoundAsync(string idName)
 	{
 		return SendStringAsync($"{idName} does not exist", StatusCodes.Status404NotFound);
+	}
+
+	protected Task SendConflictAsync(string reason)
+	{
+		return SendStringAsync(reason, StatusCodes.Status409Conflict);
+	}
+	
+	protected Task SendLockedAsync(string reason)
+	{
+		return SendStringAsync(reason, StatusCodes.Status423Locked);
 	}
 }

@@ -1,12 +1,13 @@
-﻿
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication.Internal;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Muddi.ShiftPlanner.Client;
+namespace Muddi.ShiftPlanner.Shared.BlazorWASM;
 
-public static class MuddiConnectExtension
+public static partial class ServiceCollectionExtensions
 {
     public static void AddMuddiConnect(this IServiceCollection services, IConfigurationSection configuration)
     {
@@ -31,6 +32,7 @@ public static class MuddiConnectExtension
 //https://nahidfa.com/posts/blazor-webassembly-role-based-and-policy-based-authorization/
 public class AccountClaimsPrincipalFactoryEx : AccountClaimsPrincipalFactory<RemoteUserAccount>
 {
+
     public AccountClaimsPrincipalFactoryEx(IAccessTokenProviderAccessor accessor) : base(accessor)
     {
     }
@@ -51,7 +53,7 @@ public class AccountClaimsPrincipalFactoryEx : AccountClaimsPrincipalFactory<Rem
         {
             return user;
         }
-
+        
         var rolesElem = account.AdditionalProperties[identity.RoleClaimType];
 
         if (rolesElem is JsonElement roles)

@@ -12,6 +12,7 @@ public class GetEndpoint : CrudGetEndpoint<GetLocationResponse>
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Editor, ApiRoles.Viewer);
 		Get("/locations/{Id:guid}");
 	}
 

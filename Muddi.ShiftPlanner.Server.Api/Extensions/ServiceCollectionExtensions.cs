@@ -16,6 +16,18 @@ public static class ServiceCollectionExtensions
 		Change "Token Claim Name" as "roles"
 		Multivalued: True
 		Add to access token: True
+		Add to userinfo: True
+		
+		*** Add default roles for shift-planner ***		
+		Go to shift-planner client > Roles
+		Add four roles: super-admin, admin, editor, viewer
+			viewer: only viewing allowed
+			editor: allowed to create and edit own shifts
+			admin: allowed to create or update mostly anything, only allowed to delete shifts
+			super-admin: allowed to delete everything
+			
+		Go to Roles > default-roles-muddi > Client Roles: shift-planner
+		Add 'editor' and 'viewer' to Client Default Roles
 		
 		*** Add Audience ***
 		Edit shift-planner Client
@@ -39,7 +51,7 @@ public static class ServiceCollectionExtensions
 		var muddiConfig = configuration.GetSection("MuddiConnect");
 		var authority = muddiConfig["Authority"];
 		services.AddSingleton<IKeycloakService,KeycloakService>();
-
+		
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(o =>
 			{

@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Muddi.ShiftPlanner.Shared.BlazorWASM\Muddi.ShiftPlanner.Shared.BlazorWASM.csproj" />
       <ProjectReference Include="..\Muddi.ShiftPlanner.Shared\Muddi.ShiftPlanner.Shared.csproj" />
     </ItemGroup>
 

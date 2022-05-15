@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Muddi.ShiftPlanner.Shared.Api;
+using Muddi.ShiftPlanner.Shared.BlazorWASM;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Radzen;
 using Radzen.Blazor;
@@ -80,6 +81,10 @@ public abstract class GetAllPageBase<TResponse, TCreateDialog> : ComponentBase
 			catch (Refit.ApiException ex)
 			{
 				await DialogService.Confirm(ex.Message);
+			}
+			catch (HttpRequestException ex)
+			{
+				await DialogService.Confirm($"{ex.Message}\r\nErrorCode: {ex.StatusCode}");
 			}
 		}
 	}

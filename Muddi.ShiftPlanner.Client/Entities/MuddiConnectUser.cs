@@ -3,6 +3,7 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
+using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Entities;
@@ -23,12 +24,9 @@ public sealed class MuddiConnectUser : EmployeeBase
 		// #endif
 		if (principal.Identity is not { IsAuthenticated: true })
 			throw new UnauthorizedAccessException("User is not authenticated");
-		var keycloakId = principal.FindFirst("sub")?.Value
-		                 ?? throw new ArgumentNullException(nameof(principal), "Can't determine keycloak id from principal");
-		var name = principal.Identity?.Name
-		           ?? throw new ArgumentNullException(nameof(principal), "Can't determine name from principal");
-		var email = principal.FindFirst("email")?.Value
-		            ?? throw new ArgumentNullException(nameof(principal), "Can't determine e-mail from principal");
-		return new MuddiConnectUser(Guid.Parse(keycloakId), name, email);
+		var keycloakId = principal.GetKeycloakId();
+		var name = principal.GetFullName();
+		var email = principal.GetEMail();
+		return new MuddiConnectUser(keycloakId, name, email);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Muddi.ShiftPlanner.Server.Database.Contexts;
+﻿using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Database.Contexts;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations;
 
@@ -10,16 +11,23 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.SuperAdmin);
 		Delete("/locations/{Id}");
 	}
 
-	public override async Task<bool> CrudExecuteAsync(Guid id, CancellationToken ct)
+	protected override async Task<DeleteResponse> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
-		var entity = await Database.ShiftLocations.FindAsync(new object?[] { id }, cancellationToken: ct);
+		var entity = await Database.ShiftLocations
+			.Include(t => t.Containers)
+			.ThenInclude(t => t.Shifts)
+			.FirstOrDefaultAsync(t => t.Id == id, cancellationToken: ct);
 		if (entity is null)
-			return false;
+			return DeleteResponse.NotFound;
+		Database.RemoveRange(entity.Containers.SelectMany(q => q.Shifts));
+		Database.RemoveRange(entity.Containers);
 		Database.Remove(entity);
+		//TODO remove all corresponding container
 		await Database.SaveChangesAsync(ct);
-		return true;
+		return DeleteResponse.OK;
 	}
 }
