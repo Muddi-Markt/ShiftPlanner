@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Radzen;
@@ -10,6 +11,7 @@ public abstract class UpdateDialogBase<TResponse> : ComponentBase , IUpdateDialo
 	where TResponse : IMuddiResponse, new()
 {
 	[Inject] protected IMuddiShiftApi ShiftApi { get; set; }
+	[Inject] protected ShiftService ShiftService { get; set; }
 	[Inject] protected DialogService DialogService { get; set; }
 	[Parameter] public TResponse EntityToEdit { get; set; } = new();
 
@@ -36,7 +38,7 @@ public abstract class UpdateDialogBase<TResponse> : ComponentBase , IUpdateDialo
 			await DialogService.Error(text, ex.GetType().Name);
 		}
 	}
-	protected void Abort()
+	protected void CloseWithoutSave()
 	{
 		DialogService.Close(false);
 	}

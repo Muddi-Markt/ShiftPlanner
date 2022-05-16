@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Serilog.Parsing;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;

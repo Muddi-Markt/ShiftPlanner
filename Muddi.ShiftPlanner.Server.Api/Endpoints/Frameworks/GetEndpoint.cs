@@ -15,7 +15,7 @@ public class GetEndpoint : CrudGetEndpoint<GetFrameworkResponse>
 		Get("/frameworks/{Id:guid}");
 	}
 
-	public override async Task<GetFrameworkResponse?> MuddiExecuteAsync(Guid id, CancellationToken ct)
+	public override async Task<GetFrameworkResponse?> CrudExecuteAsync(Guid id, CancellationToken ct)
 		=> (await Database.ShiftFrameworks
 				.Include(t => t.ShiftTypeCounts)
 				.ThenInclude(c => c.ShiftType)

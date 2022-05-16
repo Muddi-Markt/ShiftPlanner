@@ -1,0 +1,156 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
+@using Muddi.ShiftPlanner.Client.Pages.Admin;
+@using System.Security.Claims
+@using Muddi.ShiftPlanner.Shared.Contracts.v1
+
+@inherits UpdateDialogBase<GetShiftResponse>
+
+@if (_user is not null)
+{
+	@if (_isAdmin)
+	{
+		<h3>Admin Mode</h3>
+	}
+	<div class="row">
+		<div class="col-md-4 align-items-center d-flex">
+			<RadzenLabel Text="User"/>
+		</div>
+		<div class="col-md-8">
+			<RadzenTextBox Value="@EntityToEdit.Employee.UserName" Placeholder="Name"></RadzenTextBox>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-4 align-items-center d-flex">
+			<RadzenLabel Text="Start"/>
+		</div>
+		<div class="col-md-8">
+			<RadzenTextBox Name="Start" Value="@(EntityToEdit.Start.ToLocalTime().ToString("HH:mm"))" ReadOnly="true"/>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4 align-items-center d-flex">
+			<RadzenLabel Text="Start"/>
+		</div>
+		<div class="col-md-8">
+			<RadzenTextBox
+				Name="End"
+				Value="@((EntityToEdit.End).ToLocalTime().ToString("HH:mm"))"
+				ReadOnly="true"/>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4 align-items-center d-flex">
+			<RadzenLabel Text="Type"/>
+		</div>
+		<div class="col-md-8">
+			@if (_isShiftUser || _isAdmin)
+			{
+				@if (_availableShiftTypes.Any())
+				{
+					<RadzenDropDown TValue="GetShiftTypesResponse" Data="@_availableShiftTypes" @bind-Value="@EntityToEdit.Type">
+						<Template Context="type">@(((GetShiftTypesResponse)type).Name)</Template>
+					</RadzenDropDown>
+				}
+				else
+				{
+
+					<RadzenTextBox Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")" ReadOnly="true"></RadzenTextBox>
+				}
+			}
+			else
+			{
+				<RadzenTextBox Name="Type" Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")" ReadOnly="true"/>
+			}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-4 align-items-center d-flex">
+			<RadzenLabel Text="Delete"/>
+		</div>
+		<div class="col-md-8">
+			<RadzenButton 
+				Click="DeleteClick"
+				Text="Schicht Löschen" 
+				Icon="delete" 
+				Style="background: #de0808"></RadzenButton>
+		</div>
+	</div>
+}
+<div class="row mb-3 mt-4">
+	<div class="col-md-12 text-right">
+		<RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
+		<RadzenButton Click="CloseWithoutSave" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
+	</div>
+</div>
+
+
+@code {
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthenticationState { get; set; }
+
+
+	private ClaimsPrincipal? _user;
+	private bool _isAdmin;
+	private bool _isShiftUser;
+	private HashSet<GetShiftTypesResponse> _availableShiftTypes = new();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			var dto = await ShiftApi.GetAvailableShiftTypes(EntityToEdit.ContainerId, EntityToEdit.Start);
+			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
+			if (EntityToEdit.Type is not null && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
+				_availableShiftTypes.Add(EntityToEdit.Type);
+			var auth = await AuthenticationState;
+
+			_user = auth.User;
+			var keycloakId = _user.GetKeycloakId();
+			if (keycloakId != default)
+			{
+				_isShiftUser = keycloakId == EntityToEdit.Employee.Id;
+				_isAdmin = _user.IsInRole(ApiRoles.Admin);
+			}
+			
+		}
+		catch (Exception ex)
+		{
+			DialogService.Close(false);
+			_ = DialogService.Error(ex);
+		}
+	}
+
+
+	protected override Task Create()
+	{
+		throw new NotImplementedException();
+	}
+
+	protected override Task Update()
+	{
+		throw new NotImplementedException();
+	}
+
+
+	private async Task DeleteClick()
+	{
+		try
+		{
+			var ask = await DialogService.Confirm("Bist du sicher, dass du die Schicht löschen willst?");
+			if (ask is true)
+			{
+				await ShiftApi.DeleteShift(EntityToEdit.Id);
+				DialogService.Close(true);//return true, as we have changed the entity (deleted it)
+			}
+		}
+		catch (Exception ex)
+		{
+			await DialogService.Error(ex);
+		}
+	}
+
+}

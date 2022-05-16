@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Muddi.ShiftPlanner.Server.Api.Filters;
 using Muddi.ShiftPlanner.Server.Api.Services;
@@ -50,11 +51,12 @@ public static class ServiceCollectionExtensions
 	{
 		var muddiConfig = configuration.GetSection("MuddiConnect");
 		var authority = muddiConfig["Authority"];
+		JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
 		services.AddSingleton<IKeycloakService,KeycloakService>();
-		
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(o =>
 			{
+				
 				o.MetadataAddress = authority.TrimEnd('/') + "/.well-known/openid-configuration";
 				o.RequireHttpsMetadata = false;
 				o.SaveToken = true;
@@ -66,7 +68,7 @@ public static class ServiceCollectionExtensions
 					// the above URL which is not what is published issueer by the well-known, I'm setting it here.
 
 					ValidIssuer = authority,
-
+					RoleClaimType = "roles",
 					NameClaimType = "preferred_username",
 					ValidAudience = muddiConfig["Audience"],
 					ValidateAudience = true,

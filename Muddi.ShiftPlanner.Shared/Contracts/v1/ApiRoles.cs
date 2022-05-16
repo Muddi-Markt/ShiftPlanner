@@ -1,4 +1,4 @@
-﻿namespace Muddi.ShiftPlanner.Server.Api;
+﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 public static class ApiRoles
 {

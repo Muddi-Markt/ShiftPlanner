@@ -12,7 +12,11 @@ public static partial class ServiceCollectionExtensions
 	{
 		var baseUri = configuration["BaseUrl"] ?? throw new ArgumentNullException(nameof(configuration),"Failed to get BaseUrl from configuration");
 		services.AddScoped<AuthorizationMessageHandler>();
-		services.AddRefitClient<IMuddiShiftApi>()
+		var settings = new RefitSettings
+		{
+			UrlParameterFormatter = new CustomUrlParameterFormatter()
+		};
+		services.AddRefitClient<IMuddiShiftApi>(settings)
 			.ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUri))
 			.AddHttpMessageHandler(sp => sp
 				.GetRequiredService<AuthorizationMessageHandler>()

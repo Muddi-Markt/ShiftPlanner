@@ -15,7 +15,7 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftTypesResponse>
 		Get("/shift-types/{Id}");
 	}
 
-	public override async Task<GetShiftTypesResponse?> MuddiExecuteAsync(Guid id, CancellationToken ct)
+	public override async Task<GetShiftTypesResponse?> CrudExecuteAsync(Guid id, CancellationToken ct)
 		=> (await Database.ShiftTypes
 				.FirstOrDefaultAsync(x => x.Id == id, cancellationToken: ct))
 			?.Adapt<GetShiftTypesResponse>();

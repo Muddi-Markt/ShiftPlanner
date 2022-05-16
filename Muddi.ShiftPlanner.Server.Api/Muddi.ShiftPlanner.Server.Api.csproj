@@ -26,4 +26,8 @@
       <ProjectReference Include="..\Muddi.ShiftPlanner.Shared\Muddi.ShiftPlanner.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Endpoints\Containers\Shifts" />
+    </ItemGroup>
+
 </Project>

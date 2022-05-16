@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations.Shifts;
 
@@ -36,7 +37,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<DefaultGetRequest, GetShiftResp
 		{
 			foreach (var shift in container.Shifts)
 			{
-				var response = await MapToShiftResponse(shift);
+				var response = await MapToShiftResponse(container.Id,shift);
 				ret.Add(response);
 			}
 		}
@@ -44,10 +45,10 @@ public class GetAllEndpoint : CrudGetAllEndpoint<DefaultGetRequest, GetShiftResp
 		return ret;
 	}
 
-	private async Task<GetShiftResponse> MapToShiftResponse(Shift shift)
+	private async Task<GetShiftResponse> MapToShiftResponse(Guid containerId, Shift shift)
 	{
 		var shiftResponse = shift.Adapt<GetShiftResponse>();
-
+		shiftResponse.ContainerId = containerId;
 		shiftResponse.Employee = await _keycloakService.GetUserById(shift.EmployeeKeycloakId);
 		
 		return shiftResponse;

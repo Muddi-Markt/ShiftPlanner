@@ -35,6 +35,16 @@ public class StartTimeNotInContainerException : MuddiException
 	}
 }
 
+public class ShiftNotInContainerException : MuddiException
+{
+	public ShiftNotInContainerException(Shift shift)
+		: base($"Shift with start time {shift.StartTime} is not in this container")
+	{
+	}
+}
+
+
+
 public class ContainerTimeOverlapsException : MuddiException
 {
 	public ContainerTimeOverlapsException(ShiftContainer container, ShiftContainer overlapContainer)

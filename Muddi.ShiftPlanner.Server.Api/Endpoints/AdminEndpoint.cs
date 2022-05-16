@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 

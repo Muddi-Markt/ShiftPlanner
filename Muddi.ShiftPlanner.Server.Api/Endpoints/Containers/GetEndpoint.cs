@@ -15,7 +15,7 @@ public class GetEndpoint : CrudGetEndpoint<GetContainerResponse>
 		Get("/containers/{Id:guid}");
 	}
 
-	public override async Task<GetContainerResponse?> MuddiExecuteAsync(Guid id, CancellationToken ct)
+	public override async Task<GetContainerResponse?> CrudExecuteAsync(Guid id, CancellationToken ct)
 		=> (await Database.Containers
 				.Include(t => t.Framework)
 				.ThenInclude(f => f.ShiftTypeCounts)

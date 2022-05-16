@@ -15,7 +15,7 @@ public class GetEndpoint : CrudGetEndpoint<GetLocationTypesResponse>
 	{
 	}
 
-	public override async Task<GetLocationTypesResponse?> MuddiExecuteAsync(Guid id, CancellationToken ct)
+	public override async Task<GetLocationTypesResponse?> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
 		var types = await Database.ShiftLocationTypes.FirstOrDefaultAsync(x => x.Id == id, cancellationToken: ct);
 		return types?.Adapt<GetLocationTypesResponse>();

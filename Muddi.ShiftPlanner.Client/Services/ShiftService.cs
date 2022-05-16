@@ -1,4 +1,5 @@
-﻿using Muddi.ShiftPlanner.Client.Entities;
+﻿using System.Net;
+using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
@@ -7,15 +8,15 @@ using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Services;
 
-public interface IShiftService
-{
-	Task<IEnumerable<ShiftLocation>> GetAllShiftLocationsAsync();
-	Task<ShiftLocation> GetLocationsByIdAsync(Guid id);
-	Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id);
-	Task AddShiftToLocation(ShiftLocation location, Shift shift);
-}
+// public interface IShiftService
+// {
+// 	Task<IEnumerable<ShiftLocation>> GetAllShiftLocationsAsync();
+// 	Task<ShiftLocation> GetLocationsByIdAsync(Guid id);
+// 	Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id);
+// 	Task AddShiftToLocation(ShiftLocation location, Shift shift);
+// }
 
-public class ShiftService : IShiftService
+public class ShiftService
 {
 	private readonly IMuddiShiftApi _shiftApi;
 
@@ -43,13 +44,24 @@ public class ShiftService : IShiftService
 		return dtos.Select(t => t.MapToShift());
 	}
 
-	public async Task AddShiftToLocation(ShiftLocation location, Shift shift)
+	public async Task AddShiftToLocation(ShiftLocation location, CreateLocationsShiftRequest req)
 	{
-		await _shiftApi.CreateShift(location.Id, new CreateLocationsShiftRequest
-		{
-			EmployeeKeycloakId = shift.User.KeycloakId,
-			ShiftTypeId = shift.Type.Id,
-			Start = shift.StartTime
-		});
+		await _shiftApi.CreateShift(location.Id, req);
+	}
+
+	public async Task<IEnumerable<ShiftType>> GetAvailableShiftTypesAtTime(Guid containerId, DateTime start)
+	{
+		var availableShiftTypes = await _shiftApi.GetAvailableShiftTypes(containerId, start);
+		return availableShiftTypes.Select(q => q.MapToShiftType());
+	}
+
+	public async Task<Shift?> GetShiftById(Guid id)
+	{
+		var resp = await _shiftApi.GetShift(id);
+		if (resp.StatusCode == HttpStatusCode.NotFound)
+			return null;
+		if (resp.Error is not null)
+			throw resp.Error;
+		return resp.Content!.MapToShift();
 	}
 }

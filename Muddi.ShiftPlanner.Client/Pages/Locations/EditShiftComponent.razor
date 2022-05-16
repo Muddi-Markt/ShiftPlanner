@@ -36,7 +36,7 @@
         <div class="col">
             <RadzenTextBox 
                 Name="End" 
-                Value="@((ShiftParameter.StartTime + ShiftParameter.Container.Framework.TimePerShift).ToLocalTime().ToString("HH:mm"))" 
+                Value="@((ShiftParameter.ShiftToEdit?.EndTime ?? ShiftParameter.StartTime + ShiftParameter.Container!.Framework.TimePerShift).ToLocalTime().ToString("HH:mm"))" 
                 ReadOnly="true"/>
         </div>
     </div>

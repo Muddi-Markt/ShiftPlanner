@@ -18,12 +18,34 @@ public static class MapperExtensions
 
 	public static Shift MapToShift(this GetShiftResponse dto)
 	{
-		return new Shift(new Employee(dto.Employee.Id, dto.Employee.UserName), dto.Start.ToUniversalTime().ToLocalTime(), dto.End.ToUniversalTime().ToLocalTime(), dto.Type.MapToShiftType());
+		return new Shift(dto.Id, new Employee(dto.Employee.Id, dto.Employee.UserName),
+			dto.Start.ToUniversalTime().ToLocalTime(),
+			dto.End.ToUniversalTime().ToLocalTime(),
+			dto.Type.MapToShiftType(),
+			dto.ContainerId
+		);
+	}
+	public static GetShiftResponse MapToShiftResponse(this Shift dto)
+	{
+		return new GetShiftResponse
+		{
+			Id = dto.Id,
+			ContainerId = dto.ContainerId,
+			Employee = new(){UserName = dto.User.Name, Id = dto.User.KeycloakId},
+			Start = dto.StartTime,
+			End = dto.EndTime,
+			Type = new(){Id = dto.Type.Id, Name = dto.Type.Name}
+		};
 	}
 
 	public static ShiftType MapToShiftType(this GetShiftTypesResponse dto)
 		=> new ShiftType(dto.Id, dto.Name);
 
-	public static Shift ToLocalTime(this Shift shift) 
-		=> new(shift.User, shift.StartTime.ToUniversalTime().ToLocalTime(), shift.EndTime.ToUniversalTime().ToLocalTime(), shift.Type);
+	public static Shift ToLocalTime(this Shift shift)
+		=> new(shift.Id,
+			shift.User, 
+			shift.StartTime.ToUniversalTime().ToLocalTime(), 
+			shift.EndTime.ToUniversalTime().ToLocalTime(), 
+			shift.Type,
+			shift.ContainerId);
 }

@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata;
+﻿using System.Reflection;
+using System.Reflection.Metadata;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Refit;
 
@@ -70,5 +71,23 @@ public interface IMuddiShiftApi
 
 	[Post("/locations/{Id}/shifts")]
 	Task CreateShift(Guid id, CreateLocationsShiftRequest createLocationsShiftRequest);
-	
+
+	[Get("/containers/{containerId}/get-available-shift-types")]
+	Task<IEnumerable<GetShiftTypesResponse>> GetAvailableShiftTypes(Guid containerId, DateTime start);
+
+	[Delete("/shifts/{id}")]
+	Task DeleteShift(Guid id);
+
+	[Get("/shifts/{id}")]
+	Task<ApiResponse<GetShiftResponse>> GetShift(Guid id);
+}
+
+public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter
+{
+	public override string? Format(object? parameterValue, ICustomAttributeProvider attributeProvider, Type type)
+	{
+		return type == typeof(DateTime) && parameterValue is DateTime dt
+			? dt.ToUniversalTime().ToString("O") 
+			: base.Format(parameterValue, attributeProvider, type);
+	}
 }

@@ -1,6 +1,6 @@
 ﻿@inherits UpdateDialogBase<GetLocationResponse>
 
-<RadzenDataList Data="EntityToEdit.Containers" AllowPaging="true" WrapItems="true" PageSize="10">
+<RadzenDataList Data="EntityToEdit.Containers!.OrderBy(c => c.Start)" AllowPaging="true" WrapItems="true" PageSize="10">
 	<Template Context="c">
 		<div class="d-flex justify-content-between" style="margin: 0; padding: .25rem">
 			<div>@TextForContainers(c)</div>
