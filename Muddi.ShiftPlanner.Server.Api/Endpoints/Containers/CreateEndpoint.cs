@@ -50,6 +50,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 			End = req.Start + framework.TimePerShift * req.TotalShifts,
 			TotalShifts = req.TotalShifts,
 			Framework = framework,
+			Color = req.Color
 		};
 
 		

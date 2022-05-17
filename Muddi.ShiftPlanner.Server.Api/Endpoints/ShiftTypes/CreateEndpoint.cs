@@ -17,10 +17,12 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateShiftTypeRequest, GetShif
 
 	public override async Task<GetShiftTypesResponse?> CrudExecuteAsync(CreateShiftTypeRequest req, CancellationToken ct)
 	{
-		var type = new ShiftType
+		var type = new ShiftTypeEntity
 		{
 			Id = Guid.NewGuid(),
 			Name = req.Name,
+			Color = req.Color,
+			StartingTimeShift = req.StartingTimeShift
 		};
 		Database.Add(type);
 		await Database.SaveChangesAsync(ct);

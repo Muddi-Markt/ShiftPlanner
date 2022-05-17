@@ -13,9 +13,11 @@ public class ShiftContainer
 	public int TotalShifts { get; }
 	public ShiftFramework Framework { get; }
 	public IEnumerable<DateTime> ShiftStartTimes => _startTimes;
+	public string BackgroundColor { get; set; }
 
-	public ShiftContainer(Guid id, ShiftFramework framework, DateTime startTime, int totalShifts)
+	public ShiftContainer(Guid id, ShiftFramework framework, DateTime startTime, int totalShifts, string color)
 	{
+		BackgroundColor = color;
 		StartTime = startTime.ThrowIfNotUtc();
 		EndTime = startTime + framework.TimePerShift * totalShifts;
 		TotalTime = EndTime - StartTime;

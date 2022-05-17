@@ -17,19 +17,19 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateFrameworkRequest, GetFram
 
 	public override async Task<GetFrameworkResponse?> CrudExecuteAsync(CreateFrameworkRequest req, CancellationToken ct)
 	{
-		var framework = new ShiftFramework
+		var framework = new ShiftFrameworkEntity
 		{
 			Id = Guid.NewGuid(),
 			Name = req.Name,
 			SecondsPerShift = req.SecondsPerShift,
-			ShiftTypeCounts = new List<ShiftFrameworkTypeCount>()
+			ShiftTypeCounts = new List<ShiftFrameworkTypeCountEntity>()
 		};
 
 		foreach (var countDto in req.TypeCounts)
 		{
-			var shiftType = new ShiftType() { Id = countDto.ShiftTypeId };
+			var shiftType = new ShiftTypeEntity() { Id = countDto.ShiftTypeId };
 			Database.Attach(shiftType);
-			var countEntity = new ShiftFrameworkTypeCount()
+			var countEntity = new ShiftFrameworkTypeCountEntity()
 			{
 				Id = Guid.NewGuid(),
 				Count = countDto.Count,

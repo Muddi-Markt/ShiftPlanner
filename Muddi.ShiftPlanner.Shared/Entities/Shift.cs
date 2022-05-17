@@ -23,7 +23,9 @@ public class Shift : IEquatable<Shift>
 	public string Title => (User.Name.Contains(' ') ? User.Name[..User.Name.IndexOf(' ')] : User.Name) + "\n" + Type.Name;
 	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }
+	public DateTime DisplayStartTime => StartTime.ToLocalTime() + Type.StartingTimeShift;
 	public DateTime EndTime { get; }
+	public DateTime DisplayEndTime => EndTime.ToLocalTime() + Type.StartingTimeShift;
 	public ShiftType Type { get; }
 	public Guid ContainerId { get; }
 	public Guid Id { get; }

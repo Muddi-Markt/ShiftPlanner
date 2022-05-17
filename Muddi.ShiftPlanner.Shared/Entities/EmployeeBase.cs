@@ -1,6 +1,11 @@
 namespace Muddi.ShiftPlanner.Shared.Entities;
 
-public record ShiftType(Guid Id, string Name);
+public record ShiftType(
+	Guid Id, 
+	string Name, 
+	string Color, 
+	bool OnlyAssignableByAdmin, 
+	TimeSpan StartingTimeShift);
 
 public enum UserRoles
 {

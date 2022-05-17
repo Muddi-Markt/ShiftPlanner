@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.BlazorWASM;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Radzen;
 using Radzen.Blazor;
+using Refit;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Admin;
 
-[Authorize(Policy = Policies.IsAdmin)]
+[Microsoft.AspNetCore.Authorization.Authorize(Policy = Policies.IsAdmin)]
 public abstract class GetAllPageBase<TResponse, TCreateDialog> : ComponentBase
 	where TResponse : IMuddiResponse, new()
 	where TCreateDialog : UpdateDialogBase<TResponse>
@@ -78,13 +78,13 @@ public abstract class GetAllPageBase<TResponse, TCreateDialog> : ComponentBase
 				await Delete(entity);
 				ReloadData();
 			}
-			catch (Refit.ApiException ex)
-			{
-				await DialogService.Confirm(ex.Message);
-			}
 			catch (HttpRequestException ex)
 			{
-				await DialogService.Confirm($"{ex.Message}\r\nErrorCode: {ex.StatusCode}");
+				await DialogService.Error($"{ex.Message}\r\nErrorCode: {ex.StatusCode}");
+			}
+			catch (Exception ex)
+			{
+				await DialogService.Error(ex);
 			}
 		}
 	}

@@ -1,6 +1,8 @@
-﻿namespace Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
+﻿using System.Reflection.Metadata.Ecma335;
 
-public class GetShiftTypesResponse : IMuddiResponse
+namespace Muddi.ShiftPlanner.Server.Database.Entities;
+
+public class ShiftTypeEntity
 {
 	public Guid Id { get; set; }
 	public string Name { get; set; }

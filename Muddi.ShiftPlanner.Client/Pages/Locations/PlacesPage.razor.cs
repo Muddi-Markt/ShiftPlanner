@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -33,12 +34,14 @@ public partial class PlacesPage
 	{
 		try
 		{
+			var sw = Stopwatch.StartNew();
+			Console.WriteLine($"user... @ {sw.ElapsedMilliseconds}");
 			var state = await AuthenticationState;
+			Console.WriteLine($"locationById... @ {sw.ElapsedMilliseconds}");
+			Console.WriteLine("locationById...");
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
 			_user = state.User;
-			_frameworkBackgroundColors.Reset();
-			_shiftRoleBackgroundColors.Reset();
-			Shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id)).ToList();
+			Console.WriteLine($"done... @ {sw.ElapsedMilliseconds}");
 		}
 		catch (Exception ex)
 		{
@@ -78,10 +81,8 @@ public partial class PlacesPage
 			{
 				await DialogService.Error(ex);
 			}
-			
-			
 		}
-		
+
 
 		return;
 		// ShiftContainer container = _location.GetShiftContainerByTime(start);
@@ -150,7 +151,7 @@ public partial class PlacesPage
 	{
 		// Never call StateHasChanged in AppointmentRender - would lead to infinite loop
 
-		args.Attributes["style"] = $"background: {_shiftRoleBackgroundColors.GetColor(args.Data.Type)}";
+		args.Attributes["style"] = $"background: {args.Data.Type.Color}";
 	}
 
 	private void OnSlotRender(SchedulerSlotRenderEventArgs args)
@@ -166,7 +167,7 @@ public partial class PlacesPage
 			{
 				foreach (var container in _location.Containers)
 				{
-					var c = _frameworkBackgroundColors.GetColor(container.Framework.Id);
+					var c = container.BackgroundColor;
 					if (args.Start >= container.StartTime.ToLocalTime() && args.Start < container.EndTime.ToLocalTime())
 						args.Attributes["style"] = $"background: {c};";
 				}
@@ -176,43 +177,8 @@ public partial class PlacesPage
 		}
 	}
 
-	private readonly ColorSelector<Guid> _frameworkBackgroundColors = new(new[]
+	private async Task LoadShifts(SchedulerLoadDataEventArgs arg)
 	{
-		"rgba(255,220,40,.4)",
-		"rgba(0,0,255,.4)",
-		"rgba(0,255,0,.4)",
-		"rgba(255,0,0,.4)"
-	});
-
-	private readonly ColorSelector<ShiftType> _shiftRoleBackgroundColors = new(new[]
-	{
-		"rgba(255,40,220)",
-		"rgba(0,0,200)",
-		"rgba(0,200,0)",
-		"rgba(200,0,0)"
-	});
-}
-
-public class ColorSelector<TItem> where TItem : notnull
-{
-	private ConcurrentDictionary<TItem, string> _colorsForItem = new();
-	private readonly ConcurrentStack<string> _freeColors = new();
-	private readonly string[] _colors;
-
-	public ColorSelector(string[] colors)
-	{
-		_colors = colors;
-		Reset();
-	}
-
-	public string GetColor(TItem item)
-	{
-		return _colorsForItem.GetOrAdd(item, _ => _freeColors.TryPop(out var c) ? c : "#f00");
-	}
-
-	public void Reset()
-	{
-		_freeColors.Clear();
-		_freeColors.PushRange(_colors);
+		Shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
 	}
 }

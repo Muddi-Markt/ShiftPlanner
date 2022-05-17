@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FluentValidation.Results;
+using Mapster;
 using Muddi.ShiftPlanner.Server.Api.Endpoints;
 using Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
@@ -15,27 +16,31 @@ public static class ShiftService
 		var counter = container.Framework.ShiftTypeCounts.Select(sft => new ShiftTypeCountsHelper(sft)).ToList();
 		foreach (var shift in container.Shifts.Where(s => s.Start == requestStartTime))
 		{
-			var q = counter.Single(c => c.Id == shift.Type.Id);
+			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
 			q.Count--;
 		}
 
 		return counter
 			.Where(c => c.Count > 0)
-			.Select(c => new GetShiftTypesResponse { Id = c.Id, Name = c.Name });
+			.Select(c => new GetShiftTypesResponse
+			{
+				Id = c.Type.Id, 
+				Name = c.Type.Name,
+				Color = c.Type.Color,
+				OnlyAssignableByAdmin = c.Type.OnlyAssignableByAdmin,
+				StartingTimeShift = c.Type.StartingTimeShift
+			});
 	}
 
 	private class ShiftTypeCountsHelper
 	{
-		public ShiftTypeCountsHelper(ShiftFrameworkTypeCount sft)
+		public ShiftTypeCountsHelper(ShiftFrameworkTypeCountEntity sft)
 		{
-			Id = sft.ShiftType.Id;
-			Name = sft.ShiftType.Name;
+			Type = sft.ShiftType.Adapt<ShiftTypeEntity>();//clone
 			Count = sft.Count;
 		}
 
-		public string Name { get; }
-
-		internal Guid Id { get; }
+		public ShiftTypeEntity Type { get; set; }
 		internal int Count { get; set; }
 	}
 

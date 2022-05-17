@@ -9,11 +9,11 @@ public class ShiftPlannerContext : DbContext
 	{
 	}
 
-	public DbSet<Shift> Shifts { get; set; }
+	public DbSet<ShiftEntity> Shifts { get; set; }
 	public DbSet<ShiftContainer> Containers { get; set; }
-	public DbSet<ShiftFramework> ShiftFrameworks { get; set; }
-	public DbSet<ShiftType> ShiftTypes { get; set; }
-	public DbSet<ShiftLocation> ShiftLocations { get; set; }
-	public DbSet<ShiftLocationType> ShiftLocationTypes { get; set; }
+	public DbSet<ShiftFrameworkEntity> ShiftFrameworks { get; set; }
+	public DbSet<ShiftTypeEntity> ShiftTypes { get; set; }
+	public DbSet<ShiftLocationEntity> ShiftLocations { get; set; }
+	public DbSet<ShiftLocationTypeEntity> ShiftLocationTypes { get; set; }
 	
 }

@@ -63,15 +63,27 @@ public class KeycloakService : IKeycloakService
 	{
 		if (!_cache.TryGetValue(reqId, out GetEmployeeResponse response))
 		{
-			var keycloakUser = await _keycloakApi.GetUserById(Realm, reqId);
-			response = new GetEmployeeResponse
-			{
-				Email = keycloakUser.Email,
-				Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("Keycloak Id is null")),
-				UserName = keycloakUser.Username,
-				FirstName = keycloakUser.FirstName,
-				LastName = keycloakUser.LastName
-			};
+			var apiResponse = await _keycloakApi.GetUserById(Realm, reqId);
+			var keycloakUser = apiResponse.Content;
+
+			if (apiResponse.IsSuccessStatusCode)
+				response = new GetEmployeeResponse
+				{
+					Email = keycloakUser!.Email,
+					Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("Keycloak Id is null")),
+					UserName = keycloakUser.Username,
+					FirstName = keycloakUser.FirstName,
+					LastName = keycloakUser.LastName
+				};
+			else
+				response = new()
+				{
+					Email = string.Empty,
+					Id = reqId,
+					UserName = "Unknown User",
+					FirstName = "Unknown",
+					LastName = "Unknown"
+				};
 			_cache.Set(reqId, response, TimeSpan.FromHours(1));
 		}
 

@@ -8,7 +8,7 @@
 @inject ShiftService ShiftService;
 @inherits UpdateDialogBase<GetShiftResponse>
 
-@if (_user is not null)
+@if (_user is not null && EntityToEdit.Type is not null)
 {
 	@if (_isAdmin)
 	{
@@ -28,7 +28,7 @@
 			<RadzenLabel Text="Start"/>
 		</div>
 		<div class="col-md-8">
-			<RadzenTextBox Name="Start" Value="@(EntityToEdit.Start.ToLocalTime().ToString("HH:mm"))" ReadOnly="true"/>
+			<RadzenTextBox Name="Start" Value="@EntityToEdit.StartToDisplayString()" ReadOnly="true"/>
 		</div>
 	</div>
 	<div class="row">
@@ -38,7 +38,7 @@
 		<div class="col-md-8">
 			<RadzenTextBox
 				Name="End"
-				Value="@((EntityToEdit.End).ToLocalTime().ToString("HH:mm"))"
+				Value="@EntityToEdit.EndToDisplayString()"
 				ReadOnly="true"/>
 		</div>
 	</div>
@@ -107,17 +107,6 @@
 	{
 		try
 		{
-			GetContainerResponse container = await ShiftApi.GetContainer(EntityToEdit.ContainerId);
-			var dto = await ShiftApi.GetAvailableShiftTypes(EntityToEdit.ContainerId, EntityToEdit.Start);
-			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
-
-			if (EntityToEdit.Type is not null && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
-				_availableShiftTypes.Add(EntityToEdit.Type);
-			if (_availableShiftTypes.Count == 0)
-				throw new Exception("Keine Schichten verfügbar");
-			EntityToEdit.Type ??= _availableShiftTypes.First();
-			EntityToEdit.End = EntityToEdit.Start + TimeSpan.FromSeconds(container.Framework.SecondsPerShift);
-
 			var auth = await AuthenticationState;
 
 			_user = auth.User;
@@ -127,6 +116,18 @@
 				_isShiftUser = keycloakId == EntityToEdit.Employee.Id;
 				_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			}
+			GetContainerResponse container = await ShiftApi.GetContainer(EntityToEdit.ContainerId);
+			var dto = await ShiftApi.GetAvailableShiftTypes(EntityToEdit.ContainerId, EntityToEdit.Start);
+			if (!_isAdmin)
+				dto = dto.Where(x => x.OnlyAssignableByAdmin == false);
+			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
+
+			if (EntityToEdit.Type is not null && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
+				_availableShiftTypes.Add(EntityToEdit.Type);
+			if (_availableShiftTypes.Count == 0)
+				throw new Exception("Keine Schichten verfügbar");
+			EntityToEdit.Type ??= _availableShiftTypes.First();
+			EntityToEdit.End = EntityToEdit.Start + TimeSpan.FromSeconds(container.Framework.SecondsPerShift);
 		}
 		catch (Exception ex)
 		{
@@ -152,11 +153,11 @@
 		if (!(_isAdmin || _isShiftUser))
 			return Task.CompletedTask;
 		return ShiftApi.UpdateShift(EntityToEdit.Id, new CreateShiftRequest
-			{
-				EmployeeKeycloakId = EntityToEdit.Employee.Id,
-				ShiftTypeId = EntityToEdit.Type.Id,
-				Start = EntityToEdit.Start
-			});
+		{
+			EmployeeKeycloakId = EntityToEdit.Employee.Id,
+			ShiftTypeId = EntityToEdit.Type.Id,
+			Start = EntityToEdit.Start
+		});
 	}
 
 

@@ -17,7 +17,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateLocationTypeRequest, GetL
 
 	public override async Task<GetLocationTypesResponse?> CrudExecuteAsync(CreateLocationTypeRequest req, CancellationToken ct)
 	{
-		var type = new ShiftLocationType
+		var type = new ShiftLocationTypeEntity
 		{
 			Id = Guid.NewGuid(),
 			Name = req.Name

@@ -11,6 +11,7 @@ public interface IMuddiShiftApi
 
 	[Get("/locations/{Id}")]
 	Task<GetLocationResponse> GetLocationById(Guid id);
+
 	[Get("/locations")]
 	Task<IReadOnlyCollection<GetLocationResponse>> GetAllLocations();
 
@@ -41,7 +42,7 @@ public interface IMuddiShiftApi
 	Task CreateShiftType(CreateShiftTypeRequest createShiftTypeRequest);
 
 	[Delete("/shift-types/{Id}")]
-	Task DeleteShiftType(Guid id);
+	Task<ApiResponse<object>> DeleteShiftType(Guid id);
 
 	[Put("/shift-types/{EntityToEdit.Id}")]
 	Task UpdateShiftType(GetShiftTypesResponse entityToEdit);
@@ -62,18 +63,20 @@ public interface IMuddiShiftApi
 
 	[Post("/containers")]
 	Task CreateContainer(CreateContainerRequest createContainerRequest);
+
 	[Delete("/containers/{id}")]
 	Task DeleteContainer(Guid id);
-	
-	
+
+
 	[Get("/locations/{Id}/shifts")]
-	Task<IEnumerable<GetShiftResponse>> GetAllShiftsForLocation(Guid id);
+	Task<IEnumerable<GetShiftResponse>> GetAllShiftsForLocation(Guid id, GetAllShiftsForLocationRequest request);
 
 	[Post("/locations/{Id}/shifts")]
 	Task<IApiResponse> CreateShiftForLocation(Guid id, CreateShiftRequest createShiftRequest);
 
 	[Get("/containers/{containerId}/get-available-shift-types")]
 	Task<IEnumerable<GetShiftTypesResponse>> GetAvailableShiftTypes(Guid containerId, DateTime start);
+
 	[Post("/containers/{Id}/shifts")]
 	Task<DefaultCreateResponse> CreateShiftForContainer(Guid id, CreateShiftRequest createShiftRequest);
 
@@ -94,8 +97,8 @@ public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter
 {
 	public override string? Format(object? parameterValue, ICustomAttributeProvider attributeProvider, Type type)
 	{
-		return type == typeof(DateTime) && parameterValue is DateTime dt
-			? dt.ToUniversalTime().ToString("O") 
+		return parameterValue is DateTime dt
+			? dt.ToUniversalTime().ToString("O")
 			: base.Format(parameterValue, attributeProvider, type);
 	}
 }

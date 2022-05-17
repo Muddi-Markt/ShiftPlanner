@@ -7,7 +7,7 @@ public interface IKeycloakApi
 {
 	[Get("/admin/realms/{realm}/users/{userId}")]
 	[Headers("Authorization: Bearer")]
-	Task<KeycloakUserRepresentation> GetUserById(string realm, Guid userId);
+	Task<ApiResponse<KeycloakUserRepresentation>> GetUserById(string realm, Guid userId);
 	
 	[Post("/realms/{realm}/protocol/openid-connect/token")]
 	Task<GetTokenResponse> GetToken(string realm, [Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);

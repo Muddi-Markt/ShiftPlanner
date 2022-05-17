@@ -1,5 +1,6 @@
 ﻿@page "/locations/{Id:guid}"
 @using System.Globalization
+
 @if (_location is not null)
 {
     <h3>@_location.Name</h3>
@@ -9,9 +10,10 @@
                  @ref="_scheduler"
                  SlotRender=@OnSlotRender
                  Data=@Shifts
+                 LoadData="LoadShifts"
                  Date="StartDate"
-                 StartProperty="StartTime"
-                 EndProperty="EndTime"
+                 StartProperty="DisplayStartTime"
+                 EndProperty="DisplayEndTime"
                  TextProperty="Title"
                  TodayText="Heute"
                  SelectedIndex="1"

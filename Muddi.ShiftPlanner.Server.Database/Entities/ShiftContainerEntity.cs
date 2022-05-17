@@ -8,7 +8,8 @@ public class ShiftContainer
 	public DateTime	Start { get; set; }
 	public DateTime End { get; set; }
 	public int TotalShifts { get; set; }
-	public ShiftFramework Framework { get; set; }
-	public ICollection<Shift> Shifts { get; set; }
+	public string Color { get; set; }
+	public ShiftFrameworkEntity Framework { get; set; }
+	public ICollection<ShiftEntity> Shifts { get; set; }
 
 }

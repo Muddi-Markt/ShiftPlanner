@@ -28,7 +28,9 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 		// AllowAnonymous();
 // #endif
 		Options(t => t.Produces<TResponse>());
-		Throttle(60, 60);
+#if !DEBUG
+		Throttle(500, 60);
+#endif
 	}
 
 

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Muddi.ShiftPlanner.Server.Database.Migrations
 {
     [DbContext(typeof(ShiftPlannerContext))]
-    partial class ShiftPlannerContextModelSnapshot : ModelSnapshot
+    [Migration("20220517181244_AddColorAndTimeShiftToTypeAndContainer")]
+    partial class AddColorAndTimeShiftToTypeAndContainer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,10 +219,6 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
-
-                    b.Property<bool>("OnlyAssignableByAdmin")
-                        .HasColumnType("boolean")
-                        .HasColumnName("only_assignable_by_admin");
 
                     b.Property<TimeSpan>("StartingTimeShift")
                         .HasColumnType("interval")

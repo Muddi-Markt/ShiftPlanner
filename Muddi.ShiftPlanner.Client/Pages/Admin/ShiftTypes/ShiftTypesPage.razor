@@ -3,24 +3,38 @@
 
 <RadzenButton Icon="add" Click="Create"></RadzenButton>
 <RadzenDataGrid @ref="DataGrid" TItem="GetShiftTypesResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">
-    <Columns>
-        <RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Delete" Width="70px">
-            <Template>
-                <RadzenButton Icon="delete" Click="@(() => DeleteItem(context, context.Name))"></RadzenButton>
-            </Template>
-        </RadzenDataGridColumn>
+	<Columns>
+		<RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Delete" Width="100px">
+			<Template>
+				<RadzenButton Icon="edit" Click="@(() => Edit(context))"></RadzenButton>
+				<RadzenButton Icon="delete" Style="background: #f00" Click="@(() => DeleteItem(context, context.Name))"></RadzenButton>
+			</Template>
+		</RadzenDataGridColumn>
 
-        <RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Name">
-            <Template>@context.Name</Template>
-        </RadzenDataGridColumn>
-    </Columns>
+		<RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Name">
+			<Template>@context.Name</Template>
+		</RadzenDataGridColumn>
+
+		<RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Time shift (HH:MM)">
+			<Template>@context.StartingTimeShift.ToString("g")</Template>
+		</RadzenDataGridColumn>
+
+		<RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Color" MinWidth="80px">
+			<Template>
+				<div style="width:20px; height: 20px; border-radius: 5px; background: @context.Color"></div>
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Only Admin" MinWidth="80px">
+			<Template>@context.OnlyAssignableByAdmin</Template>
+		</RadzenDataGridColumn>
+	</Columns>
 </RadzenDataGrid>
 
 
 @code {
 
-    protected override Task<IReadOnlyCollection<GetShiftTypesResponse>> LoadData() => ShiftApi.GetAllShiftTypes();
-    protected override string NameOfEntity => "Schicht Typ";
-    protected override Task Delete(GetShiftTypesResponse request) => ShiftApi.DeleteShiftType(request.Id);
+	protected override Task<IReadOnlyCollection<GetShiftTypesResponse>> LoadData() => ShiftApi.GetAllShiftTypes();
+	protected override string NameOfEntity => "Schicht Typ";
+	protected override Task Delete(GetShiftTypesResponse request) => ShiftApi.DeleteShiftType(request.Id);
 
 }

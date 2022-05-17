@@ -7,7 +7,7 @@ using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations.Shifts;
 
-public class GetAllEndpoint : CrudGetAllEndpoint<DefaultGetRequest, GetShiftResponse>
+public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest, GetShiftResponse>
 {
 	private readonly IKeycloakService _keycloakService;
 
@@ -22,13 +22,16 @@ public class GetAllEndpoint : CrudGetAllEndpoint<DefaultGetRequest, GetShiftResp
 		Get("/locations/{Id:guid}/shifts");
 	}
 
-	public override async Task<List<GetShiftResponse>> CrudExecuteAsync(DefaultGetRequest req, CancellationToken ct)
+	public override async Task<List<GetShiftResponse>> CrudExecuteAsync(GetAllShiftsForLocationRequest req, CancellationToken ct)
 	{
+		//TODO why is DateTime always converted to local time by fast-endpoints?!
+		var start = req.Start.ToUniversalTime();
+		var end = req.End.ToUniversalTime();
 		var location = await Database.ShiftLocations
 			.Include(l => l.Containers)
-			.ThenInclude(c => c.Shifts)
+			.ThenInclude(c => c.Shifts.Where(s => s.Start >= start && s.Start < end))
 			.ThenInclude(s => s.Type)
-			.FirstAsync(l => l.Id == req.Id, cancellationToken: ct);
+			.FirstAsync(l => l.Id == req.Id!.Value, cancellationToken: ct);
 
 		//TODO populate GetEmployeeResponse in GetShiftResponse with KeycloakService
 
@@ -45,7 +48,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<DefaultGetRequest, GetShiftResp
 		return ret;
 	}
 
-	private async Task<GetShiftResponse> MapToShiftResponse(Guid containerId, Shift shift)
+	private async Task<GetShiftResponse> MapToShiftResponse(Guid containerId, ShiftEntity shift)
 	{
 		var shiftResponse = shift.Adapt<GetShiftResponse>();
 		shiftResponse.ContainerId = containerId;

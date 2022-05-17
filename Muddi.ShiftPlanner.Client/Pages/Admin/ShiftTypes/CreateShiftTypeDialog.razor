@@ -7,6 +7,35 @@
         <RadzenTextBox @bind-Value="EntityToEdit.Name" Placeholder="Name"></RadzenTextBox>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Color"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenColorPicker @bind-Value="EntityToEdit.Color" 
+                           ShowHSV="true" 
+                           ShowColors="true"
+                           ShowButton="true"
+                           ></RadzenColorPicker>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Starting time shift in minutes"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenNumeric Min="-180" Max="180" @bind-Value="_startingTimeShift"></RadzenNumeric>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Only assignable by admin"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenCheckBox @bind-Value="EntityToEdit.OnlyAssignableByAdmin"/>
+    </div>
+</div>
 
 <div class="row mb-3 mt-4">
     <div class="col-md-12 text-right">
@@ -16,8 +45,21 @@
 </div>
 @code {
 
+    private int _startingTimeShift;
+
+    protected override void OnParametersSet()
+    {
+        _startingTimeShift = Convert.ToInt32(EntityToEdit.StartingTimeShift.TotalMinutes);
+        base.OnParametersSet();
+    }
+
     protected override Task Create()
-        => ShiftApi.CreateShiftType(new() { Name = EntityToEdit.Name });
+        => ShiftApi.CreateShiftType(new()
+        {
+            Name = EntityToEdit.Name,
+            Color = EntityToEdit.Color,
+            StartingTimeShift = TimeSpan.FromMinutes(_startingTimeShift)
+        });
 
     protected override Task Update()
         => ShiftApi.UpdateShiftType(EntityToEdit);

@@ -26,7 +26,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateLocationRequest, GetLocat
 			return null;
 		}
 
-		var location = new ShiftLocation
+		var location = new ShiftLocationEntity
 		{
 			Id = Guid.NewGuid(),
 			Name = req.Name,
