@@ -44,9 +44,15 @@ public class ShiftService
 		return dtos.Select(t => t.MapToShift());
 	}
 
-	public async Task AddShiftToLocation(ShiftLocation location, CreateLocationsShiftRequest req)
+	public async Task AddShiftToLocation(ShiftLocation location, CreateShiftRequest req)
 	{
-		await _shiftApi.CreateShift(location.Id, req);
+		var res = await _shiftApi.CreateShiftForLocation(location.Id, req);
+	}
+	
+	public async Task<Guid> AddShiftToContainer(Guid containerId, CreateShiftRequest req)
+	{
+		var res = await _shiftApi.CreateShiftForContainer(containerId, req);
+		return res.Id;
 	}
 
 	public async Task<IEnumerable<ShiftType>> GetAvailableShiftTypesAtTime(Guid containerId, DateTime start)

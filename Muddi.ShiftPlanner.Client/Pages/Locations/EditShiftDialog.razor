@@ -2,8 +2,10 @@
 @using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
 @using Muddi.ShiftPlanner.Client.Pages.Admin;
 @using System.Security.Claims
+@using Muddi.ShiftPlanner.Client.Services
 @using Muddi.ShiftPlanner.Shared.Contracts.v1
-
+@using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests
+@inject ShiftService ShiftService;
 @inherits UpdateDialogBase<GetShiftResponse>
 
 @if (_user is not null)
@@ -17,7 +19,7 @@
 			<RadzenLabel Text="User"/>
 		</div>
 		<div class="col-md-8">
-			<RadzenTextBox Value="@EntityToEdit.Employee.UserName" Placeholder="Name"></RadzenTextBox>
+			<RadzenTextBox Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(you)" : "")}")" Placeholder="Name"></RadzenTextBox>
 		</div>
 	</div>
 
@@ -55,7 +57,6 @@
 				}
 				else
 				{
-
 					<RadzenTextBox Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")" ReadOnly="true"></RadzenTextBox>
 				}
 			}
@@ -65,18 +66,22 @@
 			}
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-md-4 align-items-center d-flex">
-			<RadzenLabel Text="Delete"/>
+	@if ((_isShiftUser || _isAdmin) && EntityToEdit.Id != default)
+	{
+		<div class="row">
+			<div class="col-md-4 align-items-center d-flex">
+				<RadzenLabel Text="Delete"/>
+			</div>
+			<div class="col-md-8">
+				<RadzenButton
+					Click="DeleteClick"
+					Text="Schicht Löschen"
+					Icon="delete"
+					Style="background: #de0808">
+				</RadzenButton>
+			</div>
 		</div>
-		<div class="col-md-8">
-			<RadzenButton 
-				Click="DeleteClick"
-				Text="Schicht Löschen" 
-				Icon="delete" 
-				Style="background: #de0808"></RadzenButton>
-		</div>
-	</div>
+	}
 }
 <div class="row mb-3 mt-4">
 	<div class="col-md-12 text-right">
@@ -102,10 +107,17 @@
 	{
 		try
 		{
+			GetContainerResponse container = await ShiftApi.GetContainer(EntityToEdit.ContainerId);
 			var dto = await ShiftApi.GetAvailableShiftTypes(EntityToEdit.ContainerId, EntityToEdit.Start);
 			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
+
 			if (EntityToEdit.Type is not null && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
 				_availableShiftTypes.Add(EntityToEdit.Type);
+			if (_availableShiftTypes.Count == 0)
+				throw new Exception("Keine Schichten verfügbar");
+			EntityToEdit.Type ??= _availableShiftTypes.First();
+			EntityToEdit.End = EntityToEdit.Start + TimeSpan.FromSeconds(container.Framework.SecondsPerShift);
+
 			var auth = await AuthenticationState;
 
 			_user = auth.User;
@@ -115,7 +127,6 @@
 				_isShiftUser = keycloakId == EntityToEdit.Employee.Id;
 				_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			}
-			
 		}
 		catch (Exception ex)
 		{
@@ -125,14 +136,27 @@
 	}
 
 
-	protected override Task Create()
+	protected override async Task Create()
 	{
-		throw new NotImplementedException();
+		var res = await ShiftService.AddShiftToContainer(EntityToEdit.ContainerId, new CreateShiftRequest
+		{
+			EmployeeKeycloakId = EntityToEdit.Employee.Id,
+			ShiftTypeId = EntityToEdit.Type.Id,
+			Start = EntityToEdit.Start
+		});
+		EntityToEdit.Id = res;
 	}
 
 	protected override Task Update()
 	{
-		throw new NotImplementedException();
+		if (!(_isAdmin || _isShiftUser))
+			return Task.CompletedTask;
+		return ShiftApi.UpdateShift(EntityToEdit.Id, new CreateShiftRequest
+			{
+				EmployeeKeycloakId = EntityToEdit.Employee.Id,
+				ShiftTypeId = EntityToEdit.Type.Id,
+				Start = EntityToEdit.Start
+			});
 	}
 
 
@@ -144,7 +168,7 @@
 			if (ask is true)
 			{
 				await ShiftApi.DeleteShift(EntityToEdit.Id);
-				DialogService.Close(true);//return true, as we have changed the entity (deleted it)
+				DialogService.Close(true); //return true, as we have changed the entity (deleted it)
 			}
 		}
 		catch (Exception ex)

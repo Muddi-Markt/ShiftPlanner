@@ -1,6 +1,8 @@
 ﻿using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
 
@@ -12,13 +14,13 @@ public class GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShi
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Editor, ApiRoles.Viewer);
 		Get("/containers/{ContainerId}/get-available-shift-types");
 	}
 
 	public override async Task<List<GetShiftTypesResponse>> CrudExecuteAsync(GetAvailableShiftTypesRequest request, CancellationToken ct)
 	{
 		var res = new List<GetShiftTypesResponse>();
-		var requestStartTime = request.StartTime.ToUniversalTime();
 		var container = await Database.Containers
 			.Include(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)
@@ -31,25 +33,13 @@ public class GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShi
 			await SendNotFoundAsync("container");
 			return res;
 		}
-		
-		var counter = container.Framework.ShiftTypeCounts.ToList();
-		foreach (var shift in container.Shifts.Where(s => s.Start == requestStartTime))
-		{
-			
-			var q = counter.Single(c => c.ShiftType.Id == shift.Type.Id);
-			q.Count--;
-		}
 
-		return counter
-			.Where(c => c.Count > 0)
-			.Select(c => new GetShiftTypesResponse { Id = c.ShiftType.Id, Name = c.ShiftType.Name })
-			.ToList();
+		return container.GetAvailableShiftTypes(request.StartTime).ToList();
 	}
 }
 
 public class GetAvailableShiftTypesRequest
 {
 	public Guid ContainerId { get; set; }
-	[BindFrom("start")]
-	public DateTime StartTime { get; set; }
+	[BindFrom("start")] public DateTime StartTime { get; set; }
 }

@@ -11,7 +11,6 @@ public abstract class UpdateDialogBase<TResponse> : ComponentBase , IUpdateDialo
 	where TResponse : IMuddiResponse, new()
 {
 	[Inject] protected IMuddiShiftApi ShiftApi { get; set; }
-	[Inject] protected ShiftService ShiftService { get; set; }
 	[Inject] protected DialogService DialogService { get; set; }
 	[Parameter] public TResponse EntityToEdit { get; set; } = new();
 

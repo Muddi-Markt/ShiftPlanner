@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
+using Refit;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Shifts;
 
@@ -16,6 +18,7 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftResponse>
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Editor, ApiRoles.Viewer);
 		Get("/shifts/{id}");
 	}
 

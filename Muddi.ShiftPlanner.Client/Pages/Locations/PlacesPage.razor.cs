@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Muddi.ShiftPlanner.Client.Entities;
@@ -21,7 +22,7 @@ public partial class PlacesPage
 	[CascadingParameter] public Task<AuthenticationState> AuthenticationState { get; set; }
 
 	private ShiftLocation _location;
-	private MuddiConnectUser _user;
+	private ClaimsPrincipal _user;
 
 	private List<Shift> Shifts { get; set; }
 	private DateTime StartDate { get; } = (DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate);
@@ -34,7 +35,7 @@ public partial class PlacesPage
 		{
 			var state = await AuthenticationState;
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
-			_user = MuddiConnectUser.CreateFromClaimsPrincipal(state.User);
+			_user = state.User;
 			_frameworkBackgroundColors.Reset();
 			_shiftRoleBackgroundColors.Reset();
 			Shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id)).ToList();
@@ -51,43 +52,76 @@ public partial class PlacesPage
 		var start = args.Start.ToUniversalTime();
 		ShiftContainer container = _location.GetShiftContainerByTime(start);
 		DateTime startTime = container.GetBestShiftStartTimeForTime(start).ToUniversalTime();
-		var parameter = new TemplateFormShiftParameter(container, _user, startTime);
-		TemplateFormShiftParameter data = await DialogService.OpenAsync<EditShiftComponent>("Füge Schicht hinzu",
-			new Dictionary<string, object> { { nameof(EditShiftComponent.ShiftParameter), parameter } });
-		if (data?.Role is not null)
+		var shiftResponse = new GetShiftResponse
+		{
+			ContainerId = container.Id,
+			Employee = new() { Id = _user.GetKeycloakId(), UserName = _user.GetFullName() },
+			Start = startTime
+		};
+		var param = new Dictionary<string, object>
+		{
+			[nameof(EditShiftDialog.EntityToEdit)] = shiftResponse
+		};
+		var res = await DialogService.OpenAsync<EditShiftDialog>("Edit shift", param);
+		if (res is true)
 		{
 			try
 			{
-				Shifts.Add(new Shift(_user, data.StartTime, data.StartTime + container.Framework.TimePerShift, data.Role).ToLocalTime());
-				await _scheduler.Reload();
-				await InvokeAsync(StateHasChanged);
-				await ShiftService.AddShiftToLocation(_location,
-					new CreateLocationsShiftRequest
-					{
-						EmployeeKeycloakId = _user.KeycloakId,
-						ShiftTypeId = data.Role.Id,
-						Start = data.StartTime
-					});
+				var shift = await ShiftService.GetShiftById(shiftResponse.Id);
+				if (shift is not null)
+				{
+					Shifts.Add(shift);
+					await _scheduler.Reload();
+				}
 			}
-			catch (MuddiException ex)
+			catch (Exception ex)
 			{
-				await DialogService.Confirm(ex.Message, "Ein Fehler ist aufgetreten");
+				await DialogService.Error(ex);
 			}
-
-			// Either call the Reload method or reassign the Data property of the Scheduler
-
-			// await InvokeAsync(StateHasChanged);
+			
+			
 		}
+		
+
+		return;
+		// ShiftContainer container = _location.GetShiftContainerByTime(start);
+		// DateTime startTime = container.GetBestShiftStartTimeForTime(start).ToUniversalTime();
+		// var parameter = new TemplateFormShiftParameter(container, _user, startTime);
+		// TemplateFormShiftParameter data = await DialogService.OpenAsync<EditShiftComponent>("Füge Schicht hinzu",
+		// 	new Dictionary<string, object> { { nameof(EditShiftComponent.ShiftParameter), parameter } });
+		// if (data?.Role is not null)
+		// {
+		// 	try
+		// 	{
+		// 		Shifts.Add(new Shift(_user, data.StartTime, data.StartTime + container.Framework.TimePerShift, data.Role).ToLocalTime());
+		// 		await _scheduler.Reload();
+		// 		await InvokeAsync(StateHasChanged);
+		// 		await ShiftService.AddShiftToLocation(_location,
+		// 			new CreateLocationsShiftRequest
+		// 			{
+		// 				EmployeeKeycloakId = _user.KeycloakId,
+		// 				ShiftTypeId = data.Role.Id,
+		// 				Start = data.StartTime
+		// 			});
+		// 	}
+		// 	catch (MuddiException ex)
+		// 	{
+		// 		await DialogService.Confirm(ex.Message, "Ein Fehler ist aufgetreten");
+		// 	}
+		//
+		// 	// Either call the Reload method or reassign the Data property of the Scheduler
+		//
+		// 	// await InvokeAsync(StateHasChanged);
+		// }
 	}
 
 	private async Task OnShiftSelect(SchedulerAppointmentSelectEventArgs<Shift> args)
 	{
-
 		var param = new Dictionary<string, object>
 		{
 			[nameof(EditShiftDialog.EntityToEdit)] = args.Data.MapToShiftResponse()
-		}; 
-		var res = await DialogService.OpenAsync<EditShiftDialog>("Edit shift",param);
+		};
+		var res = await DialogService.OpenAsync<EditShiftDialog>("Edit shift", param);
 		if (res is true)
 		{
 			Shifts.Remove(args.Data);

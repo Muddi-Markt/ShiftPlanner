@@ -1,4 +1,7 @@
-﻿using FastEndpoints;
+﻿using System.Globalization;
+using FastEndpoints;
+using FluentValidation.Results;
+using Mapster;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Serilog.Parsing;
@@ -19,7 +22,7 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 
 	public override void Configure()
 	{
-		Roles(ApiRoles.Admin);//Can be replaced in CrudConfigure() but default is Admin
+		Roles(ApiRoles.Admin); //Can be replaced in CrudConfigure() but default is Admin
 		CrudConfigure();
 // #if DEBUG
 		// AllowAnonymous();
@@ -28,7 +31,7 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 		Throttle(60, 60);
 	}
 
-	
+
 	//We don't need to pass the CancellationToken as the methods itself have it already
 	protected Task SendNotFoundAsync(string idName)
 	{
@@ -39,9 +42,22 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 	{
 		return SendStringAsync(reason, StatusCodes.Status409Conflict);
 	}
-	
+
 	protected Task SendLockedAsync(string reason)
 	{
 		return SendStringAsync(reason, StatusCodes.Status423Locked);
+	}
+
+	protected Task SendBadRequest(string reason)
+	{
+		return SendStringAsync(reason, 400);
+	}
+
+	protected async Task<bool> SendErrorIfValidationFailure(ValidationFailure? validationFailure)
+	{
+		if (validationFailure is null) return false;
+		ValidationFailures.Add(validationFailure);
+		await SendErrorsAsync();
+		return true;
 	}
 }
