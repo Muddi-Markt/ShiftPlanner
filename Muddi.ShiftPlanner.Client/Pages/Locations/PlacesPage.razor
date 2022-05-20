@@ -3,25 +3,39 @@
 
 @if (_location is not null)
 {
-    <h3>@_location.Name</h3>
+	<h3>@_location.Name</h3>
 
-    <RadzenScheduler TItem="Shift"
-                 style="height: 768px;"
-                 @ref="_scheduler"
-                 SlotRender=@OnSlotRender
-                 Data=@Shifts
-                 LoadData="LoadShifts"
-                 Date="StartDate"
-                 StartProperty="DisplayStartTime"
-                 EndProperty="DisplayEndTime"
-                 TextProperty="Title"
-                 TodayText="Heute"
-                 SelectedIndex="1"
-                 AppointmentRender=@OnAppointmentRender
-                 SlotSelect=@OnSlotSelect
-                 AppointmentSelect=@OnShiftSelect>
+	<RadzenCheckBox @bind-Value="_showOnlyUsersShifts" Name="only-my-shift-check"></RadzenCheckBox>
+	<RadzenLabel Text="Zeige nur meine Schichten" Component="only-my-shift-check" Style="margin-left: 8px; vertical-align: middle;" />
+	<div style="width:100%; height: 100%; position:relative;">
+		@if (_isLoading)
+		{
+			<div class="d-flex justify-content-around align-items-center" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10">
+				<div>
+					<h3 style="color: #f00">Loading...</h3>
+					<div class="lds-ripple"><div></div><div></div></div>
+				</div>
+			</div>
+		}
+		<RadzenScheduler TItem="Shift"
+		                 style="height: 1300px;"
+		                 @ref="_scheduler"
+		                 SlotRender=@OnSlotRender
+		                 Data=@Shifts
+		                 LoadData="@LoadShifts"
+		                 Date="StartDate"
+		                 StartProperty="DisplayStartTime"
+		                 EndProperty="DisplayEndTime"
+		                 TextProperty="Title"
+		                 TodayText="Heute"
+		                 SelectedIndex="0"
+		                 
+		                 AppointmentRender=@OnAppointmentRender
+		                 SlotSelect=@OnSlotSelect
+		                 AppointmentSelect=@OnShiftSelect>
 
-        <RadzenDayView Text="Tag" />
-        <RadzenWeekView Text="Woche" StartTime="TimeSpan.Zero" EndTime="TimeSpan.FromHours(24)" MinutesPerSlot="30" TimeFormat="HH:mm" />
-    </RadzenScheduler>
+			<RadzenDayView Text="Tag" StartTime="TimeSpan.FromHours(9)" EndTime="TimeSpan.FromHours(26)" />
+			<RadzenWeekView Text="Woche" StartTime="TimeSpan.FromHours(9)" EndTime="TimeSpan.FromHours(26)" MinutesPerSlot="30" TimeFormat="HH:mm"/>
+		</RadzenScheduler>
+	</div>
 }

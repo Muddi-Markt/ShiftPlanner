@@ -29,7 +29,10 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 		var end = req.End.ToUniversalTime();
 		var location = await Database.ShiftLocations
 			.Include(l => l.Containers)
-			.ThenInclude(c => c.Shifts.Where(s => s.Start >= start && s.Start < end))
+			.ThenInclude(c => c.Shifts.Where(s =>
+				// ReSharper disable once SimplifyConditionalTernaryExpression
+				(req.KeycloakEmployeeId.HasValue ? s.EmployeeKeycloakId == req.KeycloakEmployeeId.Value : true) &&
+				(s.Start >= start && s.Start < end)))
 			.ThenInclude(s => s.Type)
 			.FirstAsync(l => l.Id == req.Id!.Value, cancellationToken: ct);
 
@@ -40,7 +43,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 		{
 			foreach (var shift in container.Shifts)
 			{
-				var response = await MapToShiftResponse(container.Id,shift);
+				var response = await MapToShiftResponse(container.Id, shift);
 				ret.Add(response);
 			}
 		}
@@ -53,8 +56,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 		var shiftResponse = shift.Adapt<GetShiftResponse>();
 		shiftResponse.ContainerId = containerId;
 		shiftResponse.Employee = await _keycloakService.GetUserById(shift.EmployeeKeycloakId);
-		
-		return shiftResponse;
 
+		return shiftResponse;
 	}
 }

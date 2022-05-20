@@ -12,8 +12,15 @@ public static class ServiceCollectionExtensions
 {
 	/*	To make this work you need to configure Keycloak first:
 	 
+		*** Create muddi Realm ***
+		Create Muddi Realm
+		Clients -> Create
+		shift-planner
+		
+		
 	    *** Add Roles Mapper *** 
 		Go to your Keycloak Admin Console > Client Scopes > roles > Mappers > client roles
+		Client ID: shift-planner
 		Change "Token Claim Name" as "roles"
 		Multivalued: True
 		Add to access token: True

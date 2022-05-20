@@ -19,7 +19,9 @@
 			<RadzenLabel Text="User"/>
 		</div>
 		<div class="col-md-8">
-			<RadzenTextBox Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(you)" : "")}")" Placeholder="Name"></RadzenTextBox>
+			<RadzenTextBox 
+				ReadOnly="true"
+				Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(you)" : "")}")"></RadzenTextBox>
 		</div>
 	</div>
 

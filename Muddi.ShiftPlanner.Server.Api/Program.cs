@@ -27,7 +27,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 #if DEBUG
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+#else
+app.UseCors(b => b.WithOrigins("https://shift.muddi.reble.eu").AllowAnyMethod().AllowAnyHeader());
 #endif
+
 app.UseFastEndpoints();
 app.UseOpenApi();
 app.UseSwaggerUi3(s => s.ConfigureDefaults());

@@ -38,9 +38,9 @@ public class ShiftService
 		return dto.MapToShiftLocation();
 	}
 
-	public async Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id, DateTime start, DateTime end)
+	public async Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id, DateTime start, DateTime end, Guid? forEmployeeId = null)
 	{
-		var dtos = await _shiftApi.GetAllShiftsForLocation(id, new() { Start = start, End = end });
+		var dtos = await _shiftApi.GetAllShiftsForLocation(id, new() { Start = start, End = end, KeycloakEmployeeId = forEmployeeId});
 		return dtos.Select(t => t.MapToShift());
 	}
 

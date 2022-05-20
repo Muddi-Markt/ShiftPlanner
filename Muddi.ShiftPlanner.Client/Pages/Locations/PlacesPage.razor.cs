@@ -22,26 +22,30 @@ public partial class PlacesPage
 	[Parameter] public Guid Id { get; set; }
 	[CascadingParameter] public Task<AuthenticationState> AuthenticationState { get; set; }
 
-	private ShiftLocation _location;
-	private ClaimsPrincipal _user;
+	private ShiftLocation? _location;
+	private ClaimsPrincipal? _user;
 
-	private List<Shift> Shifts { get; set; }
+	private bool _isLoading = true;
+
+	private IEnumerable<Shift> Shifts => _showOnlyUsersShifts 
+		? _shifts.Where(s => s.User.KeycloakId == _userKeycloakId) 
+		: _shifts;
 	private DateTime StartDate { get; } = (DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate);
 
 	private RadzenScheduler<Shift> _scheduler;
+	private bool _showOnlyUsersShifts;
+	private IEnumerable<Shift> _shifts = Enumerable.Empty<Shift>();
+	private Guid _userKeycloakId;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		try
 		{
 			var sw = Stopwatch.StartNew();
-			Console.WriteLine($"user... @ {sw.ElapsedMilliseconds}");
 			var state = await AuthenticationState;
-			Console.WriteLine($"locationById... @ {sw.ElapsedMilliseconds}");
-			Console.WriteLine("locationById...");
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
 			_user = state.User;
-			Console.WriteLine($"done... @ {sw.ElapsedMilliseconds}");
+			_userKeycloakId = _user.GetKeycloakId();
 		}
 		catch (Exception ex)
 		{
@@ -70,50 +74,13 @@ public partial class PlacesPage
 		{
 			try
 			{
-				var shift = await ShiftService.GetShiftById(shiftResponse.Id);
-				if (shift is not null)
-				{
-					Shifts.Add(shift);
-					await _scheduler.Reload();
-				}
+				await _scheduler.Reload();
 			}
 			catch (Exception ex)
 			{
 				await DialogService.Error(ex);
 			}
 		}
-
-
-		return;
-		// ShiftContainer container = _location.GetShiftContainerByTime(start);
-		// DateTime startTime = container.GetBestShiftStartTimeForTime(start).ToUniversalTime();
-		// var parameter = new TemplateFormShiftParameter(container, _user, startTime);
-		// TemplateFormShiftParameter data = await DialogService.OpenAsync<EditShiftComponent>("Füge Schicht hinzu",
-		// 	new Dictionary<string, object> { { nameof(EditShiftComponent.ShiftParameter), parameter } });
-		// if (data?.Role is not null)
-		// {
-		// 	try
-		// 	{
-		// 		Shifts.Add(new Shift(_user, data.StartTime, data.StartTime + container.Framework.TimePerShift, data.Role).ToLocalTime());
-		// 		await _scheduler.Reload();
-		// 		await InvokeAsync(StateHasChanged);
-		// 		await ShiftService.AddShiftToLocation(_location,
-		// 			new CreateLocationsShiftRequest
-		// 			{
-		// 				EmployeeKeycloakId = _user.KeycloakId,
-		// 				ShiftTypeId = data.Role.Id,
-		// 				Start = data.StartTime
-		// 			});
-		// 	}
-		// 	catch (MuddiException ex)
-		// 	{
-		// 		await DialogService.Confirm(ex.Message, "Ein Fehler ist aufgetreten");
-		// 	}
-		//
-		// 	// Either call the Reload method or reassign the Data property of the Scheduler
-		//
-		// 	// await InvokeAsync(StateHasChanged);
-		// }
 	}
 
 	private async Task OnShiftSelect(SchedulerAppointmentSelectEventArgs<Shift> args)
@@ -125,32 +92,13 @@ public partial class PlacesPage
 		var res = await DialogService.OpenAsync<EditShiftDialog>("Edit shift", param);
 		if (res is true)
 		{
-			Shifts.Remove(args.Data);
-			var shift = await ShiftService.GetShiftById(args.Data.Id);
-			if (shift is not null)
-			{
-				Shifts.Add(shift);
-			}
+			await _scheduler.Reload();
 		}
-		//
-		// var container = _location.Containers.First(c => c.Id == args.Data.ContainerId);
-		// var parameter = new TemplateFormShiftParameter(container,_user, args.Data);
-		// TemplateFormShiftParameter data = await DialogService.OpenAsync<EditShiftComponent>("Bearbeite Schicht",
-		// 	new Dictionary<string, object> { { nameof(EditShiftComponent.ShiftParameter), parameter } });
-		//
-		// if (data?.Role is not null && data.ShiftToEdit is not null)
-		// {
-		// 	_location.UpdateShift(data.ShiftToEdit, data.Role, data.User);
-		// }
-
-
-		await _scheduler.Reload();
 	}
 
 	private void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Shift> args)
 	{
 		// Never call StateHasChanged in AppointmentRender - would lead to infinite loop
-
 		args.Attributes["style"] = $"background: {args.Data.Type.Color}";
 	}
 
@@ -179,6 +127,10 @@ public partial class PlacesPage
 
 	private async Task LoadShifts(SchedulerLoadDataEventArgs arg)
 	{
-		Shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
+		_isLoading = true;
+		_shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).OrderBy(q => q.Type.Id);
+		var temp = _shifts.ToList();
+		await Task.Delay(500);
+		_isLoading = false;
 	}
 }
