@@ -54,6 +54,11 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 	{
 		return SendStringAsync(reason, 400);
 	}
+	
+	protected Task SendForbiddenAsync(string reason)
+	{
+		return SendStringAsync(reason, StatusCodes.Status403Forbidden);
+	}
 
 	protected async Task<bool> SendErrorIfValidationFailure(ValidationFailure? validationFailure)
 	{

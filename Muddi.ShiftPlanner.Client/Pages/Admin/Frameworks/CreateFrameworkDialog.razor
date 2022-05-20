@@ -32,12 +32,18 @@
 	<div class="col-md-8">
 		@foreach (var type in _shiftTypeCount)
 		{
+			GetShiftTypesResponse? selectedItem = null;
+			@if (type.ShiftTypeId != default)
+			{
+				selectedItem = _shiftTypes.FirstOrDefault(q => q.Id == type.ShiftTypeId);
+			}
 			<div class="d-flex">
 				<RadzenDropDown AllowClear="true"
 				                LoadData="@LoadShiftTypesAsync"
 				                AllowFiltering="true"
 				                TValue="Guid"
 				                Data=@_shiftTypes
+				                Value="selectedItem?.Id"
 				                Change="@(o => { type.ShiftTypeId = (Guid)o; _shiftTypes = _shiftTypesRaw;})"
 				                TextProperty="@nameof(GetShiftTypesResponse.Name)"
 				                ValueProperty="@nameof(GetShiftTypesResponse.Id)" Class="w-50"/>
@@ -68,15 +74,32 @@
 		});
 
 	protected override Task Update()
-		=> ShiftApi.UpdateFramework(EntityToEdit);
+		=> ShiftApi.UpdateFramework(EntityToEdit.Id, new UpdateFrameworkRequest()
+		{
+			Id = EntityToEdit.Id,
+			Name = EntityToEdit.Name,
+			SecondsPerShift = Convert.ToInt32(_timePerShift.TimeOfDay.TotalSeconds),
+			TypeCounts = _shiftTypeCount
+		});
 
 	private DateTime _timePerShift = DateTime.Now.Date + TimeSpan.FromMinutes(90);
 
-	readonly List<ShiftFrameworkTypeCountDto> _shiftTypeCount = new() { new ShiftFrameworkTypeCountDto() };
+	readonly List<ShiftFrameworkTypeCountDto> _shiftTypeCount = new();
 
 
 	protected override async Task OnParametersSetAsync()
 	{
+		_shiftTypeCount.Clear();
+		if (EntityToEdit.ShiftTypeCounts.Any())
+		{
+			var dtos = EntityToEdit.ShiftTypeCounts
+				.Select(s => new ShiftFrameworkTypeCountDto { Count = s.Count, ShiftTypeId = s.ShiftType.Id });
+			_shiftTypeCount.AddRange(dtos);
+		}
+		else
+		{
+			_shiftTypeCount.Add(new());
+		}
 		_shiftTypesRaw = await ShiftApi.GetAllShiftTypes();
 		_shiftTypes = _shiftTypesRaw;
 	}
@@ -86,7 +109,6 @@
 		_shiftTypes = _shiftTypesRaw;
 		if (!string.IsNullOrEmpty(args.Filter))
 			_shiftTypes = _shiftTypes.Where(c => c.Name.ToLower().Contains(args.Filter.ToLower()));
-		Console.WriteLine(_shiftTypesRaw.Count);
 		await InvokeAsync(StateHasChanged);
 	}
 

@@ -58,8 +58,8 @@ public interface IMuddiShiftApi
 	[Post("/frameworks")]
 	Task CreateFramework(CreateFrameworkRequest createFrameworkRequest);
 
-	[Put("/frameworks/{EntityToEdit.Id}")]
-	Task UpdateFramework(GetFrameworkResponse entityToEdit);
+	[Put("/frameworks/{id}")]
+	Task UpdateFramework(Guid id, UpdateFrameworkRequest entityToEdit);
 
 	[Post("/containers")]
 	Task CreateContainer(CreateContainerRequest createContainerRequest);
