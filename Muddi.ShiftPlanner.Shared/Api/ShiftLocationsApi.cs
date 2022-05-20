@@ -42,7 +42,7 @@ public interface IMuddiShiftApi
 	Task CreateShiftType(CreateShiftTypeRequest createShiftTypeRequest);
 
 	[Delete("/shift-types/{Id}")]
-	Task<ApiResponse<object>> DeleteShiftType(Guid id);
+	Task DeleteShiftType(Guid id);
 
 	[Put("/shift-types/{EntityToEdit.Id}")]
 	Task UpdateShiftType(GetShiftTypesResponse entityToEdit);

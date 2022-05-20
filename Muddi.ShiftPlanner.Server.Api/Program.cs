@@ -23,13 +23,15 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
 #if DEBUG
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 #else
 app.UseCors(b => b.WithOrigins("https://shift.muddi.reble.eu").AllowAnyMethod().AllowAnyHeader());
 #endif
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 
 app.UseFastEndpoints();
 app.UseOpenApi();

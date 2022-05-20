@@ -1,7 +1,9 @@
 ﻿@page "/admin/shift-types"
+@using Refit
 @inherits GetAllPageBase<GetShiftTypesResponse, CreateShiftTypeDialog>
 
 <RadzenButton Icon="add" Click="Create"></RadzenButton>
+<RadzenButton Icon="refresh" Click="LoadGridData"></RadzenButton>
 <RadzenDataGrid @ref="DataGrid" TItem="GetShiftTypesResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">
 	<Columns>
 		<RadzenDataGridColumn TItem="GetShiftTypesResponse" Title="Delete" Width="100px">

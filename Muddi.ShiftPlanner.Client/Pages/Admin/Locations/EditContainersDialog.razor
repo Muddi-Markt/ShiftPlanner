@@ -34,8 +34,16 @@
 		var d = await DialogService.Confirm("Are you sure that you want to delete this container? This can't be undone!");
 		if (d.HasValue && d.Value)
 		{
-			await ShiftApi.DeleteContainer(c.Id);
-			await Refresh();
+			try
+			{
+				await ShiftApi.DeleteContainer(c.Id);
+				await Refresh();
+			}
+			catch (Exception ex)
+			{
+				await DialogService.Error(ex);
+			}
+
 		}
 	}
 
