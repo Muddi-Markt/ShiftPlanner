@@ -37,7 +37,6 @@
         else
         {
             _token = $"Failed to obtain token. Status: {t.Status}";
-            Console.WriteLine(t.RedirectUrl);
             if (t.Status == AccessTokenResultStatus.RequiresRedirect)
                 _navigationManager.NavigateTo(t.RedirectUrl);
         }

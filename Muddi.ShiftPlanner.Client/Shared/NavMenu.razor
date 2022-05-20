@@ -4,56 +4,60 @@
 @inject DialogService DialogService;
 @inject ShiftService ShiftService;
 <RadzenSidebar Expanded="Expanded" ExpandedChanged="ExpandedChanged" class="demos-sidebar">
-    <ChildContent>
+	<ChildContent>
 
-        <RadzenPanelMenu Match="NavLinkMatch.Prefix">
-            <AuthorizeView>
-                <Authorized>
-                    @foreach (var location in _locations)
-                    {
-                        <RadzenPanelMenuItem Text="@location.Name" Path="@location.Path" Icon="@location.Icon" />
-                    }
-                </Authorized>
-            </AuthorizeView>
-            <AuthorizeView Policy="@Policies.IsAdmin">
-                <RadzenPanelMenuItem Text="Admin">
-                    <RadzenPanelMenuItem Text="ShiftTypes" Path="/admin/shift-types"></RadzenPanelMenuItem>
-                    <RadzenPanelMenuItem Text="Frameworks" Path="/admin/frameworks"></RadzenPanelMenuItem>
-                    <RadzenPanelMenuItem Text="Locations" Path="/admin/locations"></RadzenPanelMenuItem>
-                </RadzenPanelMenuItem>
-            </AuthorizeView>
-        </RadzenPanelMenu>
+		<RadzenPanelMenu Match="NavLinkMatch.Prefix">
+			<AuthorizeView>
+				<Authorized>
+					@foreach (var location in _locations)
+					{
+						<RadzenPanelMenuItem Text="@location.Name" Path="@location.Path" Icon="@location.Icon"/>
+					}
+				</Authorized>
+			</AuthorizeView>
+			<AuthorizeView Policy="@Policies.IsAdmin">
+				<RadzenPanelMenuItem Text="Admin">
+					<RadzenPanelMenuItem Text="ShiftTypes" Path="/admin/shift-types"></RadzenPanelMenuItem>
+					<RadzenPanelMenuItem Text="Frameworks" Path="/admin/frameworks"></RadzenPanelMenuItem>
+					<RadzenPanelMenuItem Text="Locations" Path="/admin/locations"></RadzenPanelMenuItem>
+				</RadzenPanelMenuItem>
+			</AuthorizeView>
+		</RadzenPanelMenu>
 
-    </ChildContent>
+	</ChildContent>
 </RadzenSidebar>
 
 @code {
 
-    [Parameter]
-    public bool Expanded { get; set; } = true;
+	[Parameter]
+	public bool Expanded { get; set; } = true;
 
-    [Parameter]
-    public EventCallback<bool> ExpandedChanged { get; set; }
-
-
+	[Parameter]
+	public EventCallback<bool> ExpandedChanged { get; set; }
 
 
-    private bool _sidebarExpanded = true;
-    private IEnumerable<ShiftLocation> _locations = Enumerable.Empty<ShiftLocation>();
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthStateTask { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
 
-        {
-            _locations = await ShiftService.GetAllShiftLocationsAsync();
-        }
+	private bool _sidebarExpanded = true;
+	private IEnumerable<ShiftLocation> _locations = Enumerable.Empty<ShiftLocation>();
 
-        catch (Exception ex)
 
-        {
-            await DialogService.Error(ex);
-        }
-    }
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			var u = await AuthStateTask;
+			if (u.User.Identity?.IsAuthenticated == true)
+				_locations = await ShiftService.GetAllShiftLocationsAsync();
+		}
+
+		catch (Exception ex)
+
+		{
+			await DialogService.Error(ex);
+		}
+	}
 
 }
