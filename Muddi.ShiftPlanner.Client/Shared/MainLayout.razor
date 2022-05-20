@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Muddi.ShiftPlanner.Shared.Entities
 @inherits LayoutComponentBase
+@inject NavigationManager NavigationManager;
 <RadzenDialog/>
 <RadzenNotification/>
 <RadzenTooltip/>
@@ -58,6 +59,19 @@
 </RadzenLayout>
 
 @code {
+
+	protected override void OnInitialized()
+	{
+		NavigationManager.LocationChanged += (_, args) =>
+		{
+			if (args.Location.Contains("/locations/"))
+			{
+				_sidebarExpanded = false;
+				_bodyExpanded = true;
+				InvokeAsync(StateHasChanged);
+			}
+		};
+	}
 
 	bool _bodyExpanded = false;
 	private bool _sidebarExpanded = true;
