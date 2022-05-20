@@ -91,6 +91,9 @@ public interface IMuddiShiftApi
 
 	[Get("/containers/{id}")]
 	Task<GetContainerResponse> GetContainer(Guid id);
+
+	[Put("/locations/{id}")]
+	Task UpdateLocation(Guid id, UpdateLocationRequest updateLocationRequest);
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

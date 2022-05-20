@@ -5,7 +5,7 @@
         <RadzenLabel Text="Name"/>
     </div>
     <div class="col-md-8">
-        <RadzenTextBox  @bind-Value="_name" Placeholder="Name"></RadzenTextBox>
+        <RadzenTextBox  @bind-Value="EntityToEdit.Name" Placeholder="Name"></RadzenTextBox>
     </div>
 </div>
 <div class="row mt-1 mb-1 w-100">
@@ -13,9 +13,7 @@
         <RadzenLabel Text="Location Typ"/>
     </div>
     <div class="col-md-8 d-flex" style="gap:1rem;">
-        <RadzenDropDown @bind-Value="_selectedType"
-                        AllowVirtualization="true"
-                        Count="_typesTotalCount"
+        <RadzenDropDown @bind-Value="EntityToEdit.Type"
                         Data="_locationTypes"
                         TextProperty="@nameof(GetLocationTypesResponse.Name)">
         </RadzenDropDown>
@@ -25,7 +23,7 @@
 </div>
 <div class="row mb-3 mt-4">
     <div class="col-md-12 text-right">
-        <RadzenButton Disabled="@(_selectedType == null)" Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
+        <RadzenButton Disabled="@(EntityToEdit.Type.Id == default)" Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
         <RadzenButton Click="CloseWithoutSave" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
     </div>
 </div>
@@ -40,31 +38,32 @@
     private async Task RefreshLocationTypes()
     {
         _locationTypes = (await ShiftApi.GetAllLocationTypes());
-        _typesTotalCount = _locationTypes.Count;
-        _selectedType = _locationTypes.FirstOrDefault();
+        if (EntityToEdit.Type.Id == default)
+            EntityToEdit.Type = _locationTypes.First();
     }
 
     private IReadOnlyCollection<GetLocationTypesResponse> _locationTypes;
-    private int _typesTotalCount;
 
-    private GetLocationTypesResponse? _selectedType;
 
-    
 
-    private string? _name;
 
     protected override Task Create()
     {
         return ShiftApi.CreateLocation(new CreateLocationRequest()
         {
-            Name = _name,
-            TypeId = _selectedType.Id
+            Name = EntityToEdit.Name,
+            TypeId = EntityToEdit.Type.Id
         });
     }
 
     protected override Task Update()
     {
-        throw new NotImplementedException();
+        return ShiftApi.UpdateLocation(EntityToEdit.Id, new UpdateLocationRequest()
+        {
+            Id = EntityToEdit.Id,
+            Name = EntityToEdit.Name,
+            TypeId = EntityToEdit.Type.Id
+        });
     }
 
     private async Task AddLocationType()
