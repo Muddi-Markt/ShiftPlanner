@@ -10,6 +10,7 @@ public static class GetShiftResponseExtensions
 	}
 	public static string EndToDisplayString(this GetShiftResponse response)
 	{
+		Console.WriteLine("!!" + response.End + response.Type.StartingTimeShift);
 		return (response.End + response.Type.StartingTimeShift).ToLocalTime().ToString("HH:mm");
 	}
 }

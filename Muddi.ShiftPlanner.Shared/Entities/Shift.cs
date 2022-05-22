@@ -25,9 +25,10 @@ public class Shift : IEquatable<Shift>
 		StartTime = startTime;
 		EndTime = endTime;
 		Type = type;
+		Id = Guid.NewGuid();
 	}
 
-	public string Title => (User.Name.Contains(' ') ? User.Name[..User.Name.IndexOf(' ')] : User.Name) + "\n" + Type.Name;
+	public string Title => User.Name + "\n" + Type.Name;
 	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }
 	public DateTime DisplayStartTime => StartTime.ToLocalTime();
@@ -42,7 +43,8 @@ public class Shift : IEquatable<Shift>
 	{
 		if (ReferenceEquals(null, other)) return false;
 		if (ReferenceEquals(this, other)) return true;
-		return User.Equals(other.User) && StartTime.Equals(other.StartTime) && EndTime.Equals(other.EndTime) && Type.Equals(other.Type);
+		// return User.Equals(other.User) && StartTime.Equals(other.StartTime) && EndTime.Equals(other.EndTime) && Type.Equals(other.Type);
+		return Id.Equals(other.Id);
 	}
 
 	public override bool Equals(object? obj)

@@ -2,4 +2,28 @@
     .container-fluid {
         padding: 0 !important;
     }
+    .rz-day-view .rz-event-content{
+        font-size: 0.8rem !important;
+        line-height: 0.8rem !important;
+    }
 }
+
+@media (min-width: 769px){
+    .rz-day-view .rz-event-content{
+        font-size: 1rem !important;
+        line-height: 1rem !important;
+    }
+}
+
+.rz-event-content:first-line {
+    line-height: 0;
+}
+
+.rz-event-content {
+    white-space: pre-line;
+    text-align: center;
+}
+
+.rz-week-view .rz-event-content{
+    
+} 

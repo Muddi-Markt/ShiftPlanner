@@ -15,6 +15,14 @@ public enum UserRoles
 	Admin
 }
 
+
+public class NotAssignedEmployee : Employee
+{
+	public NotAssignedEmployee() : base(Guid.Empty, "Nicht zugewiesen")
+	{
+	}
+}
+
 public class Employee : EmployeeBase
 {
 	public Employee(Guid keycloakId, string name) : base(keycloakId, name)

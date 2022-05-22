@@ -27,21 +27,21 @@ public partial class PlacesPage
 
 	private bool _isLoading = true;
 
-	private IEnumerable<Shift> Shifts => _showOnlyUsersShifts 
-		? _shifts.Where(s => s.User.KeycloakId == _userKeycloakId) 
+	private IEnumerable<Shift> Shifts => _showOnlyUsersShifts
+		? _shifts.Where(s => s.User.KeycloakId == _userKeycloakId)
 		: _shifts;
+
 	private DateTime StartDate { get; } = (DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate);
 
 	private RadzenScheduler<Shift> _scheduler;
 	private bool _showOnlyUsersShifts;
-	private IEnumerable<Shift> _shifts = Enumerable.Empty<Shift>();
+	private IList<Shift> _shifts = new List<Shift>();
 	private Guid _userKeycloakId;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		try
 		{
-			var sw = Stopwatch.StartNew();
 			var state = await AuthenticationState;
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
 			_user = state.User;
@@ -54,16 +54,23 @@ public partial class PlacesPage
 	}
 
 
-	private async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
+	private Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
 	{
-		var start = args.Start.ToUniversalTime();
-		ShiftContainer container = _location.GetShiftContainerByTime(start);
-		DateTime startTime = container.GetBestShiftStartTimeForTime(start).ToUniversalTime();
+		return OnSlotSelect(args.Start);
+	}
+
+	private async Task OnSlotSelect(DateTime startTime, ShiftType? type = null)
+	{
+		startTime = startTime.ToUniversalTime();
+		ShiftContainer container = _location.GetShiftContainerByTime(startTime);
+		startTime = container.GetBestShiftStartTimeForTime(startTime).ToUniversalTime();
 		var shiftResponse = new GetShiftResponse
 		{
 			ContainerId = container.Id,
 			Employee = new() { Id = _user.GetKeycloakId(), UserName = _user.GetFullName() },
-			Start = startTime
+			Start = startTime,
+			End = startTime + container.Framework.TimePerShift,
+			Type = type?.MapToShiftTypeResponse()
 		};
 		var param = new Dictionary<string, object>
 		{
@@ -85,6 +92,11 @@ public partial class PlacesPage
 
 	private async Task OnShiftSelect(SchedulerAppointmentSelectEventArgs<Shift> args)
 	{
+		if (args.Data.User == _notAssignedEmployee)
+		{
+			await OnSlotSelect(args.Start,args.Data.Type);
+			return;
+		}
 		var param = new Dictionary<string, object>
 		{
 			[nameof(EditShiftDialog.EntityToEdit)] = args.Data.MapToShiftResponse()
@@ -99,12 +111,22 @@ public partial class PlacesPage
 	private void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Shift> args)
 	{
 		// Never call StateHasChanged in AppointmentRender - would lead to infinite loop
-		args.Attributes["style"] = $"background: {args.Data.Type.Color};";
+		args.Attributes["style"] = string.Empty;
+		if (args.Data.User == _notAssignedEmployee)
+		{
+			string color = args.Data.Type.Color.EndsWith(')')
+				? $"{args.Data.Type.Color[..^1]}, 30%)"
+				: "#00000077";
+				
+			args.Attributes["style"] += $"background: {args.Data.Type.Color};backdrop-filter: blur(2px);mix-blend-mode:color-burn;";
+			return;
+		}
+
+		args.Attributes["style"] += $"background: {args.Data.Type.Color};";
 		if (args.Data.User.KeycloakId == _userKeycloakId)
 		{
 			args.Attributes["style"] += "border: 2px dashed #852121;";
 		}
-		
 	}
 
 	private void OnSlotRender(SchedulerSlotRenderEventArgs args)
@@ -133,9 +155,45 @@ public partial class PlacesPage
 	private async Task LoadShifts(SchedulerLoadDataEventArgs arg)
 	{
 		_isLoading = true;
-		_shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).OrderBy(q => q.Type.Id);
-		var temp = _shifts.ToList();
-		await Task.Delay(500);
+		var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
+		FillShiftsWithUnassignedShifts(ref shifts,arg);
+		_shifts = shifts.OrderBy(q => q.Type.Id).ToList();
 		_isLoading = false;
+	}
+
+	private static NotAssignedEmployee _notAssignedEmployee = new();
+
+	private void FillShiftsWithUnassignedShifts(ref List<Shift> shifts, SchedulerLoadDataEventArgs arg)
+	{
+		var startTime = arg.Start.ToUniversalTime();
+		var endTime = arg.End.ToUniversalTime();
+		foreach (var container in _location!.Containers)
+		{
+			foreach (var containerStart in container.ShiftStartTimes)
+			{
+
+				if (containerStart <startTime || containerStart >= endTime)
+					continue;
+				foreach (var (type, count) in container.Framework.RolesCount)
+				{
+					var assignedShiftsCount = shifts.Count(s =>
+						s.ContainerId == container.Id
+						&& s.Type == type
+						&& s.StartTime == containerStart);
+					if (assignedShiftsCount < count)
+					{
+						if (type.Name == "Muddi in Charge")
+							Console.WriteLine(containerStart + " " + assignedShiftsCount + " / " + count);
+
+						for (int i = 0; i < count - assignedShiftsCount; i++)
+						{
+							if (type.Name == "Muddi in Charge")
+								Console.WriteLine(i);
+							shifts.Add(new Shift(_notAssignedEmployee, containerStart, containerStart + container.Framework.TimePerShift, type));
+						}
+					}
+				}
+			}
+		}
 	}
 }
