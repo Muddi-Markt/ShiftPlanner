@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
@@ -24,21 +25,15 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftResponse>
 
 	public override async Task<GetShiftResponse?> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
-		var entity = await Database.Shifts.Include(s => s.Type).FirstOrDefaultAsync(s => s.Id == id, cancellationToken: ct);
+		var entity = await Database.Shifts
+			.Include(s => s.Type)
+			.Include(s => s.ShiftContainer)
+			.ThenInclude(c => c.Location)
+			.FirstOrDefaultAsync(s => s.Id == id, cancellationToken: ct);
 		if (entity is null)
 			return null;
-		var entry = Database.Entry(entity);
-		var containerId = entry.Property<Guid?>("ShiftContainerId").CurrentValue;
 		var employee = await _keycloakService.GetUserById(entity.EmployeeKeycloakId);
-		
-		return new()
-		{
-			ContainerId = containerId ?? Guid.Empty,
-			Employee = employee,
-			End = entity.End,
-			Id = entity.Id,
-			Start = entity.Start,
-			Type = entity.Type.Adapt<GetShiftTypesResponse>()
-		};
+
+		return entity.MapToShiftResponse(employee);
 	}
 }

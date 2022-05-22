@@ -8,7 +8,12 @@ public interface IKeycloakApi
 	[Get("/admin/realms/{realm}/users/{userId}")]
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<KeycloakUserRepresentation>> GetUserById(string realm, Guid userId);
-	
+
+	[Get("/admin/realms/{realm}/users")]
+	[Headers("Authorization: Bearer")]
+	Task<ApiResponse<ICollection<KeycloakUserRepresentation>>> GetUsers(string realm);
+
+
 	[Post("/realms/{realm}/protocol/openid-connect/token")]
 	Task<GetTokenResponse> GetToken(string realm, [Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);
 

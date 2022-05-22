@@ -27,7 +27,7 @@ public class AddContainerEndpoint : CrudEndpoint<AddLocationsContainerRequest, E
 
 		foreach (var id in req.ContainerIds)
 		{
-			var c = new ShiftContainer { Id = id };
+			var c = new ShiftContainerEntity { Id = id };
 			Database.Attach(c);
 			location.Containers.Add(c);
 		}

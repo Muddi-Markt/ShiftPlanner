@@ -31,7 +31,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateLocationRequest, GetLocat
 			Id = Guid.NewGuid(),
 			Name = req.Name,
 			Type = type,
-			Containers = new List<ShiftContainer>()
+			Containers = new List<ShiftContainerEntity>()
 		};
 		Database.Add(location);
 		await Database.SaveChangesAsync(ct);

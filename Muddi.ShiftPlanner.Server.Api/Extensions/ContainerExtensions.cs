@@ -10,7 +10,7 @@ namespace Muddi.ShiftPlanner.Server.Api.Services;
 
 public static class ShiftService
 {
-	public static IEnumerable<GetShiftTypesResponse> GetAvailableShiftTypes(this ShiftContainer container, DateTime requestStartTime)
+	public static IEnumerable<GetShiftTypesResponse> GetAvailableShiftTypes(this ShiftContainerEntity container, DateTime requestStartTime)
 	{
 		requestStartTime = requestStartTime.ToUniversalTime();
 		var counter = container.Framework.ShiftTypeCounts.Select(sft => new ShiftTypeCountsHelper(sft)).ToList();
@@ -44,7 +44,7 @@ public static class ShiftService
 		internal int Count { get; set; }
 	}
 
-	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainer container, CreateShiftRequest req)
+	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainerEntity container, CreateShiftRequest req)
 	{
 		if (container.Shifts.Any(s => s.EmployeeKeycloakId == req.EmployeeKeycloakId && s.Start == req.Start))
 		{

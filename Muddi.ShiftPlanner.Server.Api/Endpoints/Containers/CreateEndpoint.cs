@@ -43,7 +43,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 			return null;
 		}
 
-		var container = new ShiftContainer
+		var container = new ShiftContainerEntity
 		{
 			Id = Guid.NewGuid(),
 			Start = req.Start,

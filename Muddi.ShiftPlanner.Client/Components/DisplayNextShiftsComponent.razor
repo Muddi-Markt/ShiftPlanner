@@ -1,0 +1,19 @@
+﻿@if (_shifts.Any()){
+	<h3>Deine nächsten Schichten:</h3>
+	<div class="d-flex flex-wrap">
+		@foreach(var shift in _shifts)
+		{
+			<div class="rz-event-content m-1 p-3" style="background: @shift.Type.Color;">
+				<a style="color: #fff; text-decoration: underline" href="@($"/locations/{shift.LocationId}")">@Locations.First(l => l.Id == shift.LocationId).Name</a>
+				<br/>
+				@shift.Type.Name
+				<br/>
+				@shift.DisplayStartTime.ToString("ddd dd.MM. HH:mm") - @shift.DisplayEndTime.ToString("HH:mm")
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="lds-ripple"><div></div><div></div></div>
+}

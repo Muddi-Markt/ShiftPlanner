@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Muddi.ShiftPlanner.Server.Database.Migrations
 {
     [DbContext(typeof(ShiftPlannerContext))]
-    partial class ShiftPlannerContextModelSnapshot : ModelSnapshot
+    [Migration("20220522122521_AddsLocationToContainer")]
+    partial class AddsLocationToContainer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,9 +44,9 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("framework_id");
 
-                    b.Property<Guid>("LocationId")
+                    b.Property<Guid>("ShiftLocationEntityId")
                         .HasColumnType("uuid")
-                        .HasColumnName("location_id");
+                        .HasColumnName("shift_location_entity_id");
 
                     b.Property<DateTime>("Start")
                         .HasColumnType("timestamp with time zone")
@@ -60,8 +62,8 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                     b.HasIndex("FrameworkId")
                         .HasDatabaseName("ix_containers_framework_id");
 
-                    b.HasIndex("LocationId")
-                        .HasDatabaseName("ix_containers_location_id");
+                    b.HasIndex("ShiftLocationEntityId")
+                        .HasDatabaseName("ix_containers_shift_location_entity_id");
 
                     b.ToTable("containers", (string)null);
                 });
@@ -241,16 +243,16 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_containers_shift_frameworks_framework_id");
 
-                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.ShiftLocationEntity", "Location")
+                    b.HasOne("Muddi.ShiftPlanner.Server.Database.Entities.ShiftLocationEntity", "ShiftLocationEntity")
                         .WithMany("Containers")
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("ShiftLocationEntityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_containers_shift_locations_location_id");
+                        .HasConstraintName("fk_containers_shift_locations_shift_location_entity_id");
 
                     b.Navigation("Framework");
 
-                    b.Navigation("Location");
+                    b.Navigation("ShiftLocationEntity");
                 });
 
             modelBuilder.Entity("Muddi.ShiftPlanner.Server.Database.Entities.ShiftEntity", b =>

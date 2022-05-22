@@ -18,12 +18,13 @@ public static class MapperExtensions
 
 	public static Shift MapToShift(this GetShiftResponse dto)
 	{
-		return new Shift(dto.Id, new Employee(dto.Employee.Id, dto.Employee.UserName),
+		return new Shift(dto.Id, 
+			new Employee(dto.Employee.Id, dto.Employee.UserName),
 			dto.Start.ToUniversalTime(),
 			dto.End.ToUniversalTime(),
 			dto.Type.MapToShiftType(),
-			dto.ContainerId
-		);
+			dto.ContainerId,
+			dto.LocationId);
 	}
 	public static GetShiftResponse MapToShiftResponse(this Shift dto)
 	{
@@ -37,7 +38,6 @@ public static class MapperExtensions
 			Type = dto.Type.MapToShiftTypeResponse()
 		};
 	}
-
 	public static GetShiftTypesResponse MapToShiftTypeResponse(this ShiftType shiftType)
     {
         return new GetShiftTypesResponse
@@ -59,5 +59,6 @@ public static class MapperExtensions
 			shift.StartTime.ToUniversalTime().ToLocalTime(), 
 			shift.EndTime.ToUniversalTime().ToLocalTime(), 
 			shift.Type,
-			shift.ContainerId);
+			shift.ContainerId,
+			shift.LocationId);
 }

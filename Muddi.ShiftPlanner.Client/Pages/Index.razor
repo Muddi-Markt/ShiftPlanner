@@ -1,45 +1,21 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@inject IAccessTokenProvider _accessTokenProvider;
-@inject NavigationManager _navigationManager;
+
 
 <PageTitle>Index</PageTitle>
 <AuthorizeView>
-    <Authorized>
-        Willkommen @context.User.Identity.Name
-        <br />
-        Claims: @string.Join(',',context.User.Claims.Select(q => q.Type + ": "+q.Value))
-        <br />
-        <br />
-        IsAdmin: @context.User.IsInRole("admin")
-        <br />
-        Dein Token: 
-        <br />
-        <br />
-        <textarea value="@_token" style="width:100%; height:400px;"/>
-    </Authorized>
+	<Authorized>
+		Willkommen @context.User.Identity.Name
+		<br/>
+		<DisplayNextShiftsComponent/>
+		Token:
+		<br/>
+		<br/>
+		<textarea value="@_token" style="width:100%; height:400px;"/>
+	</Authorized>
 
-    <NotAuthorized>
-        Du bist nicht eingeloggt!
-        <a href="/authentication/login">Login</a>
-    </NotAuthorized>
+	<NotAuthorized>
+		Du bist nicht eingeloggt!
+		<a href="/authentication/login">Login</a>
+	</NotAuthorized>
 </AuthorizeView>
-
-@code {
-
-    private string _token;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var t = await _accessTokenProvider.RequestAccessToken();
-        if (t.TryGetToken(out var tok))
-            _token = tok.Value;
-        else
-        {
-            _token = $"Failed to obtain token. Status: {t.Status}";
-            if (t.Status == AccessTokenResultStatus.RequiresRedirect)
-                _navigationManager.NavigateTo(t.RedirectUrl);
-        }
-    }
-
-}

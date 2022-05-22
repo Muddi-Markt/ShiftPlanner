@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Api;
@@ -69,5 +70,11 @@ public class ShiftService
 		if (resp.Error is not null)
 			throw resp.Error;
 		return resp.Content!.MapToShift();
+	}
+
+	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1)
+	{
+		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(),count);
+		return shifts.Select(s => s.MapToShift());
 	}
 }

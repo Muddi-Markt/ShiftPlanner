@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Refit;
 
 namespace Muddi.ShiftPlanner.Server.Api.Services;
@@ -7,6 +8,7 @@ public interface IKeycloakService
 {
 	Task<string> GetToken();
 	Task<GetEmployeeResponse> GetUserById(Guid reqId);
+	Task<IEnumerable<GetEmployeeResponse>> GetUsers();
 }
 
 public class KeycloakService : IKeycloakService
@@ -66,15 +68,8 @@ public class KeycloakService : IKeycloakService
 			var apiResponse = await _keycloakApi.GetUserById(Realm, reqId);
 			var keycloakUser = apiResponse.Content;
 
-			if (apiResponse.IsSuccessStatusCode)
-				response = new GetEmployeeResponse
-				{
-					Email = keycloakUser!.Email,
-					Id = Guid.Parse(keycloakUser.Id ?? throw new InvalidOperationException("Keycloak Id is null")),
-					UserName = keycloakUser.Username,
-					FirstName = keycloakUser.FirstName,
-					LastName = keycloakUser.LastName
-				};
+			if (apiResponse.IsSuccessStatusCode && keycloakUser is not null)
+				response = keycloakUser.MapToEmployeeResponse();
 			else
 				response = new()
 				{
@@ -88,5 +83,13 @@ public class KeycloakService : IKeycloakService
 		}
 
 		return response;
+	}
+
+	public async Task<IEnumerable<GetEmployeeResponse>> GetUsers()
+	{
+		var apiResponse = await _keycloakApi.GetUsers(Realm);
+		return apiResponse.IsSuccessStatusCode && apiResponse.Content is not null
+			? apiResponse.Content.Select(u => u.MapToEmployeeResponse())
+			: Enumerable.Empty<GetEmployeeResponse>();
 	}
 }

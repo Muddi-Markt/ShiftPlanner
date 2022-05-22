@@ -94,6 +94,9 @@ public interface IMuddiShiftApi
 
 	[Put("/locations/{id}")]
 	Task UpdateLocation(Guid id, UpdateLocationRequest updateLocationRequest);
+
+	[Get("/employees/{keycloakId}/shifts")]
+	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId,int count);
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

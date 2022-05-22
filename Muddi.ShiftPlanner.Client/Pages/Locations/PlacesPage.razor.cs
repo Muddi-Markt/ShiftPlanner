@@ -99,7 +99,12 @@ public partial class PlacesPage
 	private void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Shift> args)
 	{
 		// Never call StateHasChanged in AppointmentRender - would lead to infinite loop
-		args.Attributes["style"] = $"background: {args.Data.Type.Color}";
+		args.Attributes["style"] = $"background: {args.Data.Type.Color};";
+		if (args.Data.User.KeycloakId == _userKeycloakId)
+		{
+			args.Attributes["style"] += "border: 2px dashed #852121;";
+		}
+		
 	}
 
 	private void OnSlotRender(SchedulerSlotRenderEventArgs args)

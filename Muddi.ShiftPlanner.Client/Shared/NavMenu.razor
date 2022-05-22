@@ -1,14 +1,12 @@
 ﻿@using Muddi.ShiftPlanner.Client.Services
 @using Muddi.ShiftPlanner.Shared.BlazorWASM
 @using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
-@inject DialogService DialogService;
-@inject ShiftService ShiftService;
 <RadzenSidebar Expanded="Expanded" ExpandedChanged="ExpandedChanged" class="demos-sidebar">
 	<ChildContent>
 		<RadzenPanelMenu Match="NavLinkMatch.Prefix">
 			<AuthorizeView>
 				<Authorized>
-					@foreach (var location in _locations)
+					@foreach (var location in Locations)
 					{
 						<RadzenPanelMenuItem Text="@location.Name" Path="@location.Path" Icon="@location.Icon"/>
 					}
@@ -33,30 +31,10 @@
 
 	[Parameter]
 	public EventCallback<bool> ExpandedChanged { get; set; }
-
-
 	[CascadingParameter]
-	public Task<AuthenticationState> AuthStateTask { get; set; }
-
-
+	public IEnumerable<ShiftLocation> Locations { get; set; }
+	
 	private bool _sidebarExpanded = true;
-	private IEnumerable<ShiftLocation> _locations = Enumerable.Empty<ShiftLocation>();
 
-
-	protected override async Task OnParametersSetAsync()
-	{
-		try
-		{
-			var u = await AuthStateTask;
-			if (u.User.Identity?.IsAuthenticated == true)
-				_locations = await ShiftService.GetAllShiftLocationsAsync();
-		}
-
-		catch (Exception ex)
-
-		{
-			await DialogService.Error(ex);
-		}
-	}
 
 }
