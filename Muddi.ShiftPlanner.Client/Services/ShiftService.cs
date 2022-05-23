@@ -39,9 +39,21 @@ public class ShiftService
 		return dto.MapToShiftLocation();
 	}
 
+	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,
+		DateTime? end = null)
+	{
+		var dtos = await _shiftApi.GetAllAvailableShiftTypesFromLocationAsync(id, new GetAvailableShiftsForLocationRequest
+		{
+			LocationId = id,
+			StartTime = start,
+			EndTime = end
+		});
+		return dtos;
+	}
+
 	public async Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id, DateTime start, DateTime end, Guid? forEmployeeId = null)
 	{
-		var dtos = await _shiftApi.GetAllShiftsForLocation(id, new() { Start = start, End = end, KeycloakEmployeeId = forEmployeeId});
+		var dtos = await _shiftApi.GetAllShiftsForLocation(id, new() { Start = start, End = end, KeycloakEmployeeId = forEmployeeId });
 		return dtos.Select(t => t.MapToShift());
 	}
 
@@ -56,10 +68,10 @@ public class ShiftService
 		return res.Id;
 	}
 
-	public async Task<IEnumerable<ShiftType>> GetAvailableShiftTypesAtTime(Guid containerId, DateTime start)
+	public async Task<IEnumerable<GetShiftTypesResponse>> GetAvailableShiftTypesAtTime(Guid containerId, DateTime start)
 	{
 		var availableShiftTypes = await _shiftApi.GetAvailableShiftTypes(containerId, start);
-		return availableShiftTypes.Select(q => q.MapToShiftType());
+		return availableShiftTypes.Where(q => q.AvailableCount > 0).Select(q => q.Type);
 	}
 
 	public async Task<Shift?> GetShiftById(Guid id)
@@ -74,7 +86,41 @@ public class ShiftService
 
 	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1)
 	{
-		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(),count);
+		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count);
 		return shifts.Select(s => s.MapToShift());
+	}
+
+
+	public static NotAssignedEmployee NotAssignedEmployee { get; } = new();
+
+	public static void FillShiftsWithUnassignedShifts(ref List<Shift> shifts, IEnumerable<ShiftContainer> containers, DateTime startTime,
+		DateTime endTime)
+	{
+		startTime = startTime.ToUniversalTime();
+		endTime = endTime.ToUniversalTime();
+
+		foreach (var container in containers)
+		{
+			foreach (var containerStart in container.ShiftStartTimes)
+			{
+				if (containerStart < startTime || containerStart >= endTime)
+					continue;
+				foreach (var (type, count) in container.Framework.RolesCount)
+				{
+					var assignedShiftsCount = shifts.Count(s =>
+						s.ContainerId == container.Id
+						&& s.Type == type
+						&& s.StartTime == containerStart);
+					if (assignedShiftsCount < count)
+					{
+						for (int i = 0; i < count - assignedShiftsCount; i++)
+						{
+							shifts.Add(new Shift(NotAssignedEmployee, containerStart, containerStart + container.Framework.TimePerShift,
+								type));
+						}
+					}
+				}
+			}
+		}
 	}
 }

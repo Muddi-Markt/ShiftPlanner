@@ -21,6 +21,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetContainerRespo
 		return await Database.ShiftLocations
 			.Include(t => t.Type)
 			.Select(t => t.Adapt<GetContainerResponse>())
+			.AsNoTracking()
 			.ToListAsync(cancellationToken: ct);
 	}
 }

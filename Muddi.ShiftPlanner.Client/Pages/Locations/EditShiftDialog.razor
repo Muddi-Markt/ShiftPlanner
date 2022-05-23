@@ -19,9 +19,10 @@
 			<RadzenLabel Text="User"/>
 		</div>
 		<div class="col-md-8">
-			<RadzenTextBox 
+			<RadzenTextBox
 				ReadOnly="true"
-				Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(you)" : "")}")"></RadzenTextBox>
+				Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(you)" : "")}")">
+			</RadzenTextBox>
 		</div>
 	</div>
 
@@ -119,7 +120,7 @@
 				_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			}
 			GetContainerResponse container = await ShiftApi.GetContainer(EntityToEdit.ContainerId);
-			var dto = await ShiftApi.GetAvailableShiftTypes(EntityToEdit.ContainerId, EntityToEdit.Start);
+			var dto = await ShiftService.GetAvailableShiftTypesAtTime(EntityToEdit.ContainerId, EntityToEdit.Start);
 			if (!_isAdmin)
 				dto = dto.Where(x => x.OnlyAssignableByAdmin == false);
 			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);

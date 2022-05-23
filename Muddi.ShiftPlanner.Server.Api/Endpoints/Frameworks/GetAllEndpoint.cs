@@ -22,6 +22,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetFrameworkRespo
 			.Include(t => t.ShiftTypeCounts)
 			.ThenInclude(c => c.ShiftType)
 			.Select(t => t.Adapt<GetFrameworkResponse>())
+			.AsNoTracking()
 			.ToListAsync(cancellationToken: ct);
 	}
 }

@@ -75,7 +75,7 @@ public interface IMuddiShiftApi
 	Task<IApiResponse> CreateShiftForLocation(Guid id, CreateShiftRequest createShiftRequest);
 
 	[Get("/containers/{containerId}/get-available-shift-types")]
-	Task<IEnumerable<GetShiftTypesResponse>> GetAvailableShiftTypes(Guid containerId, DateTime start);
+	Task<IEnumerable<GetShiftTypesCountResponse>> GetAvailableShiftTypes(Guid containerId, DateTime start);
 
 	[Post("/containers/{Id}/shifts")]
 	Task<DefaultCreateResponse> CreateShiftForContainer(Guid id, CreateShiftRequest createShiftRequest);
@@ -97,6 +97,9 @@ public interface IMuddiShiftApi
 
 	[Get("/employees/{keycloakId}/shifts")]
 	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId,int count);
+
+	[Get("/locations/{Id}/get-all-available-shifts-types")]
+	Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, GetAvailableShiftsForLocationRequest request);
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

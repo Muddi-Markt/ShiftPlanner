@@ -35,10 +35,8 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 				(req.KeycloakEmployeeId.HasValue ? s.EmployeeKeycloakId == req.KeycloakEmployeeId.Value : true) &&
 				(s.Start >= start && s.Start < end)))
 			.ThenInclude(s => s.Type)
+			.AsNoTracking()
 			.FirstAsync(l => l.Id == req.Id!.Value, cancellationToken: ct);
-
-		//TODO populate GetEmployeeResponse in GetShiftResponse with KeycloakService
-
 		List<GetShiftResponse> ret = new();
 		foreach (var container in location.Containers)
 		{

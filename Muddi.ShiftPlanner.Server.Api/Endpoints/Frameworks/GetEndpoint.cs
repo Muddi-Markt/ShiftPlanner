@@ -19,6 +19,7 @@ public class GetEndpoint : CrudGetEndpoint<GetFrameworkResponse>
 		=> (await Database.ShiftFrameworks
 				.Include(t => t.ShiftTypeCounts)
 				.ThenInclude(c => c.ShiftType)
+				.AsNoTracking()
 				.FirstOrDefaultAsync(l => l.Id == id, cancellationToken: ct))
 			?.Adapt<GetFrameworkResponse>();
 }

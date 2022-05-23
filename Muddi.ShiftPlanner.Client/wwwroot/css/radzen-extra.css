@@ -9,7 +9,7 @@
 }
 
 @media (min-width: 769px){
-    .rz-day-view .rz-event-content{
+    .rz-event-content{
         font-size: 1rem !important;
         line-height: 1rem !important;
     }

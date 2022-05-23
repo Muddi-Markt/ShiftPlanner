@@ -21,6 +21,7 @@ public class GetEndpoint : CrudGetEndpoint<GetContainerResponse>
 		=> (await Database.Containers
 				.Include(t => t.Framework)
 				.ThenInclude(f => f.ShiftTypeCounts)
+				.AsNoTracking()
 				.FirstOrDefaultAsync(l => l.Id == id, cancellationToken: ct))
 			?.Adapt<GetContainerResponse>();
 }

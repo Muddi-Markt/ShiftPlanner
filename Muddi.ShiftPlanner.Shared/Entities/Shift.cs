@@ -27,13 +27,9 @@ public class Shift : IEquatable<Shift>
 		Type = type;
 		Id = Guid.NewGuid();
 	}
-
-	public string Title => User.Name + "\n" + Type.Name;
 	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }
-	public DateTime DisplayStartTime => StartTime.ToLocalTime();
 	public DateTime EndTime { get; }
-	public DateTime DisplayEndTime => EndTime.ToLocalTime();
 	public ShiftType Type { get; }
 	public Guid ContainerId { get; }
 	public Guid LocationId { get; }

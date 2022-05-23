@@ -6,7 +6,7 @@ public abstract class CrudGetAllEndpoint<TRequest, TResponse> : CrudEndpoint<TRe
 	where TRequest : notnull, new()
 	where TResponse : notnull, new()
 {
-	public abstract Task<List<TResponse>> CrudExecuteAsync(TRequest request, CancellationToken ct);
+	public abstract Task<List<TResponse>?> CrudExecuteAsync(TRequest request, CancellationToken ct);
 
 	public sealed override void Configure()
 	{
@@ -21,7 +21,8 @@ public abstract class CrudGetAllEndpoint<TRequest, TResponse> : CrudEndpoint<TRe
 	public sealed override async Task HandleAsync(TRequest request, CancellationToken ct)
 	{
 		var val = await CrudExecuteAsync(request, ct);
-		Response = val;
+		if (val is not null)
+			Response = val;
 
 		//Wow this is a bummer: As refit currently can't handle 204 correctly
 		//we have to return 200 and an empty response...

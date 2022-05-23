@@ -1,40 +1,45 @@
 ﻿@page "/locations/{Id:guid}"
-@using System.Globalization
+@using Muddi.ShiftPlanner.Client.Entities
 
 @if (_location is not null)
 {
-	<h3>@_location.Name</h3>
+	<RadzenHeading Style="text-decoration: blink" Text="@_location.Name"/>
 
-	<RadzenCheckBox @bind-Value="_showOnlyUsersShifts" Name="only-my-shift-check"></RadzenCheckBox>
-	<RadzenLabel Text="Zeige nur meine Schichten" Component="only-my-shift-check" Style="margin-left: 8px; vertical-align: middle;" />
+	<div class="mb-5 mt-3">
+		<RadzenCheckBox @bind-Value="ShowOnlyUsersShifts" Name="only-my-shift-check"></RadzenCheckBox>
+		<RadzenLabel Text="Zeige nur meine Schichten" Component="only-my-shift-check" Style="margin-left: 8px; vertical-align: middle;"/>
+	</div>
 	<div style="width:100%; height: 100%; position:relative;">
 		@if (_isLoading)
 		{
 			<div class="d-flex justify-content-around align-items-center" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10">
 				<div>
 					<h3 style="color: #f00">Loading...</h3>
-					<div class="lds-ripple"><div></div><div></div></div>
+					<div class="lds-ripple">
+						<div></div>
+						<div></div>
+					</div>
 				</div>
 			</div>
 		}
-		<RadzenScheduler TItem="Shift"
+		<RadzenScheduler TItem="Appointment"
 		                 style="height: 1300px;"
 		                 @ref="_scheduler"
 		                 SlotRender=@OnSlotRender
 		                 Data=@Shifts
 		                 LoadData="@LoadShifts"
 		                 Date="StartDate"
-		                 StartProperty="DisplayStartTime"
-		                 EndProperty="DisplayEndTime"
-		                 TextProperty="Title"
+		                 StartProperty="@nameof(Appointment.LocalStartTime)"
+		                 EndProperty="@nameof(Appointment.LocalEndTime)"
+		                 TextProperty="@nameof(Appointment.Title)"
 		                 TodayText="Heute"
 		                 SelectedIndex="0"
-		                 
+
 		                 AppointmentRender=@OnAppointmentRender
 		                 SlotSelect=@OnSlotSelect
 		                 AppointmentSelect=@OnShiftSelect>
 
-			<RadzenDayView TimeFormat="HH:mm" Text="Tag" StartTime="TimeSpan.FromHours(9)" EndTime="TimeSpan.FromHours(27)" />
+			<RadzenDayView TimeFormat="HH:mm" Text="Tag" StartTime="TimeSpan.FromHours(9)" EndTime="TimeSpan.FromHours(27)"/>
 			<RadzenWeekView Text="Woche" StartTime="TimeSpan.FromHours(9)" EndTime="TimeSpan.FromHours(26)" MinutesPerSlot="30" TimeFormat="HH:mm"/>
 		</RadzenScheduler>
 	</div>

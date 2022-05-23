@@ -10,38 +10,51 @@ namespace Muddi.ShiftPlanner.Server.Api.Services;
 
 public static class ShiftService
 {
-	public static IEnumerable<GetShiftTypesResponse> GetAvailableShiftTypes(this ShiftContainerEntity container, DateTime requestStartTime)
+	public static IEnumerable<DateTime> GetStartTimes(this ShiftContainerEntity container)
 	{
-		requestStartTime = requestStartTime.ToUniversalTime();
-		var counter = container.Framework.ShiftTypeCounts.Select(sft => new ShiftTypeCountsHelper(sft)).ToList();
-		foreach (var shift in container.Shifts.Where(s => s.Start == requestStartTime))
+		var current = container.Start;
+		for (var i = 0; i < container.TotalShifts; i++)
 		{
-			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
-			q.Count--;
+			yield return current;
+			current = current.Add(container.Framework.TimePerShift);
 		}
-
-		return counter
-			.Where(c => c.Count > 0)
-			.Select(c => new GetShiftTypesResponse
-			{
-				Id = c.Type.Id, 
-				Name = c.Type.Name,
-				Color = c.Type.Color,
-				OnlyAssignableByAdmin = c.Type.OnlyAssignableByAdmin,
-				StartingTimeShift = c.Type.StartingTimeShift
-			});
 	}
 
-	private class ShiftTypeCountsHelper
+	public static GetShiftTypesCountResponse ToResponse(this ShiftFrameworkTypeCountEntity sft, DateTime startTime, DateTime endTime)
 	{
-		public ShiftTypeCountsHelper(ShiftFrameworkTypeCountEntity sft)
+		return new GetShiftTypesCountResponse
 		{
-			Type = sft.ShiftType.Adapt<ShiftTypeEntity>();//clone
-			Count = sft.Count;
+			Type = sft.ShiftType.Adapt<GetShiftTypesResponse>(),
+			AvailableCount = sft.Count,
+			TotalCount = sft.Count,
+			Start = startTime,
+			End = endTime
+		};
+	}
+
+	public static IEnumerable<GetShiftTypesCountResponse> GetAvailableShiftTypes(this ShiftContainerEntity container, DateTime startTime)
+	{
+		startTime = startTime.ToUniversalTime();
+		var endTime = startTime + container.Framework.TimePerShift;
+		var counter = container.Framework.ShiftTypeCounts.Select(sft => sft.ToResponse(startTime, endTime)).ToList();
+		foreach (var shift in container.Shifts.Where(s => s.Start == startTime))
+		{
+			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
+			q.AvailableCount--;
 		}
 
-		public ShiftTypeEntity Type { get; set; }
-		internal int Count { get; set; }
+		return counter;
+		// return counter;
+		// 	.Select(c => new GetShiftTypesResponse
+		// 	{
+		// 		Id = c.Type.Id,
+		// 		Name = c.Type.Name,
+		// 		Color = c.Type.Color,
+		// 		Start = startTime,
+		// 		End = startTime + container.Framework.TimePerShift,
+		// 		OnlyAssignableByAdmin = c.Type.OnlyAssignableByAdmin,
+		// 		StartingTimeShift = c.Type.StartingTimeShift
+		// 	});
 	}
 
 	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainerEntity container, CreateShiftRequest req)
@@ -52,7 +65,7 @@ public static class ShiftService
 		}
 
 		var availableShiftTypes = container.GetAvailableShiftTypes(req.Start);
-		if (availableShiftTypes.All(st => st.Id != req.ShiftTypeId))
+		if (availableShiftTypes.All(st => st.Type.Id != req.ShiftTypeId))
 		{
 			return new ValidationFailure("ShiftType", "not available");
 		}

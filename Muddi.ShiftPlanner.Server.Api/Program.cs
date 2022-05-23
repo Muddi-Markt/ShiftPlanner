@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) => configuration
 	.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3} {SourceContext}] {Message:lj}{NewLine}{Exception}")
 	.Enrich.FromLogContext()
-	.MinimumLevel.Debug());
+	.MinimumLevel.Warning());
 
 builder.Services.AddCors();
 builder.Services.AddFastEndpoints();

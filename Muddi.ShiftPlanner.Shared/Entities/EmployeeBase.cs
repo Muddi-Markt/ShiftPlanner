@@ -18,7 +18,7 @@ public enum UserRoles
 
 public class NotAssignedEmployee : Employee
 {
-	public NotAssignedEmployee() : base(Guid.Empty, "Nicht zugewiesen")
+	public NotAssignedEmployee() : base(Guid.Empty, "FREI")
 	{
 	}
 }
@@ -34,15 +34,12 @@ public abstract class EmployeeBase : IEquatable<EmployeeBase>
 {
 	public EmployeeBase(Guid keycloakId, string name)
 	{
-		UserRole = UserRoles.Worker; //TODO make roles with keycloak
 		KeycloakId = keycloakId;
 		Name = name;
 	}
 
 	public Guid KeycloakId { get; }
 	public string Name { get; }
-
-	public UserRoles UserRole { get; }
 
 
 	public bool Equals(EmployeeBase? other)
