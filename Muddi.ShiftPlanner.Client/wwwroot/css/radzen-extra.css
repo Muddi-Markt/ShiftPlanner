@@ -2,19 +2,31 @@
     .container-fluid {
         padding: 0 !important;
     }
-    .rz-day-view .rz-event-content{
+
+    .rz-day-view .rz-event-content {
         font-size: 0.8rem !important;
         line-height: 0.8rem !important;
     }
 }
 
-@media (min-width: 769px){
-    .rz-event-content{
+@media (min-width: 769px) {
+    .rz-event-content {
         font-size: 1rem !important;
         line-height: 1rem !important;
     }
 }
 
+i {
+    color: #555 !important;
+}
+
+i:hover {
+    color: #777 !important;
+}
+
+a:hover {
+    text-decoration: none !important;
+}
 
 .rz-event-content:first-line {
     line-height: 0;
@@ -25,6 +37,6 @@
     text-align: center;
 }
 
-.rz-week-view .rz-event-content{
-    
+.rz-week-view .rz-event-content {
+
 } 
