@@ -33,23 +33,28 @@ public class ShiftLocation
 			throw new ContainerTimeOverlapsException(container, overlapContainer);
 		_containers.Add(container);
 	}
-	
+
 	public IEnumerable<Shift> GetAllShifts()
 	{
 		return Containers.SelectMany(t => t.GetAllShifts());
 	}
 
-	public void RemoveShift(Shift shift) => GetShiftContainer(shift).RemoveShift(shift);
+	public void RemoveShift(Shift shift)
+	{
+		if (GetShiftContainer(shift) is not { } container)
+			throw new StartTimeNotInContainerException(shift.StartTime);
+		container.RemoveShift(shift);
+	}
 
-	public ShiftContainer GetShiftContainerByTime(DateTime startTime) =>
+	public ShiftContainer? GetShiftContainerByTime(DateTime startTime) =>
 		_containers.SingleOrDefault(t => t.IsTimeWithinContainer(startTime))
-		?? throw new StartTimeNotInContainerException(startTime);
-	
-	public ShiftContainer GetContainerFromShift(Shift shift) 
+		?? null;
+
+	public ShiftContainer GetContainerFromShift(Shift shift)
 		=> _containers.FirstOrDefault(q => q.GetAllShifts().Any(t => t == shift))
 		   ?? throw new ShiftNotInContainerException(shift);
 
-	private ShiftContainer GetShiftContainer(Shift shift) => GetShiftContainerByTime(shift.StartTime);
+	private ShiftContainer? GetShiftContainer(Shift shift) => GetShiftContainerByTime(shift.StartTime);
 
 	public void UpdateShift(Shift shift, ShiftType type, EmployeeBase user)
 	{

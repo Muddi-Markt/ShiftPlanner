@@ -20,6 +20,7 @@ public partial class LocationPage
 {
 	[Inject] private DialogService DialogService { get; set; } = default!;
 	[Inject] private ShiftService ShiftService { get; set; } = default!;
+	[Inject] private ILogger<LocationPage> Logger { get; set; } = default!;
 	[Parameter] public Guid Id { get; set; }
 
 	[SupplyParameterFromQuery] [Parameter] public bool ShowOnlyUsersShifts { get; set; }
@@ -75,7 +76,13 @@ public partial class LocationPage
 	private async Task OnSlotSelect(DateTime startTime, ShiftType? type = null)
 	{
 		startTime = startTime.ToUniversalTime();
-		ShiftContainer container = _location.GetShiftContainerByTime(startTime);
+		var container = _location.GetShiftContainerByTime(startTime);
+		if (container is null)
+		{
+			Logger.LogWarning("No container within this start time {Start}",startTime);
+			return;
+		}
+			
 		startTime = container.GetBestShiftStartTimeForTime(startTime).ToUniversalTime();
 		var shiftResponse = new GetShiftResponse
 		{
@@ -148,10 +155,8 @@ public partial class LocationPage
 		{
 			//day view
 			var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
-			Console.WriteLine(arg.End);
 			ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
 			_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
-			Console.WriteLine(_shifts.Last().LocalStartTime.ToString("dd HH:mm"));
 		}
 
 		_isLoading = false;
