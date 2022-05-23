@@ -14,11 +14,11 @@
 	<RadzenLayout>
 		<RadzenHeader>
 			<ChildContent>
-				<div class="row justify-content-start align-items-center">
+				<div class="row justify-content-start align-items-center" style="background:#fff;">
 					<div class="col-5 d-flex align-items-center">
 						<RadzenSidebarToggle Click="@(_ => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
 						</RadzenSidebarToggle>
-						<RadzenLink Text="MUDDI Schichtplaner" Path="/"></RadzenLink>
+						<RadzenLink class="title" Text="MUDDIs Schichtplaner" Path="/"></RadzenLink>
 					</div>
 					<div class="col-7 d-flex align-items-center justify-content-end">
 						<a href="https://github.com/muddi-markt" title="GitHub" target="_blank" class="mx-3">
@@ -60,11 +60,14 @@
 		<NavMenu @bind-Expanded="_sidebarExpanded"></NavMenu>
 	</RadzenLayout>
 </CascadingValue>
+<RadzenMediaQuery Query="(max-width: 768px)" Change="MediaQueryCallback"></RadzenMediaQuery>
 
 @code {
 
 	[CascadingParameter]
 	public Task<AuthenticationState> AuthStateTask { get; set; }
+
+	private bool _isMediaMaxWidth768;
 
 	private IEnumerable<ShiftLocation> _locations = Enumerable.Empty<ShiftLocation>();
 
@@ -88,7 +91,7 @@
 	{
 		NavigationManager.LocationChanged += (_, args) =>
 		{
-			if (args.Location.Contains("/locations/"))
+			if (_isMediaMaxWidth768 && args.Location.Contains("/locations/"))
 			{
 				_sidebarExpanded = false;
 				_bodyExpanded = true;
@@ -97,6 +100,12 @@
 		};
 	}
 
-	bool _bodyExpanded = false;
+	bool _bodyExpanded;
 	private bool _sidebarExpanded = true;
+
+	private void MediaQueryCallback(bool obj)
+	{
+		_isMediaMaxWidth768 = obj;
+	}
+
 }

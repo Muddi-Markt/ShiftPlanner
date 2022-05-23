@@ -3,7 +3,7 @@
 
 @if (_location is not null)
 {
-	<RadzenHeading Style="text-decoration: blink" Text="@_location.Name"/>
+	<RadzenHeading Text="@_location.Name"/>
 
 	<div class="mb-5 mt-3">
 		<RadzenCheckBox @bind-Value="ShowOnlyUsersShifts" Name="only-my-shift-check"></RadzenCheckBox>

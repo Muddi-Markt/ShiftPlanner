@@ -1,0 +1,19 @@
+.shift-container {
+    max-height: 300px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.shift-container > * {
+    flex: 1 1 130px;
+}
+.shift-box{
+    flex: 1 1 130px;
+    text-align: center;
+    border-radius: 4px;
+    line-height: 1rem;
+    font-size: 1rem;
+    padding: 1rem;
+}
