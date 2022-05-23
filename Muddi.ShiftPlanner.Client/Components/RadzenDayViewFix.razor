@@ -1,0 +1,19 @@
+﻿@using Radzen.Blazor
+@using Radzen.Blazor.Rendering
+
+@* this is a fixed version of RadzenDayView, see https://github.com/radzenhq/radzen-blazor/issues/471 *@
+@inherits SchedulerViewBase
+
+@code {
+    public override RenderFragment Render()
+    {
+        var appointments = Scheduler.GetAppointmentsInRange(StartDate, EndDate).ToList();
+
+        return 
+    @<CascadingValue Value=@Scheduler>
+        <DayView StartDate=@StartDate EndDate=@EndDate StartTime=@StartTime EndTime=@EndTime Appointments=@appointments
+        TimeFormat=@TimeFormat MinutesPerSlot=@MinutesPerSlot />
+    </CascadingValue>
+    ;
+    }
+}

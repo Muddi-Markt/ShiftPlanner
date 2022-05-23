@@ -16,7 +16,7 @@
 			<ChildContent>
 				<div class="row justify-content-start align-items-center">
 					<div class="col-5 d-flex align-items-center">
-						<RadzenSidebarToggle Click="@(args => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
+						<RadzenSidebarToggle Click="@(_ => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
 						</RadzenSidebarToggle>
 						<RadzenLink Text="MUDDI Schichtplaner" Path="/"></RadzenLink>
 					</div>

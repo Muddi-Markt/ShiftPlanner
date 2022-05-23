@@ -39,8 +39,16 @@
 		                 SlotSelect=@OnSlotSelect
 		                 AppointmentSelect=@OnShiftSelect>
 
-			<RadzenDayView TimeFormat="HH:mm" Text="Tag" StartTime="TimeSpan.FromHours(9)" EndTime="TimeSpan.FromHours(27)"/>
-			<RadzenWeekView Text="Woche" StartTime="TimeSpan.FromHours(9)" EndTime="TimeSpan.FromHours(26)" MinutesPerSlot="30" TimeFormat="HH:mm"/>
+			<RadzenDayViewFix TimeFormat="HH:mm"
+			               Text="Tag" 
+			               StartTime="TimeSpan.FromHours(9)" 
+			               EndTime="TimeSpan.FromHours(27)" 
+			               MinutesPerSlot="30"/>
+			<RadzenWeekView Text="Woche" 
+			                StartTime="TimeSpan.FromHours(9)" 
+			                EndTime="TimeSpan.FromHours(27)" 
+			                MinutesPerSlot="30" 
+			                TimeFormat="HH:mm"/>
 		</RadzenScheduler>
 	</div>
 }

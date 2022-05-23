@@ -45,7 +45,7 @@ public partial class LocationPage
 		: _shifts;
 
 
-	private RadzenScheduler<Appointment> _scheduler;
+	private RadzenScheduler<Appointment>? _scheduler;
 	private IList<Appointment> _shifts = new List<Appointment>();
 	private Guid _userKeycloakId;
 
@@ -58,6 +58,7 @@ public partial class LocationPage
 			_user = state.User;
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);
+			_scheduler?.Reload();
 		}
 		catch (Exception ex)
 		{
@@ -133,6 +134,7 @@ public partial class LocationPage
 	{
 		_isLoading = true;
 		_shifts.Clear();
+
 		if (arg.End - arg.Start > TimeSpan.FromDays(1))
 		{
 			//Week view
@@ -146,8 +148,10 @@ public partial class LocationPage
 		{
 			//day view
 			var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
+			Console.WriteLine(arg.End);
 			ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
 			_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
+			Console.WriteLine(_shifts.Last().LocalStartTime.ToString("dd HH:mm"));
 		}
 
 		_isLoading = false;
