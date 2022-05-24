@@ -20,7 +20,8 @@ public static class ShiftService
 		}
 	}
 
-	public static GetShiftTypesCountResponse ToResponse(this ShiftFrameworkTypeCountEntity sft, DateTime startTime, DateTime endTime)
+	public static GetShiftTypesCountResponse ToResponse(this ShiftFrameworkTypeCountEntity sft, DateTime startTime, DateTime endTime,
+		Guid locationId)
 	{
 		return new GetShiftTypesCountResponse
 		{
@@ -28,7 +29,8 @@ public static class ShiftService
 			AvailableCount = sft.Count,
 			TotalCount = sft.Count,
 			Start = startTime,
-			End = endTime
+			End = endTime,
+			LocationId = locationId
 		};
 	}
 
@@ -36,7 +38,9 @@ public static class ShiftService
 	{
 		startTime = startTime.ToUniversalTime();
 		var endTime = startTime + container.Framework.TimePerShift;
-		var counter = container.Framework.ShiftTypeCounts.Select(sft => sft.ToResponse(startTime, endTime)).ToList();
+		var counter = container.Framework.ShiftTypeCounts
+			.Select(sft => sft.ToResponse(startTime, endTime, container.Location.Id))
+			.ToList();
 		foreach (var shift in container.Shifts.Where(s => s.Start == startTime))
 		{
 			var q = counter.Single(c => c.Type.Id == shift.Type.Id);

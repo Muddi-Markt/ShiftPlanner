@@ -1,27 +1,55 @@
-﻿@if (_appointments.Any())
+﻿@if (_myShifts is null || _freeShifts is null)
 {
-	<h3>Deine nächsten Schichten:</h3>
-	<div class="shift-container">
-		@foreach (var appointment in _appointments)
-		{
-			@if (appointment.Shift is {} shift)
-			{
-				<a style="color: #fff;" href="@MakeLocationUri(appointment)">
-					<div class="shift-box" style="background: @shift.Type.Color;">
-						<b>@Locations.First(l => l.Id == shift.LocationId).Name</b>
-						<br/>
-						@shift.Type.Name
-						<br/>
-						@appointment.StartTimeWithTimeShift.ToString("ddd dd.MM.")
-						<br/>
-						@appointment.StartTimeWithTimeShift.ToString("HH:mm") - @appointment.EndTimeWithTimeShift.ToString("HH:mm")
-					</div>
-				</a>
-			}
-		}
-	</div>
+	<LoadingSpinner/>
 }
 else
 {
-	<LoadingSpinner/>
+	@if (_myShifts.Any())
+	{
+		<h3>Deine nächsten Schichten:</h3>
+
+		<div class="shift-container">
+			@foreach (var appointment in _myShifts)
+			{
+				@if (appointment.Shift is {} shift)
+				{
+					<a style="color: #fff;" href="@MakeLocationUri(appointment)">
+						<div class="shift-box" style="background: @shift.Type.Color;">
+							<b>@Locations.First(l => l.Id == shift.LocationId).Name</b>
+							<br/>
+							@shift.Type.Name
+							<br/>
+							@appointment.StartTimeWithTimeShift.ToString("ddd dd.MM.")
+							<br/>
+							@appointment.StartTimeWithTimeShift.ToString("HH:mm") - @appointment.EndTimeWithTimeShift.ToString("HH:mm")
+						</div>
+					</a>
+				}
+			}
+		</div>
+	}
+	@if (_freeShifts.Any())
+	{
+		<h3>Freie nächsten Schichten:</h3>
+
+		<div class="shift-container">
+			@foreach (var appointment in _freeShifts)
+			{
+				@if (appointment.Shift is {} shift)
+				{
+					<a href="@MakeLocationUri(appointment, false)">
+						<div class="shift-box" style="background: #fff; color: @shift.Type.Color">
+							<b>@Locations.FirstOrDefault(l => l.Id == shift.LocationId)?.Name</b>
+							<br/>
+							@shift.Type.Name
+							<br/>
+							@appointment.StartTimeWithTimeShift.ToString("ddd dd.MM.")
+							<br/>
+							@appointment.StartTimeWithTimeShift.ToString("HH:mm") - @appointment.EndTimeWithTimeShift.ToString("HH:mm")
+						</div>
+					</a>
+				}
+			}
+		</div>
+	}
 }

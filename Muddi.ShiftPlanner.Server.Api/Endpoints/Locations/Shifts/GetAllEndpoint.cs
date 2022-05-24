@@ -36,6 +36,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 				(s.Start >= start && s.Start < end)))
 			.ThenInclude(s => s.Type)
 			.AsNoTracking()
+			.AsSingleQuery()
 			.FirstAsync(l => l.Id == req.Id!.Value, cancellationToken: ct);
 		List<GetShiftResponse> ret = new();
 		foreach (var container in location.Containers)

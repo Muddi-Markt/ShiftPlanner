@@ -27,9 +27,11 @@ public class AddShiftEndpoint : CrudEndpoint<CreateShiftRequest, DefaultCreateRe
 	{
 		var container = await Database.Containers
 			.Include(c => c.Shifts)
+			.Include(c => c.Location)
 			.Include(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)
 			.ThenInclude(stc => stc.ShiftType)
+			.AsSingleQuery()
 			.FirstOrDefaultAsync(t => t.Id == req.Id && req.Start >= t.Start && req.Start < t.End, cancellationToken: ct);
 
 

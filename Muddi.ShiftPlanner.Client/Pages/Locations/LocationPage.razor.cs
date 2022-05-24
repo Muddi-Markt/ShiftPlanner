@@ -121,7 +121,7 @@ public partial class LocationPage
 
 	private async Task OnShiftSelect(SchedulerAppointmentSelectEventArgs<Appointment> args)
 	{
-		if (args.Data.Shift is null || args.Data.Shift.User == ShiftService.NotAssignedEmployee)
+		if (args.Data.Shift is null || args.Data.Shift.User == Mappers.NotAssignedEmployee)
 		{
 			await OnSlotSelect(args.Start, args.Data.Shift?.Type);
 			return;
@@ -143,10 +143,8 @@ public partial class LocationPage
 		=> args.SetAppointmentRenderStyle(_userKeycloakId);
 
 
-	private void OnSlotRender(SchedulerSlotRenderEventArgs args)
-	{
-		args.SetSlotRenderStyle(_location!.Containers);
-	}
+	private void OnSlotRender(SchedulerSlotRenderEventArgs args) 
+		=> args.SetSlotRenderStyle(_location!.Containers);
 
 
 	private async Task LoadShifts(SchedulerLoadDataEventArgs arg)
@@ -217,6 +215,7 @@ public partial class LocationPage
 		NavigationManager.NavigateTo(s);
 		// return Task.CompletedTask;
 	}
+
 	private async Task Next()
 	{
 		if (CurrentView is null || _scheduler is null)
@@ -224,7 +223,7 @@ public partial class LocationPage
 		_scheduler.CurrentDate = CurrentView.Next();
 		await _scheduler.Reload();
 	}
-	
+
 	private async Task Prev()
 	{
 		if (CurrentView is null || _scheduler is null)

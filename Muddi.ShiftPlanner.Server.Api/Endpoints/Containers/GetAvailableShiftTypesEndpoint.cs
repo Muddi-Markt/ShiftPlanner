@@ -21,12 +21,14 @@ public class GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShi
 	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetAvailableShiftTypesRequest request, CancellationToken ct)
 	{
 		var container = await Database.Containers
+			.Include(c => c.Location)
 			.Include(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)
 			.ThenInclude(stc => stc.ShiftType)
 			.Include(c => c.Shifts)
 			.ThenInclude(s => s.Type)
 			.AsNoTracking()
+			.AsSingleQuery()
 			.FirstOrDefaultAsync(c => c.Id == request.ContainerId, cancellationToken: ct);
 		if (container is null)
 		{

@@ -1,5 +1,6 @@
 ﻿using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
+using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Radzen;
 
@@ -43,7 +44,7 @@ public static class RenderExtensions
 			return;
 		}
 
-		if (shift.User == ShiftService.NotAssignedEmployee)
+		if (shift.User == Mappers.NotAssignedEmployee)
 		{
 			args.Attributes["style"] += $"background: #ffffffD0; color:{shift.Type.Color};";
 			return;
@@ -52,7 +53,7 @@ public static class RenderExtensions
 		args.Attributes["style"] += $"background: {shift.Type.Color};";
 		if (shift.User.KeycloakId == userKeycloakId)
 		{
-			args.Attributes["style"] += "border: 2px dashed #852121;";
+			args.Attributes["style"] += "outline: 2px dashed #852121;";
 		}
 	}
 }

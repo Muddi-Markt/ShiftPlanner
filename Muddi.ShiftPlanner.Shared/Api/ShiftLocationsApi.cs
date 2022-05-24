@@ -85,6 +85,10 @@ public interface IMuddiShiftApi
 
 	[Get("/shifts/{id}")]
 	Task<ApiResponse<GetShiftResponse>> GetShift(Guid id);
+	
+	[Get("/shifts/available-types")]
+	Task<ICollection<GetShiftTypesCountResponse>> GetAvailableShiftTypes(GetAllShiftsRequest request);
+	
 
 	[Put("/shifts/{id}")]
 	Task UpdateShift(Guid id, CreateShiftRequest request);

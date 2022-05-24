@@ -25,6 +25,7 @@ public class GetEndpoint : CrudGetEndpoint<GetLocationResponse>
 			.ThenInclude(f => f.ShiftTypeCounts)
 			.ThenInclude(c => c.ShiftType)
 			.AsNoTracking()
+			.AsSingleQuery()
 			.FirstOrDefaultAsync(l => l.Id == id, cancellationToken: ct))
 		?.Adapt<GetLocationResponse>();
 }

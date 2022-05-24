@@ -84,14 +84,18 @@ public class ShiftService
 		return resp.Content!.MapToShift();
 	}
 
+
+	public async Task<IEnumerable<Shift>> GetAllAvailableShifts(int limit)
+	{
+		var types = await _shiftApi.GetAvailableShiftTypes(new() { Limit = limit });
+		return types.Select(t => t.MapToShift());
+	}
+
 	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1)
 	{
 		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count);
 		return shifts.Select(s => s.MapToShift());
 	}
-
-
-	public static NotAssignedEmployee NotAssignedEmployee { get; } = new();
 
 	public static void FillShiftsWithUnassignedShifts(ref List<Shift> shifts, IEnumerable<ShiftContainer> containers, DateTime startTime,
 		DateTime endTime)
@@ -115,7 +119,8 @@ public class ShiftService
 					{
 						for (int i = 0; i < count - assignedShiftsCount; i++)
 						{
-							shifts.Add(new Shift(NotAssignedEmployee, containerStart, containerStart + container.Framework.TimePerShift,
+							shifts.Add(new Shift(Mappers.NotAssignedEmployee, containerStart,
+								containerStart + container.Framework.TimePerShift,
 								type));
 						}
 					}

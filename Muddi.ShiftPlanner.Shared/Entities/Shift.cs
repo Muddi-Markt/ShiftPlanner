@@ -19,13 +19,14 @@ public class Shift : IEquatable<Shift>
 		Id = id;
 	}
 	
-	public Shift(EmployeeBase user, DateTime startTime, DateTime endTime, ShiftType type)
+	public Shift(EmployeeBase user, DateTime startTime, DateTime endTime, ShiftType type, Guid locationId = default)
 	{
 		User = user;
 		StartTime = startTime;
 		EndTime = endTime;
 		Type = type;
 		Id = Guid.NewGuid();
+		LocationId = locationId;
 	}
 	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }

@@ -7,10 +7,11 @@ namespace Muddi.ShiftPlanner.Server.Database.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-	
 	public static void AddMuddiShiftPlannerContext(this IServiceCollection services, IConfiguration configuration)
 	{
-		services.AddNpgsql<ShiftPlannerContext>(configuration.GetConnectionString("ShiftPlannerDb"), null,
+		services.AddNpgsql<ShiftPlannerContext>(
+			configuration.GetConnectionString("ShiftPlannerDb"),
+			null,
 			a => a.UseSnakeCaseNamingConvention());
 	}
 }

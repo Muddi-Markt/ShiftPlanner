@@ -37,6 +37,9 @@ a:hover {
     white-space: pre-line;
     text-align: center;
 }
+.rz-event-content:hover{
+    outline: 2px dashed #852121;
+}
 
 .rz-week-view .rz-event-content {
 

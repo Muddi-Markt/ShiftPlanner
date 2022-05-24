@@ -7,13 +7,15 @@
 }
 
 .shift-container > * {
-    flex: 1 1 130px;
+    flex: 1 1 150px;
 }
 .shift-box{
-    flex: 1 1 130px;
     text-align: center;
     border-radius: 4px;
     line-height: 1rem;
     font-size: 1rem;
     padding: 1rem;
+}
+.shift-box:hover{
+    outline: 2px dashed #852121;
 }
