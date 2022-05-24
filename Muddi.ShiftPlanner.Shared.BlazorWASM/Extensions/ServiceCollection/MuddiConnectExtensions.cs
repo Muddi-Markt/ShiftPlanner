@@ -17,7 +17,7 @@ public static partial class ServiceCollectionExtensions
         });
         services.AddOidcAuthentication(options =>
         {
-            options.UserOptions.NameClaim = "preferred_username";
+            options.UserOptions.NameClaim = "given_name";
             options.UserOptions.RoleClaim = "roles";
 
             options.ProviderOptions.ClientId = configuration["Audience"];

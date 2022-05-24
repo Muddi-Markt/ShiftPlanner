@@ -1,10 +1,10 @@
 namespace Muddi.ShiftPlanner.Shared.Entities;
 
 public record ShiftType(
-	Guid Id, 
-	string Name, 
-	string Color, 
-	bool OnlyAssignableByAdmin, 
+	Guid Id,
+	string Name,
+	string Color,
+	bool OnlyAssignableByAdmin,
 	TimeSpan StartingTimeShift);
 
 public enum UserRoles
@@ -15,18 +15,25 @@ public enum UserRoles
 	Admin
 }
 
-
 public class NotAssignedEmployee : Employee
 {
-	public NotAssignedEmployee() : base(Guid.Empty, "FREI")
+	public NotAssignedEmployee() : base(Guid.Empty, string.Empty, "FREI", null)
 	{
 	}
 }
 
 public class Employee : EmployeeBase
 {
-	public Employee(Guid keycloakId, string name) : base(keycloakId, name)
+	public string Email { get; }
+	public string FirstName { get; }
+	public string LastName { get; }
+
+	public Employee(Guid keycloakId, string email, string? firstName, string? lastName) 
+		: base(keycloakId, $"{firstName} {lastName?.FirstOrDefault()}")
 	{
+		Email = email;
+		FirstName = firstName ?? string.Empty;
+		LastName = lastName ?? string.Empty;
 	}
 }
 

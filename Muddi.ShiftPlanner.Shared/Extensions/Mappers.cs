@@ -19,12 +19,12 @@ public static class Mappers
 	}
 
 	public static Shift MapToShift(this GetShiftTypesCountResponse dto)
-		=> new(NotAssignedEmployee, dto.Start, dto.End, dto.Type.MapToShiftType(),dto.LocationId);
+		=> new(NotAssignedEmployee, dto.Start, dto.End, dto.Type.MapToShiftType(), dto.LocationId);
 
 	public static Shift MapToShift(this GetShiftResponse dto)
 	{
 		return new Shift(dto.Id,
-			new Employee(dto.Employee.Id, dto.Employee.UserName),
+			new Employee(dto.Employee.Id, dto.Employee.Email, dto.Employee.FirstName, dto.Employee.LastName),
 			dto.Start.ToUniversalTime(),
 			dto.End.ToUniversalTime(),
 			dto.Type.MapToShiftType(),
