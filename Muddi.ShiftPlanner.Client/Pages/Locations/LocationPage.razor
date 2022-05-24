@@ -6,7 +6,7 @@
 	<RadzenHeading Text="@_location.Name"/>
 
 	<div class="mb-5 mt-3">
-		<RadzenCheckBox @bind-Value="ShowOnlyUsersShifts" Name="only-my-shift-check"></RadzenCheckBox>
+		<RadzenCheckBox TValue="bool" @bind-Value="ShowOnlyUsersShifts" Change="UpdateQueryUri" Name="only-my-shift-check"></RadzenCheckBox>
 		<RadzenLabel Text="Zeige nur meine Schichten" Component="only-my-shift-check" Style="margin-left: 8px; vertical-align: middle;"/>
 	</div>
 	<div style="width:100%; height: 100%; position:relative;">
@@ -23,7 +23,7 @@
 			</div>
 		}
 		<RadzenScheduler TItem="Appointment"
-		                 style="height: 1300px;"
+		                 style="height: 1000px;"
 		                 @ref="_scheduler"
 		                 SlotRender=@OnSlotRender
 		                 Data=@Shifts
@@ -33,8 +33,7 @@
 		                 EndProperty="@nameof(Appointment.LocalEndTime)"
 		                 TextProperty="@nameof(Appointment.Title)"
 		                 TodayText="Heute"
-		                 SelectedIndex="0"
-
+		                 SelectedIndex="@SelectedViewIndex"
 		                 AppointmentRender=@OnAppointmentRender
 		                 SlotSelect=@OnSlotSelect
 		                 AppointmentSelect=@OnShiftSelect>

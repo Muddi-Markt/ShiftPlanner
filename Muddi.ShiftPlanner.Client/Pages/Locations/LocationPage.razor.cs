@@ -24,6 +24,7 @@ public partial class LocationPage
 	[Parameter] public Guid Id { get; set; }
 
 	[SupplyParameterFromQuery] [Parameter] public bool ShowOnlyUsersShifts { get; set; }
+	[SupplyParameterFromQuery] [Parameter] public int SelectedViewIndex { get; set; }
 
 	[SupplyParameterFromQuery]
 	[Parameter]
@@ -52,6 +53,8 @@ public partial class LocationPage
 
 	protected override async Task OnParametersSetAsync()
 	{
+		if (_location?.Id == Id)
+			return;
 		try
 		{
 			var state = await AuthenticationState;
@@ -79,10 +82,10 @@ public partial class LocationPage
 		var container = _location.GetShiftContainerByTime(startTime);
 		if (container is null)
 		{
-			Logger.LogWarning("No container within this start time {Start}",startTime);
+			Logger.LogWarning("No container within this start time {Start}", startTime);
 			return;
 		}
-			
+
 		startTime = container.GetBestShiftStartTimeForTime(startTime).ToUniversalTime();
 		var shiftResponse = new GetShiftResponse
 		{
@@ -150,13 +153,18 @@ public partial class LocationPage
 			var group = shiftTypes.GroupBy(st => new { st.Start, st.End });
 			var appt = group.Select(g => CreateNewAppointment(g.Key.Start, g.Key.End, g, myShifts));
 			_shifts = appt.ToList();
+			SelectedViewIndex = 1;
+			UpdateQueryUri();
 		}
 		else
 		{
 			//day view
+			
 			var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
 			ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
 			_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
+			SelectedViewIndex = 0;
+			UpdateQueryUri();
 		}
 
 		_isLoading = false;
@@ -183,4 +191,18 @@ public partial class LocationPage
 
 	private bool _isAdmin;
 	private DateTime _startDate = DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate;
+
+	[Inject] private NavigationManager NavigationManager { get; set; }
+
+	private void UpdateQueryUri()
+	{
+		var s = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>
+		{
+			[nameof(ShowOnlyUsersShifts)] = ShowOnlyUsersShifts,
+			[nameof(StartDate)] = _scheduler?.CurrentDate.Date.ToString("yyyy-MM-dd"),
+			[nameof(SelectedViewIndex)] = SelectedViewIndex
+		});
+		NavigationManager.NavigateTo(s);
+		// return Task.CompletedTask;
+	}
 }
