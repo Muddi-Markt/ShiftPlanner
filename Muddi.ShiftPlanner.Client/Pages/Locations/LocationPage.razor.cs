@@ -196,12 +196,6 @@ public partial class LocationPage
 
 	private bool _isAdmin;
 	private DateTime _startDate = DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate;
-	GestureRecognizer? gestureRecognizer;
-	private RadzenWeekView? _weekView;
-	private RadzenDayViewFix? _dayView;
-	void TouchStart(TouchEventArgs e) => gestureRecognizer?.TouchStart(e);
-	void TouchMove(TouchEventArgs e) => gestureRecognizer?.TouchMove(e);
-	void TouchEnd(TouchEventArgs e) => gestureRecognizer?.TouchEnd(e);
 	[Inject] private NavigationManager NavigationManager { get; set; }
 
 	private void UpdateQueryUri()
@@ -216,28 +210,4 @@ public partial class LocationPage
 		// return Task.CompletedTask;
 	}
 
-	private async Task Next()
-	{
-		if (CurrentView is null || _scheduler is null)
-			return;
-		_scheduler.CurrentDate = CurrentView.Next();
-		await _scheduler.Reload();
-	}
-
-	private async Task Prev()
-	{
-		if (CurrentView is null || _scheduler is null)
-			return;
-		_scheduler.CurrentDate = CurrentView.Prev();
-		await _scheduler.Reload();
-	}
-
-	private ISchedulerView? CurrentView =>
-		_scheduler is null
-			? null
-			: _scheduler.IsSelected(_dayView)
-				? _dayView
-				: _scheduler.IsSelected(_weekView)
-					? _weekView
-					: null;
 }
