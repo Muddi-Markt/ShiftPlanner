@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 using Muddi.ShiftPlanner.Shared.Api;
 using Refit;
 
@@ -10,7 +12,8 @@ public static partial class ServiceCollectionExtensions
 {
 	public static void MuddiShiftApiExtensions(this IServiceCollection services, IConfigurationSection configuration)
 	{
-		var baseUri = configuration["BaseUrl"] ?? throw new ArgumentNullException(nameof(configuration),"Failed to get BaseUrl from configuration");
+		var baseUri = configuration["BaseUrl"] ??
+		              throw new ArgumentNullException(nameof(configuration), "Failed to get BaseUrl from configuration");
 		services.AddScoped<AuthorizationMessageHandler>();
 		var settings = new RefitSettings
 		{
@@ -21,5 +24,8 @@ public static partial class ServiceCollectionExtensions
 			.AddHttpMessageHandler(sp => sp
 				.GetRequiredService<AuthorizationMessageHandler>()
 				.ConfigureHandler(authorizedUrls: new[] { baseUri }));
+#if !DEBUG
+		services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
+#endif
 	}
 }
