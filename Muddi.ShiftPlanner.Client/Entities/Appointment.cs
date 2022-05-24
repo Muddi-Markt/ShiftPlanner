@@ -8,7 +8,7 @@ public class Appointment
 		: this(shift.StartTime, shift.EndTime)
 	{
 		Shift = shift;
-		Title = StartTimeWithTimeShift.ToString("HH:mm") + "\n" + shift.User.Name + "\n" + shift.Type.Name;
+		Title = StartTimeWithTimeShift.ToString("HH:mm") + " - " + EndTimeWithTimeShift.ToString("HH:mm") + "\n" + shift.User.Name + "\n" + shift.Type.Name;
 	}
 
 	public Appointment(DateTime startTime, DateTime endTime, string title)
