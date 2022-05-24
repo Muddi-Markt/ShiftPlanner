@@ -162,14 +162,12 @@ public partial class LocationPage
 		else
 		{
 			//day view
-			
 			var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
 			ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
 			_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
 			SelectedViewIndex = 0;
 			UpdateQueryUri();
 		}
-
 		_isLoading = false;
 	}
 

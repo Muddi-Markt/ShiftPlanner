@@ -7,6 +7,15 @@
     --muddi-light-green: #e0fcd0;
 }
 
+
+.muddi-plain-content{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 3rem;
+}
+
 .title {
     color: #333;
     font-weight: 700;
