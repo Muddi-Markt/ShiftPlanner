@@ -3,7 +3,10 @@ using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Muddi.ShiftPlanner.Client.Components;
+using Muddi.ShiftPlanner.Client.Components.Gestures;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared;
@@ -141,13 +144,15 @@ public partial class LocationPage
 
 
 	private void OnSlotRender(SchedulerSlotRenderEventArgs args)
-		=> args.SetSlotRenderStyle(_location!.Containers);
+	{
+		args.SetSlotRenderStyle(_location!.Containers);
+	}
+
 
 	private async Task LoadShifts(SchedulerLoadDataEventArgs arg)
 	{
 		_isLoading = true;
 		_shifts.Clear();
-
 		if (arg.End - arg.Start > TimeSpan.FromDays(1))
 		{
 			//Week view
@@ -168,6 +173,7 @@ public partial class LocationPage
 			SelectedViewIndex = 0;
 			UpdateQueryUri();
 		}
+
 		_isLoading = false;
 	}
 
@@ -192,7 +198,12 @@ public partial class LocationPage
 
 	private bool _isAdmin;
 	private DateTime _startDate = DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate;
-
+	GestureRecognizer? gestureRecognizer;
+	private RadzenWeekView? _weekView;
+	private RadzenDayViewFix? _dayView;
+	void TouchStart(TouchEventArgs e) => gestureRecognizer?.TouchStart(e);
+	void TouchMove(TouchEventArgs e) => gestureRecognizer?.TouchMove(e);
+	void TouchEnd(TouchEventArgs e) => gestureRecognizer?.TouchEnd(e);
 	[Inject] private NavigationManager NavigationManager { get; set; }
 
 	private void UpdateQueryUri()
@@ -206,4 +217,28 @@ public partial class LocationPage
 		NavigationManager.NavigateTo(s);
 		// return Task.CompletedTask;
 	}
+	private async Task Next()
+	{
+		if (CurrentView is null || _scheduler is null)
+			return;
+		_scheduler.CurrentDate = CurrentView.Next();
+		await _scheduler.Reload();
+	}
+	
+	private async Task Prev()
+	{
+		if (CurrentView is null || _scheduler is null)
+			return;
+		_scheduler.CurrentDate = CurrentView.Prev();
+		await _scheduler.Reload();
+	}
+
+	private ISchedulerView? CurrentView =>
+		_scheduler is null
+			? null
+			: _scheduler.IsSelected(_dayView)
+				? _dayView
+				: _scheduler.IsSelected(_weekView)
+					? _weekView
+					: null;
 }

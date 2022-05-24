@@ -9,42 +9,58 @@
 		<RadzenCheckBox TValue="bool" @bind-Value="ShowOnlyUsersShifts" Change="UpdateQueryUri" Name="only-my-shift-check"></RadzenCheckBox>
 		<RadzenLabel Text="Zeige nur meine Schichten" Component="only-my-shift-check" Style="margin-left: 8px; vertical-align: middle;"/>
 	</div>
-	<div style="width:100%; height: 100%; position:relative;">
-		@if (_isLoading)
-		{
-			<div class="" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10;backdrop-filter: blur(2px)">
-				<div class="d-flex align-items-center flex-column mt-5" >
-					<LoadingSpinner/>
-					<h3 style="color: #f00">MUDDI sucht Schichten...</h3>
+	<section @ontouchstart=@(TouchStart) 
+				@ontouchmove=@(TouchMove)
+				@ontouchend=@(TouchEnd)>
+		<div style="width:100%; height: 100%; position:relative;">
+			@if (_isLoading)
+			{
+				<div class="" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10;backdrop-filter: blur(2px)">
+					<div class="d-flex align-items-center flex-column mt-5">
+						<LoadingSpinner/>
+						<h3 style="color: #f00">MUDDI sucht Schichten...</h3>
+					</div>
 				</div>
-			</div>
-		}
-		<RadzenScheduler TItem="Appointment"
-		                 style="height: 1000px;"
-		                 @ref="_scheduler"
-		                 SlotRender=@OnSlotRender
-		                 Data=@Shifts
-		                 LoadData="@LoadShifts"
-		                 Date="StartDate"
-		                 StartProperty="@nameof(Appointment.LocalStartTime)"
-		                 EndProperty="@nameof(Appointment.LocalEndTime)"
-		                 TextProperty="@nameof(Appointment.Title)"
-		                 TodayText="Heute"
-		                 SelectedIndex="@SelectedViewIndex"
-		                 AppointmentRender=@OnAppointmentRender
-		                 SlotSelect=@OnSlotSelect
-		                 AppointmentSelect=@OnShiftSelect>
+			}
+			<RadzenScheduler
+				TItem="Appointment"
+				style="height: 1000px;"
+				@ref="_scheduler"
+				SlotRender=@OnSlotRender
+				Data=@Shifts
+				LoadData="@LoadShifts"
+				Date="StartDate"
+				StartProperty="@nameof(Appointment.LocalStartTime)"
+				EndProperty="@nameof(Appointment.LocalEndTime)"
+				TextProperty="@nameof(Appointment.Title)"
+				TodayText="Heute"
+				SelectedIndex="@SelectedViewIndex"
+				AppointmentRender=@OnAppointmentRender
+				SlotSelect=@OnSlotSelect
+				AppointmentSelect=@OnShiftSelect>
 
-			<RadzenDayViewFix TimeFormat="HH:mm"
-			                  Text="Tag"
-			                  StartTime="TimeSpan.FromHours(9)"
-			                  EndTime="TimeSpan.FromHours(27)"
-			                  MinutesPerSlot="30"/>
-			<RadzenWeekView Text="Woche"
-			                StartTime="TimeSpan.FromHours(9)"
-			                EndTime="TimeSpan.FromHours(27)"
-			                MinutesPerSlot="30"
-			                TimeFormat="HH:mm"/>
-		</RadzenScheduler>
-	</div>
+				<RadzenDayViewFix
+					@ref="_dayView"
+					TimeFormat="HH:mm"
+					Text="Tag"
+					StartTime="TimeSpan.FromHours(9)"
+					EndTime="TimeSpan.FromHours(27)"
+					MinutesPerSlot="30"/>
+				<RadzenWeekView
+					@ref="_weekView"
+					Text="Woche"
+					StartTime="TimeSpan.FromHours(9)"
+					EndTime="TimeSpan.FromHours(27)"
+					MinutesPerSlot="30"
+					TimeFormat="HH:mm"/>
+			</RadzenScheduler>
+		</div>
+	</section>
+	<GestureRecognizer Active="true" @ref="gestureRecognizer">
+		<SwipeGestureRecognizer
+			Direction="GestureDirection.Horizontal"
+			OnSwipeLeft="Next"
+			OnSwipeRight="Prev">
+		</SwipeGestureRecognizer>
+	</GestureRecognizer>
 }
