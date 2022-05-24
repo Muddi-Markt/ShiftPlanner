@@ -45,7 +45,7 @@ public static class RenderExtensions
 
 		if (shift.User == ShiftService.NotAssignedEmployee)
 		{
-			args.Attributes["style"] += $"background: #555; color:{shift.Type.Color};";
+			args.Attributes["style"] += $"background: #ffffffD0; color:{shift.Type.Color};";
 			return;
 		}
 

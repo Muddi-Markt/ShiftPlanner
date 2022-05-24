@@ -16,11 +16,11 @@
     }
 }
 
-i {
+.account-info {
     color: #555 !important;
 }
 
-i:hover {
+.account-info:hover {
     color: #777 !important;
 }
 
