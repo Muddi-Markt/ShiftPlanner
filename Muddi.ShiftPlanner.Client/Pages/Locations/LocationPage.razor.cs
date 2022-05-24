@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared;
@@ -66,6 +67,8 @@ public partial class LocationPage
 		}
 		catch (Exception ex)
 		{
+			if (ex is AccessTokenNotAvailableException)
+				throw;
 			await DialogService.Error(ex, "Error while setting parameter of places page");
 		}
 	}

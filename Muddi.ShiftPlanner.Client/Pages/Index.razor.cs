@@ -18,15 +18,8 @@ public partial class Index
 	protected override async Task OnInitializedAsync()
 	{
 		var t = await AccessTokenProvider.RequestAccessToken();
-		if (t.TryGetToken(out var tok))
-		{
-			_token = tok.Value;
-		}
-		else
-		{
-			_token = $"Failed to obtain token. Status: {t.Status}";
-			if (t.Status == AccessTokenResultStatus.RequiresRedirect)
-				NavigationManager.NavigateTo(t.RedirectUrl);
-		}
+		_token = t.TryGetToken(out var tok) 
+			? tok.Value 
+			: $"Failed to obtain token. Status: {t.Status}";
 	}
 }

@@ -1,6 +1,7 @@
 ﻿@using Muddi.ShiftPlanner.Client.Services
 @using System.Globalization
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Muddi.ShiftPlanner.Shared.Entities
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager;
@@ -26,8 +27,7 @@
 						<a href="@_accountLink">
 							<RadzenIcon Icon="account_circle"
 							            class="account-info"
-							            MouseEnter="@(reference => TooltipService.Open(reference, "Account", new() { Position = TooltipPosition.Left }))"
-							            Style="margin-right: 1rem">
+							            MouseEnter="@(reference => TooltipService.Open(reference, "Account", new() { Position = TooltipPosition.Left }))">
 							</RadzenIcon>
 						</a>
 						@*	<a href="https://github.com/muddi-markt" title="GitHub" target="_blank" class="mx-3">
@@ -48,15 +48,23 @@
 					<div class="container-fluid h-100">
 						<div class="row h-100 align-content-between justify-content-around">
 							<div class="col-12 pt-4 pb-5 px-3 px-lg-5">
-								<ErrorBoundary>
+								<ErrorBoundary >
 									<ChildContent>
 										@Body
 									</ChildContent>
 									<ErrorContent>
-										<div class="blazor-error-boundary">
-											@context.Message <br/>
-										</div>
-										<button class="rz-button" onClick="window.location.reload();">Reload</button>
+										@if (context is AccessTokenNotAvailableException)
+										{
+											<RedirectToLogin/>
+										}
+										else
+										{
+											<div class="blazor-error-boundary">
+												@context.Message <br/>
+											</div>
+											<button class="rz-button" onClick="window.location.reload();">Reload</button>
+										}
+
 									</ErrorContent>
 								</ErrorBoundary>
 							</div>
@@ -91,9 +99,7 @@
 			if (u.User.Identity?.IsAuthenticated == true)
 				_locations = await ShiftService.GetAllShiftLocationsAsync();
 		}
-
 		catch (Exception ex)
-
 		{
 			await DialogService.Error(ex);
 		}
@@ -122,5 +128,6 @@
 	{
 		_isMediaMaxWidth768 = obj;
 	}
+
 
 }
