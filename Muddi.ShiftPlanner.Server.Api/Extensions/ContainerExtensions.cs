@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
 using FluentValidation.Results;
 using Mapster;
 using Muddi.ShiftPlanner.Server.Api.Endpoints;
 using Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
+using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Services;
 
@@ -61,7 +63,7 @@ public static class ShiftService
 		// 	});
 	}
 
-	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainerEntity container, CreateShiftRequest req)
+	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainerEntity container, CreateShiftRequest req, ClaimsPrincipal user)
 	{
 		if (container.Shifts.Any(s => s.EmployeeKeycloakId == req.EmployeeKeycloakId && s.Start == req.Start))
 		{
@@ -69,10 +71,11 @@ public static class ShiftService
 		}
 
 		var availableShiftTypes = container.GetAvailableShiftTypes(req.Start);
-		if (availableShiftTypes.All(st => st.Type.Id != req.ShiftTypeId))
-		{
+		var shiftType = availableShiftTypes.FirstOrDefault(st => st.Type.Id == req.ShiftTypeId);
+		if (shiftType is null)
 			return new ValidationFailure("ShiftType", "not available");
-		}
+		if (shiftType.Type.OnlyAssignableByAdmin && !user.IsInRole(ApiRoles.Admin))
+			return new ValidationFailure("AdminRole", "Only available for admins");
 
 		return null;
 	}

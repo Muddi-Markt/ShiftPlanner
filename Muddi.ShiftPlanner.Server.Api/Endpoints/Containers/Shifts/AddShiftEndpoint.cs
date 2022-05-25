@@ -41,7 +41,7 @@ public class AddShiftEndpoint : CrudEndpoint<CreateShiftRequest, DefaultCreateRe
 			return;
 		}
 
-		var failure = container.PreAddShiftSanityCheck(req);
+		var failure = container.PreAddShiftSanityCheck(req, User);
 		
 		if (await SendErrorIfValidationFailure(failure))
 			return;
