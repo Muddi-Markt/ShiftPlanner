@@ -17,14 +17,18 @@ public static class ServiceCollectionExtensions
 		Clients -> Create
 		shift-planner
 		Go to Mappers -> Create
-		Name: role-mapper
-		Mapper Type: User Client Role
-		Client ID: shift-planner
-		Token Claim Name: roles
-		Claim JSON Type: String
-		Add to ID: Off
-		Add to access token: On
-		Add to userinfo: On
+			Name: role-mapper
+			Mapper Type: User Client Role
+			Client ID: shift-planner
+			Token Claim Name: roles
+			Claim JSON Type: String
+			Add to ID: Off
+			Add to access token: On
+			Add to userinfo: On
+		Mappers:
+			Create new
+			Select Audience
+			Included Custom Audience: shift-planner
 		
 		
 	    *** Add Roles Mapper *** 
@@ -43,12 +47,6 @@ public static class ServiceCollectionExtensions
 		Go to Roles > default-roles-muddi > Client Roles: shift-planner
 		Add 'editor' and 'viewer' to Client Default Roles
 		
-		*** Add Audience ***
-		Edit shift-planner Client
-		Go to Mapper
-		Create new
-		Select Audience
-		Included Custom Audience: shift-planner
 		
 		*** Add User with view-users roles ***
 		btw: This is sooo stupid... I dont know why, but since Version 17 or so of fckn Keycloak
@@ -59,6 +57,12 @@ public static class ServiceCollectionExtensions
 		Client Roles: realm-managment
 		Add view-users
 		This will be the AdminUser and AdminPassword
+		
+		*** Add User Registration ***
+	    Realm Settings -> Login
+	    Set the things you want (e.g. user registration)
+	    Realm Settings -> Email
+	    Set SMTP Host, Enable SSL and Enable Authentication
 	*/
 	public static void AddAuthenticationMuddiConnect(this IServiceCollection services, IConfiguration configuration)
 	{
