@@ -16,15 +16,21 @@ public static class ServiceCollectionExtensions
 		Create Muddi Realm
 		Clients -> Create
 		shift-planner
+		Go to Mappers -> Create
+		Name: role-mapper
+		Mapper Type: User Client Role
+		Client ID: shift-planner
+		Token Claim Name: roles
+		Claim JSON Type: String
+		Add to ID: Off
+		Add to access token: On
+		Add to userinfo: On
 		
 		
 	    *** Add Roles Mapper *** 
 		Go to your Keycloak Admin Console > Client Scopes > roles > Mappers > client roles
-		Client ID: shift-planner
-		Change "Token Claim Name" as "roles"
-		Multivalued: True
-		Add to access token: True
 		Add to userinfo: True
+		 
 		
 		*** Add default roles for shift-planner ***		
 		Go to shift-planner client > Roles
