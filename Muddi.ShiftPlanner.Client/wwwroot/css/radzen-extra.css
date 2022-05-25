@@ -16,12 +16,12 @@
     }
 }
 
-.account-info {
+.title-bar-icon {
     margin-right: 1rem;
     color: #555 !important;
 }
 
-.account-info:hover {
+.title-bar-icon:hover {
     color: #777 !important;
 }
 

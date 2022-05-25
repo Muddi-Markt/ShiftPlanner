@@ -54,10 +54,10 @@
 			{
 				@if (_availableShiftTypes.Any())
 				{
-					<RadzenDropDown 
+					<RadzenDropDown
 						Style="width:203px;"
-						TValue="GetShiftTypesResponse" 
-						Data="@_availableShiftTypes" 
+						TValue="GetShiftTypesResponse"
+						Data="@_availableShiftTypes"
 						@bind-Value="@EntityToEdit.Type">
 						<Template Context="type">@(((GetShiftTypesResponse)type).Name)</Template>
 					</RadzenDropDown>
@@ -129,10 +129,16 @@
 				dto = dto.Where(x => x.OnlyAssignableByAdmin == false);
 			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
 
-			if (EntityToEdit.Type is not null && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
+			if (EntityToEdit.Type?.OnlyAssignableByAdmin == true && !_isAdmin)
+			{
+				EntityToEdit.Type = null;
+			}
+
+			if (EntityToEdit.Type is not null
+			    && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
 				_availableShiftTypes.Add(EntityToEdit.Type);
 			if (_availableShiftTypes.Count == 0)
-				throw new Exception("Keine Schichten verfügbar");
+				throw new Exception("Keine freien Schichten für dich verfügbar :(");
 			EntityToEdit.Type ??= _availableShiftTypes.First();
 			EntityToEdit.End = EntityToEdit.Start + TimeSpan.FromSeconds(container.Framework.SecondsPerShift);
 		}

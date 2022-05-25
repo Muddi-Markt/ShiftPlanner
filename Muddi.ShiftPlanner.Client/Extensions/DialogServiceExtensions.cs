@@ -1,4 +1,5 @@
-﻿using Radzen;
+﻿using Muddi.ShiftPlanner.Client.Components;
+using Radzen;
 using Refit;
 
 namespace Muddi.ShiftPlanner.Client;
@@ -17,6 +18,6 @@ public static class DialogServiceExtensions
 	}
 	public static Task Error(this DialogService dialogService, string errorText, string title = "Error")
 	{
-		return dialogService.Confirm(errorText, title);
+		return dialogService.OpenAsync<ErrorDialog>(title, new Dictionary<string, object>(){[nameof(ErrorDialog.Text)] = errorText});
 	}
 }

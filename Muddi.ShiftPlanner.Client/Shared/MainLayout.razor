@@ -24,9 +24,15 @@
 						<RadzenLink class="title" Text="MUDDIs Schichtplaner" Path="/"></RadzenLink>
 					</div>
 					<div class="col-7 d-flex align-items-center justify-content-end">
+						<a href="/help">
+							<RadzenIcon Icon="help"
+							            class="title-bar-icon"
+							            MouseEnter="@(reference => TooltipService.Open(reference, "Hilfe", new() { Position = TooltipPosition.Left }))">
+							</RadzenIcon>
+						</a>
 						<a href="@_accountLink">
 							<RadzenIcon Icon="account_circle"
-							            class="account-info"
+							            class="title-bar-icon"
 							            MouseEnter="@(reference => TooltipService.Open(reference, "Account", new() { Position = TooltipPosition.Left }))">
 							</RadzenIcon>
 						</a>
@@ -103,7 +109,6 @@
 		}
 		catch (AccessTokenNotAvailableException)
 		{
-			
 		}
 		catch (Exception ex)
 		{
@@ -118,7 +123,7 @@
 		NavigationManager.LocationChanged += (_, _) =>
 		{
 			if (!_isMediaMaxWidth768) return;
-			
+
 			_sidebarExpanded = false;
 			_bodyExpanded = true;
 			InvokeAsync(StateHasChanged);
