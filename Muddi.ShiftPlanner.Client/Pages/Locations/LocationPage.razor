@@ -11,7 +11,7 @@
 	</div>
 
 	<div style="width:100%; height: 100%; position:relative;">
-		@if (_isLoading)
+		@if (_isLoading && _enableLoadingSpinner)
 		{
 			<div class="" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10;backdrop-filter: blur(2px)">
 				<div class="d-flex align-items-center flex-column mt-5">
@@ -20,7 +20,8 @@
 				</div>
 			</div>
 		}
-		<RadzenScheduler
+		<SwipeComponent OnSwipe="Swipe" Orientation="SwipeOrientation.Horizontal">
+			<RadzenScheduler
 				TItem="Appointment"
 				style="height: 1000px;"
 				@ref="_scheduler"
@@ -38,17 +39,20 @@
 				AppointmentSelect=@OnShiftSelect>
 
 				<RadzenDayViewFix
+					@ref="_dayView"
 					TimeFormat="HH:mm"
 					Text="Tag"
 					StartTime="TimeSpan.FromHours(9)"
 					EndTime="TimeSpan.FromHours(27)"
 					MinutesPerSlot="30"/>
 				<RadzenWeekView
+					@ref="_weekView"
 					Text="Woche"
 					StartTime="TimeSpan.FromHours(9)"
 					EndTime="TimeSpan.FromHours(27)"
 					MinutesPerSlot="30"
 					TimeFormat="HH:mm"/>
 			</RadzenScheduler>
+		</SwipeComponent>
 	</div>
 }

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Muddi.ShiftPlanner.Client.Components;
-using Muddi.ShiftPlanner.Client.Components.Gestures;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared;
@@ -45,6 +44,7 @@ public partial class LocationPage
 	private ClaimsPrincipal? _user;
 
 	private bool _isLoading = true;
+	private bool _enableLoadingSpinner = true;
 
 	private IEnumerable<Appointment> Shifts => ShowOnlyUsersShifts
 		? _shifts.Where(s => s.Shift?.User.KeycloakId == _userKeycloakId)
@@ -143,7 +143,7 @@ public partial class LocationPage
 		=> args.SetAppointmentRenderStyle(_userKeycloakId);
 
 
-	private void OnSlotRender(SchedulerSlotRenderEventArgs args) 
+	private void OnSlotRender(SchedulerSlotRenderEventArgs args)
 		=> args.SetSlotRenderStyle(_location!.Containers);
 
 
@@ -196,6 +196,8 @@ public partial class LocationPage
 
 	private bool _isAdmin;
 	private DateTime _startDate = DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate;
+	private RadzenDayViewFix _dayView;
+	private RadzenWeekView _weekView;
 	[Inject] private NavigationManager NavigationManager { get; set; }
 
 	private void UpdateQueryUri()
@@ -210,4 +212,25 @@ public partial class LocationPage
 		// return Task.CompletedTask;
 	}
 
+	private async Task Swipe(SwipeEvent obj)
+	{
+		if (_scheduler is null)
+			return;
+		ISchedulerView? view = _scheduler.IsSelected(_dayView)
+			? _dayView
+			: _scheduler.IsSelected(_weekView)
+				? _weekView
+				: null;
+		if (view is null)
+			return;
+		_scheduler.CurrentDate = obj switch
+		{
+			SwipeEvent.Left => view.Next(),
+			SwipeEvent.Right => view.Prev(),
+			_ => _scheduler.CurrentDate
+		};
+		_enableLoadingSpinner = view == _weekView;
+		await _scheduler.Reload();
+		_enableLoadingSpinner = true;
+	}
 }

@@ -31,4 +31,8 @@
       <Content Remove="wwwroot\sample-data\weather.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Components\Gestures" />
+    </ItemGroup>
+
 </Project>
