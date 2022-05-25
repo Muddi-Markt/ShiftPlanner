@@ -49,13 +49,16 @@
 		if (velocityX < SwipeThreshold && velocityY < SwipeThreshold) return;
 		if (Math.Abs(velocityX - velocityY) < .5) return;
 
+		if (velocityY >= SwipeThreshold)
+		{
+			if (Orientation.HasFlag(SwipeOrientation.Vertical))
+				OnSwipe.InvokeAsync(diffY < 0 ? SwipeEvent.Down : SwipeEvent.Up);
+			//Never Swipe whens scrolled vertically
+			return;
+		}
 		if (Orientation.HasFlag(SwipeOrientation.Horizontal) && velocityX >= SwipeThreshold)
 		{
 			OnSwipe.InvokeAsync(diffX < 0 ? SwipeEvent.Right : SwipeEvent.Left);
-		}
-		if (Orientation.HasFlag(SwipeOrientation.Vertical) && velocityY >= SwipeThreshold)
-		{
-			OnSwipe.InvokeAsync(diffY < 0 ? SwipeEvent.Down : SwipeEvent.Up);
 		}
 	}
 }
