@@ -21,10 +21,12 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
+var corsOrigins = builder.Configuration.GetSection("Cors").GetSection("Origins").Get<string[]>();
+
 #if DEBUG
-app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseCors(b => b.WithOrigins(corsOrigins).AllowAnyMethod().AllowAnyHeader());
 #else
-app.UseCors(b => b.WithOrigins("https://shift.muddi.reble.eu").AllowAnyMethod().AllowAnyHeader());
+app.UseCors(b => b.WithOrigins(corsOrigins).AllowAnyMethod().AllowAnyHeader());
 #endif
 
 app.UseAuthentication();
