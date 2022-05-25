@@ -16,12 +16,12 @@
 	}
 	<div class="row">
 		<div class="col-md-4 align-items-center d-flex">
-			<RadzenLabel Text="User"/>
+			<RadzenLabel Text="Muddi"/>
 		</div>
 		<div class="col-md-8">
 			<RadzenTextBox
 				ReadOnly="true"
-				Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(you)" : "")}")">
+				Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
 			</RadzenTextBox>
 		</div>
 	</div>
@@ -54,7 +54,11 @@
 			{
 				@if (_availableShiftTypes.Any())
 				{
-					<RadzenDropDown TValue="GetShiftTypesResponse" Data="@_availableShiftTypes" @bind-Value="@EntityToEdit.Type">
+					<RadzenDropDown 
+						Style="width:203px;"
+						TValue="GetShiftTypesResponse" 
+						Data="@_availableShiftTypes" 
+						@bind-Value="@EntityToEdit.Type">
 						<Template Context="type">@(((GetShiftTypesResponse)type).Name)</Template>
 					</RadzenDropDown>
 				}

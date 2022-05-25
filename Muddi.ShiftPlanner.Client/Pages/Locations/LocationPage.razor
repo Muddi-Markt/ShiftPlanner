@@ -5,18 +5,23 @@
 {
 	<RadzenHeading Text="@_location.Name"/>
 
-	<div class="mb-5 mt-3">
-		<RadzenCheckBox TValue="bool" @bind-Value="ShowOnlyUsersShifts" Change="UpdateQueryUri" Name="only-my-shift-check"></RadzenCheckBox>
+	<div class="checkbox-container" style="@(ShowOnlyUsersShifts ? "background: var(--muddi-red);color: white;" : "")">
+		<RadzenCheckBox
+			TValue="bool"
+			@bind-Value="ShowOnlyUsersShifts"
+			Change="UpdateQueryUri"
+			Name="only-my-shift-check">
+		</RadzenCheckBox>
 		<RadzenLabel Text="Zeige nur meine Schichten" Component="only-my-shift-check" Style="margin-left: 8px; vertical-align: middle;"/>
 	</div>
 
-	<div style="width:100%; height: 100%; position:relative;">
+	<div style="position:relative;">
 		@if (_isLoading && _enableLoadingSpinner)
 		{
 			<div class="" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10;backdrop-filter: blur(2px)">
 				<div class="d-flex align-items-center flex-column mt-5">
 					<LoadingSpinner/>
-					<h3 style="color: #f00">MUDDI sucht Schichten...</h3>
+					<h3 style="color: var(--muddi-red)">MUDDI sucht Schichten...</h3>
 				</div>
 			</div>
 		}

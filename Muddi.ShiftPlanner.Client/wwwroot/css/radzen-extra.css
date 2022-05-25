@@ -29,6 +29,13 @@ a:hover {
     text-decoration: none !important;
 }
 
+.rz-event{
+    cursor: pointer;
+}
+.rz-chkbox-box.rz-state-active{
+    background: var(--muddi-red)!important;
+}
+
 .rz-event-content:first-line {
     line-height: 0;
 }

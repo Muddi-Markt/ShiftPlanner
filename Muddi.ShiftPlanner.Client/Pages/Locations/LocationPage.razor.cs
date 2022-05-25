@@ -105,7 +105,7 @@ public partial class LocationPage
 		{
 			[nameof(EditShiftDialog.EntityToEdit)] = shiftResponse
 		};
-		var res = await DialogService.OpenAsync<EditShiftDialog>("Edit shift", param);
+		var res = await DialogService.OpenAsync<EditShiftDialog>("Neue Schicht", param);
 		if (res is true)
 		{
 			try
@@ -131,7 +131,7 @@ public partial class LocationPage
 		{
 			[nameof(EditShiftDialog.EntityToEdit)] = args.Data.Shift.MapToShiftResponse()
 		};
-		var res = await DialogService.OpenAsync<EditShiftDialog>("Edit shift", param);
+		var res = await DialogService.OpenAsync<EditShiftDialog>("Bearbeite Schicht", param);
 		if (res is true)
 		{
 			await _scheduler.Reload();

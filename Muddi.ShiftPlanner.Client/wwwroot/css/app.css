@@ -7,8 +7,18 @@
     --muddi-light-green: #e0fcd0;
 }
 
+.checkbox-container {
+    border-radius: 5px;
+    width: 230px;
+    padding: 5px 10px;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+}
+.checkbox-container > *{
+    cursor: pointer!important;
+}
 
-.muddi-plain-content{
+.muddi-plain-content {
     display: flex;
     justify-content: center;
     flex-direction: column;

@@ -69,7 +69,9 @@
 								</ErrorBoundary>
 							</div>
 							<p class="mt-5 md-3 text-center">
-								<RadzenLabel Text="MUDDI Markt Shift Planer, &copy; 2022 Max Reble, "></RadzenLabel>
+								<RadzenLabel Text="MUDDI Markt Shift Planner"></RadzenLabel>
+								<br/>
+								<RadzenLabel Text="&copy; 2022 Max Reble, "></RadzenLabel>
 								<a target="_blank" href="https://muddimarkt.org">Muddi Markt e.V.</a>
 							</p>
 						</div>
@@ -99,6 +101,10 @@
 			if (u.User.Identity?.IsAuthenticated == true)
 				_locations = await ShiftService.GetAllShiftLocationsAsync();
 		}
+		catch (AccessTokenNotAvailableException)
+		{
+			
+		}
 		catch (Exception ex)
 		{
 			await DialogService.Error(ex);
@@ -109,14 +115,13 @@
 	{
 		var muddiConfig = Configuration.GetRequiredSection("MuddiConnect");
 		_accountLink = muddiConfig["Authority"].TrimEnd('/') + "/account/";
-		NavigationManager.LocationChanged += (_, args) =>
+		NavigationManager.LocationChanged += (_, _) =>
 		{
-			if (_isMediaMaxWidth768 && args.Location.Contains("/locations/"))
-			{
-				_sidebarExpanded = false;
-				_bodyExpanded = true;
-				InvokeAsync(StateHasChanged);
-			}
+			if (!_isMediaMaxWidth768) return;
+			
+			_sidebarExpanded = false;
+			_bodyExpanded = true;
+			InvokeAsync(StateHasChanged);
 		};
 	}
 
