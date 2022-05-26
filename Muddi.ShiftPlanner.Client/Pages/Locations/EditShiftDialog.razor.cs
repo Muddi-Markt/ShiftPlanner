@@ -41,12 +41,7 @@ public partial class EditShiftDialog
 			if (!_isAdmin)
 				dto = dto.Where(x => x.OnlyAssignableByAdmin == false);
 			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
-
-			if (EntityToEdit.Type?.OnlyAssignableByAdmin == true && !_isAdmin)
-			{
-				EntityToEdit.Type = null;
-			}
-
+			
 			if (EntityToEdit.Type is not null
 			    && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
 				_availableShiftTypes.Add(EntityToEdit.Type);
@@ -60,7 +55,7 @@ public partial class EditShiftDialog
 			{
 				var allUser = await ShiftApi.GetAllEmployees();
 				_employeesToSelect = new(allUser);
-				EntityToEdit.Employee = _employeesToSelect.First(e => e.Email == EntityToEdit.Employee.Email);
+				EntityToEdit.Employee = _employeesToSelect.FirstOrDefault(e => e.Id == EntityToEdit.Employee.Id);
 			}
 		}
 		catch (AccessTokenNotAvailableException)

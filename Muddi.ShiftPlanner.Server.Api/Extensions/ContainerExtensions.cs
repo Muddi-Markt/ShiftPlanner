@@ -48,24 +48,17 @@ public static class ShiftService
 			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
 			q.AvailableCount--;
 		}
-
 		return counter;
-		// return counter;
-		// 	.Select(c => new GetShiftTypesResponse
-		// 	{
-		// 		Id = c.Type.Id,
-		// 		Name = c.Type.Name,
-		// 		Color = c.Type.Color,
-		// 		Start = startTime,
-		// 		End = startTime + container.Framework.TimePerShift,
-		// 		OnlyAssignableByAdmin = c.Type.OnlyAssignableByAdmin,
-		// 		StartingTimeShift = c.Type.StartingTimeShift
-		// 	});
 	}
 
-	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainerEntity container, CreateShiftRequest req, ClaimsPrincipal user)
+	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainerEntity container,
+		CreateShiftRequest req,
+		ClaimsPrincipal user,
+		Guid ignoreUserHasShiftAtGivenTimeWhenShiftType = default)
 	{
-		if (container.Shifts.Any(s => s.EmployeeKeycloakId == req.EmployeeKeycloakId && s.Start == req.Start))
+		if (container.Shifts.Any(s => s.EmployeeKeycloakId == req.EmployeeKeycloakId 
+		                              && s.Start == req.Start
+		                              && s.Type.Id != ignoreUserHasShiftAtGivenTimeWhenShiftType))
 		{
 			return new ValidationFailure("user", "User already has shift at given time");
 		}

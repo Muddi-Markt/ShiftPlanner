@@ -84,6 +84,11 @@ public partial class LocationPage
 
 	private async Task OnSlotSelect(DateTime startTime, ShiftType? type = null)
 	{
+		if (type is { OnlyAssignableByAdmin: true } && !_isAdmin)
+		{
+			await DialogService.Confirm($"Leider dürfen nur Admins '{type.Name}' Nutzer*Innen auswählen.");
+			return;
+		}
 		startTime = startTime.ToUniversalTime();
 		var container = _location.GetShiftContainerByTime(startTime);
 		if (container is null)
