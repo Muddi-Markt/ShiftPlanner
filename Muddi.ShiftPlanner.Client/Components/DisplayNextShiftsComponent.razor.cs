@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Pages.Locations;
 using Muddi.ShiftPlanner.Client.Services;
+using Muddi.ShiftPlanner.Client.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Components;
@@ -14,11 +15,10 @@ public partial class DisplayNextShiftsComponent
 {
 	[Inject] private ShiftService ShiftService { get; set; }
 	[CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; }
-	[CascadingParameter] private IEnumerable<ShiftLocation> Locations { get; set; }
+	[CascadingParameter] private MainLayout MainLayout { get; set; }
 	private List<Appointment>? _myShifts;
 	private List<Appointment>? _freeShifts;
-
-
+	
 	protected override async Task OnInitializedAsync()
 	{
 		var authState = await AuthStateTask;

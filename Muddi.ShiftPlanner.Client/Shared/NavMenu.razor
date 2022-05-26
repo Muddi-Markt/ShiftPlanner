@@ -7,7 +7,7 @@
 			<RadzenPanelMenuItem Text="Start" Path="/"></RadzenPanelMenuItem>
 			<AuthorizeView>
 				<Authorized>
-					@foreach (var location in Locations)
+					@foreach (var location in MainLayout.Locations)
 					{
 						<RadzenPanelMenuItem Text="@location.Name" Path="@location.Path" Icon="@location.Icon"/>
 					}
@@ -33,7 +33,7 @@
 	[Parameter]
 	public EventCallback<bool> ExpandedChanged { get; set; }
 	[CascadingParameter]
-	public IEnumerable<ShiftLocation> Locations { get; set; }
+	public MainLayout MainLayout { get; set; }
 	
 	private bool _sidebarExpanded = true;
 

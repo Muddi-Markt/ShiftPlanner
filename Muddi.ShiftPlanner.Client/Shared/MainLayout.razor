@@ -13,17 +13,22 @@
 <RadzenNotification/>
 <RadzenTooltip/>
 <RadzenContextMenu/>
-<CascadingValue Value="_locations">
+<CascadingValue Value="this">
 	<RadzenLayout>
 		<RadzenHeader>
 			<ChildContent>
-				<div class="row justify-content-start align-items-center" style="background:#fff;">
-					<div class="col-5 d-flex align-items-center">
+				<div class="d-flex justify-content-between justify-content-start align-items-center" style="background:#fff;">
+					<div class="d-flex align-items-center">
 						<RadzenSidebarToggle Click="@(_ => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
 						</RadzenSidebarToggle>
 						<RadzenLink class="title" Text="MUDDIs Schichtplaner" Path="/"></RadzenLink>
+						<div class="rz-breadcrumb-item">
+							
+							<RadzenLabel Text=@_title class="mx-2"></RadzenLabel>
+						</div>
+						
 					</div>
-					<div class="col-7 d-flex align-items-center justify-content-end">
+					<div class="d-flex align-items-center justify-content-end">
 						<a href="/help">
 							<RadzenIcon Icon="help"
 							            class="title-bar-icon"
@@ -97,7 +102,7 @@
 
 	private bool _isMediaMaxWidth768;
 
-	private IEnumerable<ShiftLocation> _locations = Enumerable.Empty<ShiftLocation>();
+	public IEnumerable<ShiftLocation> Locations { get; private set; } = Enumerable.Empty<ShiftLocation>();
 
 	protected override async Task OnParametersSetAsync()
 	{
@@ -105,7 +110,7 @@
 		{
 			var u = await AuthStateTask;
 			if (u.User.Identity?.IsAuthenticated == true)
-				_locations = await ShiftService.GetAllShiftLocationsAsync();
+				Locations = await ShiftService.GetAllShiftLocationsAsync();
 		}
 		catch (AccessTokenNotAvailableException)
 		{
@@ -114,6 +119,14 @@
 		{
 			await DialogService.Error(ex);
 		}
+	}
+	
+	private string _title = string.Empty;
+
+	public void SetTitle(string? title)
+	{
+		_title = string.IsNullOrEmpty(title) ? string.Empty : "» " + title;
+		InvokeAsync(StateHasChanged);
 	}
 
 	protected override void OnInitialized()

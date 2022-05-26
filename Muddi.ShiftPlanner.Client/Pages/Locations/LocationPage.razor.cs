@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Muddi.ShiftPlanner.Client.Components;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
+using Muddi.ShiftPlanner.Client.Shared;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
@@ -39,6 +40,7 @@ public partial class LocationPage
 
 
 	[CascadingParameter] public Task<AuthenticationState> AuthenticationState { get; set; }
+	[CascadingParameter] public MainLayout MainLayout { get; set; } = default!;
 
 	private ShiftLocation? _location;
 	private ClaimsPrincipal? _user;
@@ -63,6 +65,7 @@ public partial class LocationPage
 		{
 			var state = await AuthenticationState;
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
+			MainLayout.SetTitle(_location.Name);
 			_user = state.User;
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);

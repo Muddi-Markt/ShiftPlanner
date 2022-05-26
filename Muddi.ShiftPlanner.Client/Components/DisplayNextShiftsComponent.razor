@@ -15,7 +15,7 @@ else
 				{
 					<a style="color: #fff;" href="@MakeLocationUri(appointment)">
 						<div class="shift-box" style="background: @shift.Type.Color;">
-							<b>@Locations.First(l => l.Id == shift.LocationId).Name</b>
+							<b>@MainLayout.Locations.First(l => l.Id == shift.LocationId).Name</b>
 							<br/>
 							@shift.Type.Name
 							<br/>
@@ -40,7 +40,7 @@ else
 				{
 					<a href="@MakeLocationUri(appointment, false)">
 						<div class="shift-box" style="background: #fff; color: @shift.Type.Color">
-							<b>@Locations.FirstOrDefault(l => l.Id == shift.LocationId)?.Name</b>
+							<b>@MainLayout.Locations.FirstOrDefault(l => l.Id == shift.LocationId)?.Name</b>
 							<br/>
 							@shift.Type.Name
 							<br/>

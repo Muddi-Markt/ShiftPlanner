@@ -1,20 +1,16 @@
 ﻿@page "/locations/{Id:guid}"
 @using Muddi.ShiftPlanner.Client.Entities
+
+@code {
+	private void ShowOnlyUserShiftsButtonPressed()
+	{
+		ShowOnlyUsersShifts = !ShowOnlyUsersShifts;
+		UpdateQueryUri();
+	}
+}
 @attribute [Authorize]
 @if (_location is not null)
 {
-	<RadzenHeading Text="@_location.Name"/>
-
-	<div class="checkbox-container" style="@(ShowOnlyUsersShifts ? "background: var(--muddi-red);color: white;" : "")">
-		<RadzenCheckBox
-			TValue="bool"
-			@bind-Value="ShowOnlyUsersShifts"
-			Change="UpdateQueryUri"
-			Name="only-my-shift-check">
-		</RadzenCheckBox>
-		<RadzenLabel Text="Zeige nur meine Schichten" Component="only-my-shift-check" Style="margin-left: 8px; vertical-align: middle;"/>
-	</div>
-
 	<div style="position:relative;">
 		@if (_isLoading && _enableLoadingSpinner)
 		{
@@ -25,6 +21,14 @@
 				</div>
 			</div>
 		}
+		
+		<RadzenButton Text="Nur meine Schichten"
+		              class="only-my-shifts-button"
+			              Style="@(ShowOnlyUsersShifts ? "background: var(--muddi-red); box-shadow: inset 0 3px 0 0 rgb(0 0 0 / 10%);" : "background: grey")"
+			              Click="ShowOnlyUserShiftsButtonPressed"
+			              ></RadzenButton>
+
+		
 		<SwipeComponent OnSwipe="Swipe" Orientation="SwipeOrientation.Horizontal">
 			<RadzenScheduler
 				TItem="Appointment"

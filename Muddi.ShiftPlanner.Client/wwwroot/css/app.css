@@ -7,15 +7,16 @@
     --muddi-light-green: #e0fcd0;
 }
 
-.checkbox-container {
-    border-radius: 5px;
-    width: 230px;
-    padding: 5px 10px;
-    margin-bottom: 2rem;
-    margin-top: 1rem;
+
+.only-my-shifts-button{
+    position: absolute;
+    left: 135px;
+    top: 11px;
+    width:220px!important;
+    height:30px!important;
 }
-.checkbox-container > *{
-    cursor: pointer!important;
+.only-my-shifts-button > *{
+    line-height: 1px!important;
 }
 
 .muddi-plain-content {
