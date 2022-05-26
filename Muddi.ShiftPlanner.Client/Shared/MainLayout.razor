@@ -22,11 +22,9 @@
 						<RadzenSidebarToggle Click="@(_ => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
 						</RadzenSidebarToggle>
 						<RadzenLink class="title" Text="MUDDIs Schichtplaner" Path="/"></RadzenLink>
-						<div class="rz-breadcrumb-item">
-							
-							<RadzenLabel Text=@_title class="mx-2"></RadzenLabel>
-						</div>
-						
+						<RadzenLabel Text=@_title class="mx-2"></RadzenLabel>
+
+
 					</div>
 					<div class="d-flex align-items-center justify-content-end">
 						<a href="/help">
@@ -120,7 +118,7 @@
 			await DialogService.Error(ex);
 		}
 	}
-	
+
 	private string _title = string.Empty;
 
 	public void SetTitle(string? title)

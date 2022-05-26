@@ -8,17 +8,28 @@
 }
 
 
-.only-my-shifts-button{
-    position: absolute;
-    left: 135px;
-    top: 11px;
-    width:220px!important;
-    height:30px!important;
-}
-.only-my-shifts-button > *{
-    line-height: 1px!important;
+@media (min-width: 769px) {
+    .only-my-shifts-button {
+        position: absolute;
+        left: 130px;
+        top: 11px;
+        width: 220px !important;
+        height: 30px !important;
+    }
+
+    .only-my-shifts-button > * {
+        line-height: 1px !important;
+    }
 }
 
+.only-my-shifts-button {
+    margin-left: 10px;
+}
+
+
+.only-my-shifts-button > * {
+    line-height: 1px !important;
+}
 .muddi-plain-content {
     display: flex;
     justify-content: center;
