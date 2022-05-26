@@ -104,6 +104,9 @@ public interface IMuddiShiftApi
 
 	[Get("/locations/{Id}/get-all-available-shifts-types")]
 	Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, GetAvailableShiftsForLocationRequest request);
+
+	[Get("/employees")]
+	Task<IEnumerable<GetEmployeeResponse>> GetAllEmployees();
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

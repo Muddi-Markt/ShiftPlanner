@@ -19,10 +19,24 @@
 			<RadzenLabel Text="Muddi"/>
 		</div>
 		<div class="col-md-8">
-			<RadzenTextBox
-				ReadOnly="true"
-				Value="@($"{EntityToEdit.Employee.UserName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
-			</RadzenTextBox>
+			@if (_employeesToSelect.Count == 1)
+			{
+			
+				<RadzenTextBox
+					ReadOnly="true"
+					Value="@($"{_employeesToSelect.First().UserName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
+				</RadzenTextBox>
+			}
+			else
+			{
+				<RadzenDropDown
+					Style="width:200px;"
+					TValue="GetEmployeeResponse"
+					Data="@_employeesToSelect"
+					@bind-Value="@EntityToEdit.Employee">
+					<Template Context="obj">@(obj is GetEmployeeResponse type ?  type.FullName : "?")</Template>
+				</RadzenDropDown>
+			}
 		</div>
 	</div>
 
@@ -55,7 +69,7 @@
 				@if (_availableShiftTypes.Any())
 				{
 					<RadzenDropDown
-						Style="width:203px;"
+						Style="width:200px;"
 						TValue="GetShiftTypesResponse"
 						Data="@_availableShiftTypes"
 						@bind-Value="@EntityToEdit.Type">
@@ -108,6 +122,7 @@
 	private bool _isAdmin;
 	private bool _isShiftUser;
 	private HashSet<GetShiftTypesResponse> _availableShiftTypes = new();
+	private HashSet<GetEmployeeResponse> _employeesToSelect = new();
 
 
 	protected override async Task OnInitializedAsync()
@@ -115,16 +130,17 @@
 		try
 		{
 			var auth = await AuthenticationState;
-
+			var container = await ShiftApi.GetContainer(EntityToEdit.ContainerId);
+			var dto = await ShiftService.GetAvailableShiftTypesAtTime(EntityToEdit.ContainerId, EntityToEdit.Start);
+			//Check User
 			_user = auth.User;
 			var keycloakId = _user.GetKeycloakId();
 			if (keycloakId != default)
 			{
-				_isShiftUser = keycloakId == EntityToEdit.Employee.Id;
+				_isShiftUser = keycloakId == EntityToEdit.Employee?.Id;
 				_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			}
-			GetContainerResponse container = await ShiftApi.GetContainer(EntityToEdit.ContainerId);
-			var dto = await ShiftService.GetAvailableShiftTypesAtTime(EntityToEdit.ContainerId, EntityToEdit.Start);
+			//Find out which ShiftTypes to show
 			if (!_isAdmin)
 				dto = dto.Where(x => x.OnlyAssignableByAdmin == false);
 			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
@@ -140,7 +156,15 @@
 			if (_availableShiftTypes.Count == 0)
 				throw new Exception("Keine freien Schichten für dich verfügbar :(");
 			EntityToEdit.Type ??= _availableShiftTypes.First();
+			//Set end time
 			EntityToEdit.End = EntityToEdit.Start + TimeSpan.FromSeconds(container.Framework.SecondsPerShift);
+			//If admin, allow other users to select
+			if (_isAdmin)
+			{
+				var allUser = await ShiftApi.GetAllEmployees();
+				_employeesToSelect = new(allUser);
+				EntityToEdit.Employee = _employeesToSelect.First(e => e.Email == EntityToEdit.Employee.Email);
+			}
 		}
 		catch (Exception ex)
 		{

@@ -96,7 +96,7 @@ public partial class LocationPage
 		var shiftResponse = new GetShiftResponse
 		{
 			ContainerId = container.Id,
-			Employee = new() { Id = _user.GetKeycloakId(), UserName = _user.GetFullName() },
+			Employee = new() { Id = _user.GetKeycloakId(), UserName = _user.GetFullName() , Email = _user.GetEMail()},
 			Start = startTime,
 			End = startTime + container.Framework.TimePerShift,
 			Type = type?.MapToShiftTypeResponse()

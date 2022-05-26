@@ -20,7 +20,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetEmployeeRespon
 		Get("/employees");
 	}
 
-	public override async Task<List<GetEmployeeResponse>> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
+	public override async Task<List<GetEmployeeResponse>?> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
 	{
 		return (await _keycloakService.GetUsers()).ToList();
 	}
