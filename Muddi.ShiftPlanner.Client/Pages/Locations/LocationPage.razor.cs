@@ -126,7 +126,16 @@ public partial class LocationPage
 
 	private async Task OnShiftSelect(SchedulerAppointmentSelectEventArgs<Appointment> args)
 	{
-		if (args.Data.Shift is null || args.Data.Shift.User == Mappers.NotAssignedEmployee)
+		//If appoint has no date and is WeekView, go to DayView of selected appointment
+		if (args.Data.Shift is null && SelectedViewIndex == WeekViewIndex)
+		{
+			StartDate = args.Start;
+			SelectedViewIndex = DayViewIndex;
+			UpdateQueryUri();
+			return;
+		}
+		//If shift is null or the user is not assigned, create a new shift
+		if (args.Data.Shift is null ||args.Data.Shift.User == Mappers.NotAssignedEmployee)
 		{
 			await OnSlotSelect(args.Start, args.Data.Shift?.Type);
 			return;
@@ -192,7 +201,7 @@ public partial class LocationPage
 			getShiftTypesResponses = getShiftTypesResponses.Where(s => s.Type.OnlyAssignableByAdmin == false);
 
 		var arr = getShiftTypesResponses as GetShiftTypesCountResponse[] ?? getShiftTypesResponses.ToArray();
-		var available = arr.Sum(s => s.AvailableCount);
+		var available = Math.Max(0,arr.Sum(s => s.AvailableCount));
 		var total = arr.Sum(s => s.TotalCount);
 		var title = $"{available}/{total}\nfreie Schicht{(available != 1 ? "en" : "")}";
 		return new Appointment(start, end, title);
@@ -238,4 +247,7 @@ public partial class LocationPage
 		await _scheduler.Reload();
 		_enableLoadingSpinner = true;
 	}
+
+	private const int WeekViewIndex = 1;
+	private const int DayViewIndex = 0;
 }
