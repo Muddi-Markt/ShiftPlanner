@@ -1,0 +1,16 @@
+{
+  "name": "MUDDIs Schichtplanner",
+  "short_name": "MUDDI-shifts",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e42725",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "favicon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ]
+}

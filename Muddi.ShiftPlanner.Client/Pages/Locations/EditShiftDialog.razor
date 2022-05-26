@@ -19,12 +19,12 @@
 			<RadzenLabel Text="Muddi"/>
 		</div>
 		<div class="col-md-8">
-			@if (_employeesToSelect.Count == 1)
+			@if (_employeesToSelect is null)
 			{
 			
 				<RadzenTextBox
 					ReadOnly="true"
-					Value="@($"{_employeesToSelect.First().UserName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
+					Value="@($"{EntityToEdit.Employee?.UserName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
 				</RadzenTextBox>
 			}
 			else
@@ -122,7 +122,7 @@
 	private bool _isAdmin;
 	private bool _isShiftUser;
 	private HashSet<GetShiftTypesResponse> _availableShiftTypes = new();
-	private HashSet<GetEmployeeResponse> _employeesToSelect = new();
+	private HashSet<GetEmployeeResponse>? _employeesToSelect;
 
 
 	protected override async Task OnInitializedAsync()
