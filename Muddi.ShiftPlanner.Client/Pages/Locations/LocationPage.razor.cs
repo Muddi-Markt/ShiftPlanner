@@ -30,6 +30,14 @@ public partial class LocationPage
 	[SupplyParameterFromQuery] [Parameter] public bool ShowOnlyUsersShifts { get; set; }
 	[SupplyParameterFromQuery] [Parameter] public int SelectedViewIndex { get; set; }
 
+	public int GetSelectedViewIndex() => _scheduler is null
+		? -1
+		: _scheduler.IsSelected(_dayView)
+			? DayViewIndex
+			: _scheduler.IsSelected(_weekView)
+				? WeekViewIndex
+				: -1;
+
 	[SupplyParameterFromQuery]
 	[Parameter]
 	public DateTime StartDate
@@ -92,6 +100,7 @@ public partial class LocationPage
 			await DialogService.Confirm($"Leider dürfen nur Admins '{type.Name}' Nutzer*Innen auswählen.");
 			return;
 		}
+
 		startTime = startTime.ToUniversalTime();
 		var container = _location.GetShiftContainerByTime(startTime);
 		if (container is null)
@@ -104,7 +113,7 @@ public partial class LocationPage
 		var shiftResponse = new GetShiftResponse
 		{
 			ContainerId = container.Id,
-			Employee = new() { Id = _user.GetKeycloakId(), UserName = _user.GetFullName() , Email = _user.GetEMail()},
+			Employee = new() { Id = _user.GetKeycloakId(), UserName = _user.GetFullName(), Email = _user.GetEMail() },
 			Start = startTime,
 			End = startTime + container.Framework.TimePerShift,
 			Type = type?.MapToShiftTypeResponse()
@@ -132,13 +141,14 @@ public partial class LocationPage
 		//If appoint has no date and is WeekView, go to DayView of selected appointment
 		if (args.Data.Shift is null && SelectedViewIndex == WeekViewIndex)
 		{
-			StartDate = args.Start;
 			SelectedViewIndex = DayViewIndex;
-			UpdateQueryUri();
+			StartDate = args.Start.Date;
+			// UpdateQueryUri(args.Start);
 			return;
 		}
+
 		//If shift is null or the user is not assigned, create a new shift
-		if (args.Data.Shift is null ||args.Data.Shift.User == Mappers.NotAssignedEmployee)
+		if (args.Data.Shift is null || args.Data.Shift.User == Mappers.NotAssignedEmployee)
 		{
 			await OnSlotSelect(args.Start, args.Data.Shift?.Type);
 			return;
@@ -164,32 +174,65 @@ public partial class LocationPage
 		=> args.SetSlotRenderStyle(_location!.Containers);
 
 
+	private DateTime _oldStart;
+	private DateTime _oldEnd;
+
+
+	private SemaphoreSlim _semaphore = new(1, 1);
+
 	private async Task LoadShifts(SchedulerLoadDataEventArgs arg)
 	{
-		_isLoading = true;
-		_shifts.Clear();
-		if (arg.End - arg.Start > TimeSpan.FromDays(1))
+		await _semaphore.WaitAsync();
+		try
 		{
-			//Week view
-			var myShifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End, _userKeycloakId)).ToList();
-			var shiftTypes = await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, arg.Start, arg.End);
-			var group = shiftTypes.GroupBy(st => new { st.Start, st.End });
-			var appt = group.Select(g => CreateNewAppointment(g.Key.Start, g.Key.End, g, myShifts));
-			_shifts = appt.ToList();
-			SelectedViewIndex = 1;
-			UpdateQueryUri();
-		}
-		else
-		{
-			//day view
-			var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
-			ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
-			_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
-			SelectedViewIndex = 0;
-			UpdateQueryUri();
-		}
+			var idx = GetSelectedViewIndex();
+			bool shiftsAny = _shifts.Any();
+			bool dateNotChanged = arg.Start == _oldStart && arg.End == _oldEnd;
+			//I dont know why, but we need this query, as if we do not use this
+			//we have not needed api queries
+			bool isCorrectFormat = (idx == WeekViewIndex && arg.End - arg.Start > TimeSpan.FromDays(1))
+			                       || (idx == DayViewIndex && arg.End - arg.Start <= TimeSpan.FromDays(1));
+			if ((shiftsAny && dateNotChanged) || !isCorrectFormat)
+			{
+				return;
+			}
 
-		_isLoading = false;
+			_oldStart = arg.Start;
+			_oldEnd = arg.End;
+			_isLoading = true;
+			_shifts.Clear();
+			
+			switch (idx)
+			{
+				case WeekViewIndex:
+				{
+					//Week view
+					var myShifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End, _userKeycloakId)).ToList();
+					var shiftTypes = await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, arg.Start, arg.End);
+					var group = shiftTypes.GroupBy(st => new { st.Start, st.End });
+					var appointments = group.Select(g => CreateNewAppointment(g.Key.Start, g.Key.End, g, myShifts));
+					_shifts = appointments.ToList();
+					SelectedViewIndex = 1;
+					UpdateQueryUri();
+					break;
+				}
+				case DayViewIndex:
+				{
+					//day view
+					var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
+					ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
+					_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
+					SelectedViewIndex = 0;
+					UpdateQueryUri();
+					break;
+				}
+			}
+		}
+		finally
+		{
+			_isLoading = false;
+			_semaphore.Release();
+		}
 	}
 
 	private Appointment CreateNewAppointment(DateTime start, DateTime end,
@@ -204,7 +247,7 @@ public partial class LocationPage
 			getShiftTypesResponses = getShiftTypesResponses.Where(s => s.Type.OnlyAssignableByAdmin == false);
 
 		var arr = getShiftTypesResponses as GetShiftTypesCountResponse[] ?? getShiftTypesResponses.ToArray();
-		var available = Math.Max(0,arr.Sum(s => s.AvailableCount));
+		var available = Math.Max(0, arr.Sum(s => s.AvailableCount));
 		var total = arr.Sum(s => s.TotalCount);
 		var title = $"{available}/{total}\nfreie Schicht{(available != 1 ? "en" : "")}";
 		return new Appointment(start, end, title);
@@ -217,27 +260,36 @@ public partial class LocationPage
 	private RadzenWeekView _weekView;
 	[Inject] private NavigationManager NavigationManager { get; set; }
 
-	private void UpdateQueryUri()
+	private void UpdateQueryUri(DateTime date = default)
 	{
+		var sDate = (date == default ? _scheduler?.CurrentDate.Date : date)?.ToString("yyyy-MM-dd");
 		var s = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>
 		{
 			[nameof(ShowOnlyUsersShifts)] = ShowOnlyUsersShifts,
-			[nameof(StartDate)] = _scheduler?.CurrentDate.Date.ToString("yyyy-MM-dd"),
+			[nameof(StartDate)] = sDate,
 			[nameof(SelectedViewIndex)] = SelectedViewIndex
 		});
+		Console.WriteLine("Navigate: " + s);
 		NavigationManager.NavigateTo(s);
 		// return Task.CompletedTask;
+	}
+
+	private void ShowOnlyUserShiftsButtonPressed()
+	{
+		ShowOnlyUsersShifts = !ShowOnlyUsersShifts;
+		UpdateQueryUri();
 	}
 
 	private async Task Swipe(SwipeEvent obj)
 	{
 		if (_scheduler is null)
 			return;
-		ISchedulerView? view = _scheduler.IsSelected(_dayView)
-			? _dayView
-			: _scheduler.IsSelected(_weekView)
-				? _weekView
-				: null;
+		ISchedulerView? view = GetSelectedViewIndex() switch
+		{
+			DayViewIndex => _dayView,
+			WeekViewIndex => _weekView,
+			_ => null
+		};
 		if (view is null)
 			return;
 		_scheduler.CurrentDate = obj switch

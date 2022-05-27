@@ -1,13 +1,5 @@
 ﻿@page "/locations/{Id:guid}"
 @using Muddi.ShiftPlanner.Client.Entities
-
-@code {
-	private void ShowOnlyUserShiftsButtonPressed()
-	{
-		ShowOnlyUsersShifts = !ShowOnlyUsersShifts;
-		UpdateQueryUri();
-	}
-}
 @attribute [Authorize]
 @if (_location is not null)
 {
