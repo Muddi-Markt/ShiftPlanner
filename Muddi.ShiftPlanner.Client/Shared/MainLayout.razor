@@ -18,11 +18,11 @@
 		<RadzenHeader>
 			<ChildContent>
 				<div class="d-flex justify-content-between justify-content-start align-items-center" style="background:#fff;">
-					<div class="d-flex align-items-center">
+					<div class="d-flex align-items-center w-100">
 						<RadzenSidebarToggle Click="@(_ => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
 						</RadzenSidebarToggle>
-						<RadzenLink class="title" Text="MUDDIs Schichtplaner" Path="/"></RadzenLink>
-						<RadzenLabel Text=@_title class="mx-2"></RadzenLabel>
+						<RadzenLink class="title" Text="@($"MUDDIs Schichtplaner {(string.IsNullOrEmpty(_title) ? "" : "» ")}")" Path="/"></RadzenLink>
+						<RadzenLabel Text=@_title class="title-page mx-2"></RadzenLabel>
 
 
 					</div>
@@ -100,15 +100,19 @@
 
 	private bool _isMediaMaxWidth768;
 
-	public IEnumerable<ShiftLocation> Locations { get; private set; } = Enumerable.Empty<ShiftLocation>();
+	private List<ShiftLocation> _locations = new();
+
+	public IEnumerable<ShiftLocation> Locations => _locations;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		try
 		{
+			if (_locations.Any())
+				return;
 			var u = await AuthStateTask;
 			if (u.User.Identity?.IsAuthenticated == true)
-				Locations = await ShiftService.GetAllShiftLocationsAsync();
+				_locations = (await ShiftService.GetAllShiftLocationsAsync()).ToList();
 		}
 		catch (AccessTokenNotAvailableException)
 		{
@@ -123,7 +127,7 @@
 
 	public void SetTitle(string? title)
 	{
-		_title = string.IsNullOrEmpty(title) ? string.Empty : "» " + title;
+		_title = string.IsNullOrEmpty(title) ? string.Empty : title;
 		InvokeAsync(StateHasChanged);
 	}
 

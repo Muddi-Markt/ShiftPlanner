@@ -1,5 +1,4 @@
-﻿
-:root {
+﻿:root {
     --muddi-red: #e42725;
     --muddi-white: #eaf1df;
     --muddi-beige: #fde1cc;
@@ -7,29 +6,6 @@
     --muddi-light-green: #e0fcd0;
 }
 
-
-@media (min-width: 769px) {
-    .only-my-shifts-button {
-        position: absolute;
-        left: 130px;
-        top: 11px;
-        width: 220px !important;
-        height: 30px !important;
-    }
-
-    .only-my-shifts-button > * {
-        line-height: 1px !important;
-    }
-}
-
-.only-my-shifts-button {
-    margin-left: 10px;
-}
-
-
-.only-my-shifts-button > * {
-    line-height: 1px !important;
-}
 .muddi-plain-content {
     display: flex;
     justify-content: center;
@@ -38,10 +14,55 @@
     margin-top: 3rem;
 }
 
+@media (max-width: 768px) {
+    .title {
+        display: none;
+    }
+
+    .title-page {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+
+@media (min-width: 1200px) {
+    .only-my-shifts-button {
+        position: absolute;
+        font-size: 1rem!important;
+        left: 130px;
+        top: 11px;
+        width: 210px !important;
+        height: 30px !important;
+    }
+
+    .only-my-shifts-button > * {
+        line-height: 1px !important;
+    }
+}
+
+
 .title {
     color: #333;
     font-weight: 700;
 }
+
+.title-page {
+    margin-right: .5rem;
+    margin-left: .5rem;
+}
+
+
+.only-my-shifts-button {
+    margin-left: 10px;
+}
+
+
+.only-my-shifts-button > * {
+    line-height: 1px !important;
+    vertical-align: unset!important;
+}
+
 
 #blazor-error-ui {
     background: lightyellow;
