@@ -143,7 +143,6 @@ public partial class LocationPage
 		{
 			SelectedViewIndex = DayViewIndex;
 			StartDate = args.Start.Date;
-			// UpdateQueryUri(args.Start);
 			return;
 		}
 
@@ -269,9 +268,7 @@ public partial class LocationPage
 			[nameof(StartDate)] = sDate,
 			[nameof(SelectedViewIndex)] = SelectedViewIndex
 		});
-		Console.WriteLine("Navigate: " + s);
 		NavigationManager.NavigateTo(s);
-		// return Task.CompletedTask;
 	}
 
 	private void ShowOnlyUserShiftsButtonPressed()
@@ -282,6 +279,7 @@ public partial class LocationPage
 
 	private async Task Swipe(SwipeEvent obj)
 	{
+		Console.WriteLine("<>");
 		if (_scheduler is null)
 			return;
 		ISchedulerView? view = GetSelectedViewIndex() switch
