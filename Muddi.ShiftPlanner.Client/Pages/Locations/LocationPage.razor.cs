@@ -77,6 +77,8 @@ public partial class LocationPage
 			_user = state.User;
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);
+			_oldStart = default;
+			_oldEnd = default;
 			_scheduler?.Reload();
 		}
 		catch (Exception ex)
