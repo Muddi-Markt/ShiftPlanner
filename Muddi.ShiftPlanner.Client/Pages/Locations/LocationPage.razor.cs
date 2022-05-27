@@ -77,9 +77,7 @@ public partial class LocationPage
 			_user = state.User;
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);
-			_oldStart = default;
-			_oldEnd = default;
-			_scheduler?.Reload();
+			await ForceReloadScheduler();
 		}
 		catch (Exception ex)
 		{
@@ -87,6 +85,13 @@ public partial class LocationPage
 				throw;
 			await DialogService.Error(ex, "Error while setting parameter of places page");
 		}
+	}
+
+	Task ForceReloadScheduler()
+	{
+		_oldStart = default;
+		_oldEnd = default;
+		return _scheduler?.Reload() ?? Task.CompletedTask;
 	}
 
 
@@ -129,7 +134,7 @@ public partial class LocationPage
 		{
 			try
 			{
-				await _scheduler.Reload();
+				await ForceReloadScheduler();
 			}
 			catch (Exception ex)
 			{
@@ -162,7 +167,7 @@ public partial class LocationPage
 		var res = await DialogService.OpenAsync<EditShiftDialog>("Bearbeite Schicht", param);
 		if (res is true)
 		{
-			await _scheduler.Reload();
+			await ForceReloadScheduler();
 		}
 	}
 
