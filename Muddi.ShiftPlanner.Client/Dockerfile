@@ -5,6 +5,7 @@ COPY ["Muddi.ShiftPlanner.Client/Muddi.ShiftPlanner.Client.csproj", "Muddi.Shift
 RUN dotnet restore "Muddi.ShiftPlanner.Client/Muddi.ShiftPlanner.Client.csproj"
 COPY . .
 WORKDIR "/src/Muddi.ShiftPlanner.Client"
+RUN dotnet clean "Muddi.ShiftPlanner.Client.csproj"
 RUN dotnet build "Muddi.ShiftPlanner.Client.csproj" -c Release -o /app/build
 
 FROM build AS publish

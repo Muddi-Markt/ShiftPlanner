@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <Deterministic>False</Deterministic>
       <UserSecretsId>022ea5f9-1970-4353-a93e-700926477c6c</UserSecretsId>
   </PropertyGroup>
 
@@ -13,7 +15,7 @@
       <PackageReference Include="FastEndpoints.Security" Version="4.0.0" />
       <PackageReference Include="FastEndpoints.Swagger" Version="4.1.0" />
       <PackageReference Include="Mapster" Version="7.3.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.4">
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
