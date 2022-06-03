@@ -6,7 +6,7 @@ public static class Mappers
 {
 	public static NotAssignedEmployee NotAssignedEmployee { get; } = new();
 
-	public static ShiftLocation MapToShiftLocation(this GetLocationResponse dto)
+	public static ShiftLocation MapToShiftLocation(this GetLocationResponse dto, GetShiftsCountResponse getShiftsCountResponse)
 	{
 		var containers = dto.Containers?.Select(t =>
 		{
@@ -15,7 +15,8 @@ public static class Mappers
 			var framework = new ShiftFramework(t.Framework.Id, TimeSpan.FromSeconds(t.Framework.SecondsPerShift), shiftTypeCount);
 			return new ShiftContainer(t.Id, framework, t.Start, t.TotalShifts, t.Color);
 		});
-		return new ShiftLocation(dto.Id, dto.Name, dto.Type, containers ?? Enumerable.Empty<ShiftContainer>());
+		return new ShiftLocation(dto.Id, dto.Name, dto.Type, containers ?? Enumerable.Empty<ShiftContainer>(), 
+			getShiftsCountResponse.TotalShifts, getShiftsCountResponse.AssignedShifts);
 	}
 
 	public static Shift MapToShift(this GetShiftTypesCountResponse dto)

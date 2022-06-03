@@ -73,7 +73,7 @@ public partial class LocationPage
 		{
 			var state = await AuthenticationState;
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
-			MainLayout.SetTitle(_location.Name);
+			MainLayout.SetTitle($"{_location.Name} ({_location.AssignedShifts}/{_location.TotalShifts} Schichten)");
 			_user = state.User;
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);

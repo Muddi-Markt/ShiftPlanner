@@ -29,14 +29,16 @@ public class ShiftService
 	public async Task<IEnumerable<ShiftLocation>> GetAllShiftLocationsAsync()
 	{
 		var dtos = await _shiftApi.GetAllLocations();
-		return dtos.Select(t => t.MapToShiftLocation());
+		var counts = await _shiftApi.GetAllLocationShiftsCount();
+		return dtos.Join(counts, d => d.Id, c => c.Id, (d, c) => d.MapToShiftLocation(c));
 	}
 
 	public async Task<ShiftLocation> GetLocationsByIdAsync(Guid id)
 	{
 		var dto = await _shiftApi.GetLocationById(id);
+		var count = await _shiftApi.GetLocationShiftsCount(id);
 
-		return dto.MapToShiftLocation();
+		return dto.MapToShiftLocation(count);
 	}
 
 	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,

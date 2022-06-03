@@ -107,6 +107,12 @@ public interface IMuddiShiftApi
 
 	[Get("/employees")]
 	Task<IEnumerable<GetEmployeeResponse>> GetAllEmployees();
+
+	[Get("/locations/get-all-shifts-count")]
+	Task<IEnumerable<GetShiftsCountResponse>> GetAllLocationShiftsCount();
+
+	[Get("/locations/{locationId}/get-shifts-count")]
+	Task<GetShiftsCountResponse> GetLocationShiftsCount(Guid locationId);
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

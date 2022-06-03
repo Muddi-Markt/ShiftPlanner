@@ -32,14 +32,9 @@ public class GetShiftsCountEndpoint : CrudGetEndpoint<GetShiftsCountResponse>
 
 		return new()
 		{
+			Id = id,
 			TotalShifts = total,
 			AssignedShifts = assigned
 		};
 	}
-}
-
-public class GetShiftsCountResponse
-{
-	public int TotalShifts { get; set; }
-	public int AssignedShifts { get; set; }
 }

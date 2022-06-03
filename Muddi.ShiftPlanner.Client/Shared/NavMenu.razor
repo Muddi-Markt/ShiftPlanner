@@ -9,7 +9,7 @@
 				<Authorized>
 					@foreach (var location in MainLayout.Locations)
 					{
-						<RadzenPanelMenuItem Text="@location.Name" Path="@location.Path" Icon="@location.Icon"/>
+						<RadzenPanelMenuItem Text="@($"{location.Name} ({location.PercentageAlreadyAssignedShifts}%)")" Path="@location.Path"/>
 					}
 				</Authorized>
 			</AuthorizeView>

@@ -25,7 +25,6 @@ public class ShiftContainer
 		Id = id;
 		Framework = framework;
 		_startTimes = StartTimes().ToImmutableList();
-		_shifts = new List<Shift>();
 
 		IEnumerable<DateTime> StartTimes()
 		{
@@ -37,48 +36,9 @@ public class ShiftContainer
 			}
 		}
 	}
-
-
-	private readonly IList<Shift> _shifts;
+	
 	private readonly IReadOnlyCollection<DateTime> _startTimes;
-
-
-	internal void AddShift(Shift shift)
-	{
-		if (!_startTimes.Contains(shift.StartTime))
-			throw new StartTimeNotInContainerException(shift.StartTime);
-		if (_shifts.Any(t => t.StartTime == shift.StartTime
-		                        && t.User == shift.User))
-			throw new UserAlreadyAssignedException(shift);
-		if (_shifts.Count(t => t.Type == shift.Type) >= Framework.GetCountForRole(shift.Type))
-			throw new TooManyWorkersException(shift);
-
-		_shifts.Add(shift);
-	}
-
-	internal void RemoveShift(Shift shift)
-	{
-		_shifts.Remove(shift);
-	}
-
-	public IEnumerable<Shift> GetShiftsAtGivenTime(DateTime startTime)
-	{
-		return _shifts.Where(s => s.StartTime == startTime);
-	}
-
-	public IEnumerable<ShiftType> GetAvailableRolesAtGivenTime(DateTime startTime)
-	{
-		var rolesCount = new Dictionary<ShiftType, int>(Framework.RolesCount);
-		foreach (var shift in GetShiftsAtGivenTime(startTime))
-		{
-			rolesCount[shift.Type]--;
-		}
-
-		return rolesCount.Where(t => t.Value > 0).Select(t => t.Key);
-	}
-
-
-	public IEnumerable<Shift> GetAllShifts() => _shifts;
+	
 	public bool IsTimeWithinContainer(DateTime time) => time >= StartTime && time < EndTime;
 
 	public DateTime GetBestShiftStartTimeForTime(DateTime startTime)
