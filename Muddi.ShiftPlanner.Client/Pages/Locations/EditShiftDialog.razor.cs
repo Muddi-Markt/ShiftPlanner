@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Net;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -6,6 +8,8 @@ using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
+using Radzen;
+using Refit;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Locations;
 
@@ -41,7 +45,7 @@ public partial class EditShiftDialog
 			if (!_isAdmin)
 				dto = dto.Where(x => x.OnlyAssignableByAdmin == false);
 			_availableShiftTypes = new HashSet<GetShiftTypesResponse>(dto);
-			
+
 			if (EntityToEdit.Type is not null
 			    && _availableShiftTypes.All(st => st.Id != EntityToEdit.Type.Id))
 				_availableShiftTypes.Add(EntityToEdit.Type);
@@ -72,25 +76,44 @@ public partial class EditShiftDialog
 
 	protected override async Task Create()
 	{
-		var res = await ShiftService.AddShiftToContainer(EntityToEdit.ContainerId, new CreateShiftRequest
+		try
 		{
-			EmployeeKeycloakId = EntityToEdit.Employee.Id,
-			ShiftTypeId = EntityToEdit.Type.Id,
-			Start = EntityToEdit.Start
-		});
-		EntityToEdit.Id = res;
+			var res = await ShiftService.AddShiftToContainer(EntityToEdit.ContainerId, new CreateShiftRequest
+			{
+				EmployeeKeycloakId = EntityToEdit.Employee.Id,
+				ShiftTypeId = EntityToEdit.Type.Id,
+				Start = EntityToEdit.Start
+			});
+			EntityToEdit.Id = res;
+		}
+		catch (ApiException apiException)
+		{
+			if (apiException.StatusCode != HttpStatusCode.Conflict) throw;
+			//TODO Find the shift Guid and catch it and show which location the shift is
+			Console.WriteLine(apiException.Content);
+			await DialogService.Error("Du hast schon ne Schicht um die Zeit!");
+		}
 	}
 
-	protected override Task Update()
+	protected override async Task Update()
 	{
 		if (!(_isAdmin || _isShiftUser))
-			return Task.CompletedTask;
-		return ShiftApi.UpdateShift(EntityToEdit.Id, new CreateShiftRequest
+			return;
+		try
 		{
-			EmployeeKeycloakId = EntityToEdit.Employee.Id,
-			ShiftTypeId = EntityToEdit.Type.Id,
-			Start = EntityToEdit.Start
-		});
+			await ShiftApi.UpdateShift(EntityToEdit.Id, new CreateShiftRequest
+			{
+				EmployeeKeycloakId = EntityToEdit.Employee.Id,
+				ShiftTypeId = EntityToEdit.Type.Id,
+				Start = EntityToEdit.Start
+			});
+		}
+		catch (ApiException apiException)
+		{
+			if (apiException.StatusCode != HttpStatusCode.Conflict) throw;
+			//TODO Find the shift Guid and catch it and show which location the shift is
+			await DialogService.Error("Du hast schon ne Schicht um die Zeit!");
+		}
 	}
 
 

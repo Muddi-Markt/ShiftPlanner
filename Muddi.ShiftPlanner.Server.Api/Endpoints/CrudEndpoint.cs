@@ -2,6 +2,7 @@
 using FastEndpoints;
 using FluentValidation.Results;
 using Mapster;
+using Muddi.ShiftPlanner.Server.Api.Exceptions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Serilog.Parsing;
@@ -54,7 +55,7 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 	{
 		return SendStringAsync(reason, 400);
 	}
-	
+
 	protected Task SendForbiddenAsync(string reason)
 	{
 		return SendStringAsync(reason, StatusCodes.Status403Forbidden);
@@ -63,8 +64,14 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 	protected async Task<bool> SendErrorIfValidationFailure(ValidationFailure? validationFailure)
 	{
 		if (validationFailure is null) return false;
+		var statusCode = validationFailure switch
+		{
+			AlreadyShiftAtGivenTimeFailure => StatusCodes.Status409Conflict,
+			_ => StatusCodes.Status400BadRequest
+		};
+
 		ValidationFailures.Add(validationFailure);
-		await SendErrorsAsync();
+		await SendErrorsAsync(statusCode);
 		return true;
 	}
 }

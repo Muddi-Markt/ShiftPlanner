@@ -40,14 +40,14 @@ public class UpdateEndpoint : CrudUpdateEndpoint<CreateShiftRequest>
 		//If only the shift type is changed, ignore the ShiftType id when checking
 		//whether the user has a same shift at the same time (as it is only this one,
 		//which will be updated
-		Guid ignoreUserHasShiftAtGivenTime = (shift.EmployeeKeycloakId == request.EmployeeKeycloakId
-		                                      && shift.Start == request.Start
-		                                      && shift.Type.Id != request.ShiftTypeId
+		Guid ignoreUserHasShiftAtGivenTime = shift.EmployeeKeycloakId == request.EmployeeKeycloakId
+		                                     && shift.Start == request.Start
+		                                     && shift.Type.Id != request.ShiftTypeId
 			? shift.Type.Id
-			: default);
+			: default;
 
 
-		var failure = container.PreAddShiftSanityCheck(request, User, ignoreUserHasShiftAtGivenTime);
+		var failure = await Database.PreAddShiftSanityCheck(container, request, User, ignoreUserHasShiftAtGivenTime);
 		if (await SendErrorIfValidationFailure(failure))
 			return;
 

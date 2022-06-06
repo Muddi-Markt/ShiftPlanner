@@ -2,8 +2,10 @@
 using System.Security.Claims;
 using FluentValidation.Results;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Endpoints;
 using Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
+using Muddi.ShiftPlanner.Server.Api.Exceptions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
@@ -48,19 +50,27 @@ public static class ShiftService
 			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
 			q.AvailableCount--;
 		}
+
 		return counter;
 	}
 
-	public static ValidationFailure? PreAddShiftSanityCheck(this ShiftContainerEntity container,
+	public static async Task<ValidationFailure?> PreAddShiftSanityCheck(this ShiftPlannerContext db,
+		ShiftContainerEntity container,
 		CreateShiftRequest req,
 		ClaimsPrincipal user,
 		Guid ignoreUserHasShiftAtGivenTimeWhenShiftType = default)
 	{
-		if (container.Shifts.Any(s => s.EmployeeKeycloakId == req.EmployeeKeycloakId 
-		                              && s.Start == req.Start
-		                              && s.Type.Id != ignoreUserHasShiftAtGivenTimeWhenShiftType))
+		var shiftAtGivenTime = await db.Shifts
+			.Include(s => s.ShiftContainer)
+			.ThenInclude(c => c.Location)
+			.AsNoTracking()
+			.FirstOrDefaultAsync(s => s.EmployeeKeycloakId == req.EmployeeKeycloakId && s.Start == req.Start
+			                                                                         && s.Type.Id !=
+			                                                                         ignoreUserHasShiftAtGivenTimeWhenShiftType);
+
+		if (shiftAtGivenTime is not null)
 		{
-			return new ValidationFailure("user", "User already has shift at given time");
+			return new AlreadyShiftAtGivenTimeFailure(shiftAtGivenTime);
 		}
 
 		var availableShiftTypes = container.GetAvailableShiftTypes(req.Start);
@@ -72,4 +82,5 @@ public static class ShiftService
 
 		return null;
 	}
+	
 }
