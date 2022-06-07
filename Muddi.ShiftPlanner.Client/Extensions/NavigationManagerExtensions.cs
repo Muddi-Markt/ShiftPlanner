@@ -12,7 +12,7 @@ public static class NavigationManagerExtensions
 	
 	public static void NavigateToLogout(this NavigationManager navigation)
 	{
-		navigation.NavigateTo($"authentication/logout");
+		navigation.NavigateTo("authentication/logout");
 	}
 	
 }

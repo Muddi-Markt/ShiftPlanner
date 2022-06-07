@@ -26,8 +26,8 @@ public partial class DisplayNextShiftsComponent
 		{
 			var shifts = await ShiftService.GetAllShiftsFromUser(authState.User, 6);
 			_myShifts = new (shifts.Select(s => s.ToAppointment()));
-			shifts = await ShiftService.GetAllAvailableShifts(6);
-			_freeShifts = new(shifts.Select(s => s.ToAppointment()));
+			var availableShifts = await ShiftService.GetAllAvailableShifts(6);
+			_freeShifts = new(availableShifts.Select(s => s.ToAppointment()));
 		}
 	}
 

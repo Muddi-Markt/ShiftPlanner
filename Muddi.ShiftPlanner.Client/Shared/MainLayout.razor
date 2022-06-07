@@ -8,7 +8,6 @@
 @inject ShiftService ShiftService;
 @inject DialogService DialogService;
 @inject TooltipService TooltipService;
-@inject IConfiguration Configuration;
 <RadzenDialog/>
 <RadzenNotification/>
 <RadzenTooltip/>
@@ -33,10 +32,10 @@
 							            MouseEnter="@(reference => TooltipService.Open(reference, "Hilfe", new() { Position = TooltipPosition.Left }))">
 							</RadzenIcon>
 						</a>
-						<a href="@_accountLink">
+						<a href="/authentication/logout">
 							<RadzenIcon Icon="account_circle"
 							            class="title-bar-icon"
-							            MouseEnter="@(reference => TooltipService.Open(reference, "Account", new() { Position = TooltipPosition.Left }))">
+							            MouseEnter="@(reference => TooltipService.Open(reference, "Logout", new() { Position = TooltipPosition.Left }))">
 							</RadzenIcon>
 						</a>
 						@*	<a href="https://github.com/muddi-markt" title="GitHub" target="_blank" class="mx-3">
@@ -133,8 +132,6 @@
 
 	protected override void OnInitialized()
 	{
-		var muddiConfig = Configuration.GetRequiredSection("MuddiConnect");
-		_accountLink = muddiConfig["Authority"].TrimEnd('/') + "/account/";
 		NavigationManager.LocationChanged += (_, _) =>
 		{
 			if (!_isMediaMaxWidth768) return;
@@ -147,7 +144,6 @@
 
 	bool _bodyExpanded;
 	private bool _sidebarExpanded = true;
-	private string _accountLink = String.Empty;
 
 	private void MediaQueryCallback(bool obj)
 	{

@@ -4,9 +4,32 @@
 
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
-<RemoteAuthenticatorView Action="@Action" />
+
+<RemoteAuthenticatorView Action="@Action"/>
 
 @code{
-    
-    [Parameter] public string Action { get; set; }
+
+	[Parameter]
+	public string Action { get; set; }
+
+	[Inject]
+	NavigationManager NavigationManager { get; set; }
+
+	[Inject]
+	SignOutSessionStateManager SignOutManager { get; set; }
+
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await SignOutManager.SetSignOutState();
+		if (Action == "logged-out")
+		{
+			_ = Task.Run(async () =>
+			{
+				await Task.Delay(2000);
+				NavigationManager.NavigateTo("/");
+			});
+		}
+	}
+
 }
