@@ -7,7 +7,7 @@
 	private string _message = "";
 }
 
-<h1>Hello, world!</h1>
+<h1>Dein Access Token</h1>
 
 Token:
 <br/>
@@ -16,13 +16,14 @@ Token:
 
 @code{
 	private string _token;
-	
+
 
 	protected override async Task OnInitializedAsync()
 	{
 		var t = await AccessTokenProvider.RequestAccessToken();
-		_token = t.TryGetToken(out var tok) 
-			? tok.Value 
+		_token = t.TryGetToken(out var tok)
+			? tok.Value
 			: $"Failed to obtain token. Status: {t.Status}";
 	}
+
 }

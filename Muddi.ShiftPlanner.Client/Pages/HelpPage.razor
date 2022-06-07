@@ -9,7 +9,6 @@
 
 <p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="mailto:gastro@muddimarkt.org">gastro@muddimarkt.org</a></p>
 <p>Version: @AssemblyVersion?.ToString() (@BuildDate.ToString(CultureInfo.CurrentCulture))</p>
-<p>Cache Version: @_cacheVersion</p>
 
 @code {
 	private static readonly Version? AssemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
@@ -17,14 +16,4 @@
 		new DateTime() 
 		: new DateTime(2000, 1, 1).AddDays(AssemblyVersion.Build).AddSeconds(AssemblyVersion.Revision * 2);
 	private static readonly Regex WorkerVersionRegex = new("cacheVersion = '(\\d*?)';", RegexOptions.Compiled);
-	private string _cacheVersion = string.Empty;
-
-	protected override async Task OnInitializedAsync()
-	{
-		var worker = await Http.GetStringAsync("/service-worker.js");
-		var match = WorkerVersionRegex.Match(worker);
-		if (match.Success)
-			_cacheVersion = match.Groups[1].Value;
-	}
-
 }
