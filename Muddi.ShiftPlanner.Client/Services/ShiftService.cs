@@ -130,4 +130,10 @@ public class ShiftService
 			}
 		}
 	}
+
+	public async Task<byte[]> GetAllShiftsFromUserAsICal()
+	{
+		var res = await _shiftApi.GetAllShiftsFromEmployeeAsIcsFile();
+		return await res.ReadAsByteArrayAsync();
+	}
 }

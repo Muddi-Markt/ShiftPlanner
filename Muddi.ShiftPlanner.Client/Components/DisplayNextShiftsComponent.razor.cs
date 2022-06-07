@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.Web;
+using Blazor.DownloadFileFast.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
@@ -14,18 +15,19 @@ namespace Muddi.ShiftPlanner.Client.Components;
 public partial class DisplayNextShiftsComponent
 {
 	[Inject] private ShiftService ShiftService { get; set; }
+	[Inject] public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 	[CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; }
 	[CascadingParameter] private MainLayout MainLayout { get; set; }
 	private List<Appointment>? _myShifts;
 	private List<Appointment>? _freeShifts;
-	
+
 	protected override async Task OnInitializedAsync()
 	{
 		var authState = await AuthStateTask;
 		if (authState.User.Identity?.IsAuthenticated == true)
 		{
 			var shifts = await ShiftService.GetAllShiftsFromUser(authState.User, 6);
-			_myShifts = new (shifts.Select(s => s.ToAppointment()));
+			_myShifts = new(shifts.Select(s => s.ToAppointment()));
 			var availableShifts = await ShiftService.GetAllAvailableShifts(6);
 			_freeShifts = new(availableShifts.Select(s => s.ToAppointment()));
 		}
@@ -37,5 +39,11 @@ public partial class DisplayNextShiftsComponent
 		query[nameof(LocationPage.StartDate)] = appointment.LocalStartTime.ToString("yyyy-MM-dd");
 		query[nameof(LocationPage.ShowOnlyUsersShifts)] = showOnlyUserShift.ToString();
 		return $"/locations/{appointment.Shift!.LocationId}/?{query}";
+	}
+
+	private async Task Download_iCal()
+	{
+		var bytes = await ShiftService.GetAllShiftsFromUserAsICal();
+		await BlazorDownloadFileService.DownloadFileAsync("muddi-calendar.ics", bytes);
 	}
 }

@@ -18,7 +18,7 @@ public static class CalendarExtensions
 			Uid = s.Id.ToString(),
 			Location = "Muddi Markt e.V. Kiel",
 			GeographicLocation = new GeographicLocation(54.32557369383779, 10.134938948950177),
-			Summary = "Schicht@" + s.ShiftContainer.Location.Name
+			Summary = $"{s.Type.Name} Schicht@{s.ShiftContainer.Location.Name}"
 		});
 		var calendar = new Calendar() { ProductId = "https://github.com/Muddi-Markt/ShiftPlanner//NONSGML ical.net 4.0//EN" };
 		calendar.Events.AddRange(events);

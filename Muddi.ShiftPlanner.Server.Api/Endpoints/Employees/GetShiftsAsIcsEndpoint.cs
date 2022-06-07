@@ -14,12 +14,12 @@ using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Employees;
 
-public class GetShiftsiCalEndpoint : Endpoint<GetShiftsFromEmployeeRequest>
+public class GetShiftsAsIcsEndpoint : Endpoint<GetShiftsFromEmployeeRequest>
 {
 	private readonly ShiftPlannerContext _database;
 	private readonly IKeycloakService _keycloakService;
 
-	public GetShiftsiCalEndpoint(ShiftPlannerContext database, IKeycloakService keycloakService)
+	public GetShiftsAsIcsEndpoint(ShiftPlannerContext database, IKeycloakService keycloakService)
 	{
 		_database = database;
 		_keycloakService = keycloakService;

@@ -113,6 +113,9 @@ public interface IMuddiShiftApi
 
 	[Get("/locations/{locationId}/get-shifts-count")]
 	Task<GetShiftsCountResponse> GetLocationShiftsCount(Guid locationId);
+
+	[Get("/employees/shifts-ics")]
+	Task<HttpContent> GetAllShiftsFromEmployeeAsIcsFile();
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

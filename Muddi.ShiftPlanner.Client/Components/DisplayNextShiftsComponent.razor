@@ -7,7 +7,7 @@ else
 	@if (_myShifts.Any())
 	{
 		<h3>Deine nächsten Schichten:</h3>
-
+		<h4>Herunterladen für deinen Kalender als <a onclick="@Download_iCal" href="?download">iCal Datei</a></h4>
 		<div class="shift-container">
 			@foreach (var appointment in _myShifts)
 			{

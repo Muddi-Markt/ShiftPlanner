@@ -16,6 +16,7 @@ builder.Services.AddRadzen();
 builder.Services.AddMuddiConnect(builder.Configuration.GetRequiredSection("MuddiConnect"));
 builder.Services.MuddiShiftApiExtensions(builder.Configuration.GetRequiredSection("MuddiShiftApi"));
 builder.Services.AddScoped<ShiftService>();
+builder.Services.AddBlazorDownloadFile();
 
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
