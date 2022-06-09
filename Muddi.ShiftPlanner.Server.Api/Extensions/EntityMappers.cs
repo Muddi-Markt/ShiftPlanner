@@ -6,18 +6,19 @@ namespace Muddi.ShiftPlanner.Server.Api.Extensions;
 
 public static class EntityMappers
 {
-	public static GetShiftResponse MapToShiftResponse(this ShiftEntity shift, GetEmployeeResponse keycloakUser)
+	public static GetShiftResponse MapToShiftResponse(this ShiftEntity shift, GetEmployeeResponse user)
 	{
 		var shiftResponse = shift.Adapt<GetShiftResponse>();
 		shiftResponse.ContainerId = shift.ShiftContainer.Id;
 		shiftResponse.LocationId = shift.ShiftContainer.Location.Id;
-		shiftResponse.Employee = keycloakUser;//TODO For backwards compatibility, delete this in future!! 
-		shiftResponse.EmployeeId = keycloakUser.Id;
-		shiftResponse.EmployeeFullName = keycloakUser.FullName;
+		user.Email = string.Empty; //For privacy, delete when deleting the line below
+		shiftResponse.Employee = user; //TODO For backwards compatibility, delete this in future!! 
+		shiftResponse.EmployeeId = user.Id;
+		shiftResponse.EmployeeFullName = user.FullName;
 
 		return shiftResponse;
 	}
-	
+
 	public static GetShiftResponse MapToShiftResponse(this ShiftEntity shift, Guid employeeId, string? employeeFullName = null)
 	{
 		var shiftResponse = shift.Adapt<GetShiftResponse>();
