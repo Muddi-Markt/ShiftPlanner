@@ -15,8 +15,7 @@ public interface IKeycloakApi
 
 
 	[Post("/realms/{realm}/protocol/openid-connect/token")]
-	Task<GetTokenResponse> GetToken(string realm, [Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);
-
+	Task<ApiResponse<GetTokenResponse>> GetToken(string realm, [Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);
 }
 
 public class KeycloakUserRepresentation
@@ -38,14 +37,16 @@ public class GetTokenResponse
 
 public class GetTokenRequest
 {
-	public GetTokenRequest(string username, string password)
+	public GetTokenRequest(string username, string password, string clientId)
 	{
-		this.Username = username;
-		this.Password = password;
+		Username = username;
+		Password = password;
+		ClientId = clientId;
 	}
 
 	[AliasAs("username")] public string Username { get; init; }
 	[AliasAs("password")] public string Password { get; init; }
-	[AliasAs("client_id")] public string ClientId => "admin-cli";
+	[AliasAs("client_id")] public string ClientId { get; }
+
 	[AliasAs("grant_type")] public string GrantType => "password";
 }

@@ -7,6 +7,9 @@ namespace Muddi.ShiftPlanner.Shared.Api;
 
 public interface IMuddiShiftApi
 {
+	[Post("/login")]
+	Task<LoginResponse> Login(LoginRequest request);
+
 	#region Locations
 
 	[Get("/locations/{Id}")]
@@ -85,10 +88,11 @@ public interface IMuddiShiftApi
 
 	[Get("/shifts/{id}")]
 	Task<ApiResponse<GetShiftResponse>> GetShift(Guid id);
-	
+
 	[Get("/shifts/available-types")]
+	[Headers("Authorization: Bearer")]
 	Task<ICollection<GetShiftTypesCountResponse>> GetAvailableShiftTypes(GetAllShiftsRequest request);
-	
+
 
 	[Put("/shifts/{id}")]
 	Task UpdateShift(Guid id, CreateShiftRequest request);
@@ -100,10 +104,11 @@ public interface IMuddiShiftApi
 	Task UpdateLocation(Guid id, UpdateLocationRequest updateLocationRequest);
 
 	[Get("/employees/{keycloakId}/shifts")]
-	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId,int count);
+	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId, int count);
 
 	[Get("/locations/{Id}/get-all-available-shifts-types")]
-	Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, GetAvailableShiftsForLocationRequest request);
+	Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id,
+		GetAvailableShiftsForLocationRequest request);
 
 	[Get("/employees")]
 	Task<IEnumerable<GetEmployeeResponse>> GetAllEmployees();

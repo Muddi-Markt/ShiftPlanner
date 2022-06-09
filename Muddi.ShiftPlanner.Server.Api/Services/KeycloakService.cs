@@ -6,7 +6,7 @@ namespace Muddi.ShiftPlanner.Server.Api.Services;
 
 public interface IKeycloakService
 {
-	Task<string> GetToken();
+	Task<ApiResponse<GetTokenResponse>> GetToken(GetTokenRequest tokenRequest);
 	Task<GetEmployeeResponse> GetUserById(Guid reqId);
 	Task<IEnumerable<GetEmployeeResponse>> GetUsers();
 }
@@ -30,11 +30,11 @@ public class KeycloakService : IKeycloakService
 
 		if (string.IsNullOrEmpty(keycloakUser) || string.IsNullOrEmpty(keycloakPass))
 			throw new InvalidOperationException("You need to specify AdminUser and AdminPassword in MuddiConnect");
-		_tokenRequest = new GetTokenRequest(keycloakUser, keycloakPass);
+		_tokenRequest = new GetTokenRequest(keycloakUser, keycloakPass, "admin-cli");
 		_keycloakApi = RestService.For<IKeycloakApi>(new Uri(authority).GetLeftPart(UriPartial.Authority),
 			new RefitSettings
 			{
-				AuthorizationHeaderValueGetter = GetToken
+				AuthorizationHeaderValueGetter = GetAdminToken
 			});
 	}
 
@@ -43,14 +43,14 @@ public class KeycloakService : IKeycloakService
 	private static DateTime _currentTokenExpiresAt;
 	private readonly GetTokenRequest _tokenRequest;
 
-	public async Task<string> GetToken()
+	private async Task<string> GetAdminToken()
 	{
 		await TokenSemaphore.WaitAsync();
-
 		try
 		{
 			if (_currentToken is not null && _currentTokenExpiresAt > DateTime.UtcNow) return _currentToken;
-			var res = await _keycloakApi.GetToken(Realm, _tokenRequest);
+			var apiRes = await GetToken(_tokenRequest);
+			if (apiRes.Content is not { } res) throw apiRes.Error!;
 			_currentToken = res.AccessToken;
 			_currentTokenExpiresAt = DateTime.UtcNow.AddSeconds(res.ExpiresIn);
 			return _currentToken;
@@ -59,6 +59,11 @@ public class KeycloakService : IKeycloakService
 		{
 			TokenSemaphore.Release();
 		}
+	}
+
+	public Task<ApiResponse<GetTokenResponse>> GetToken(GetTokenRequest tokenRequest)
+	{
+		return _keycloakApi.GetToken(Realm, tokenRequest);
 	}
 
 	public async Task<GetEmployeeResponse> GetUserById(Guid reqId)
