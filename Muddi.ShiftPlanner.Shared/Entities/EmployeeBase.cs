@@ -28,7 +28,14 @@ public class Employee : EmployeeBase
 	public string FirstName { get; }
 	public string LastName { get; }
 
-	public Employee(Guid keycloakId, string email, string? firstName, string? lastName) 
+
+	public Employee(Guid keycloakId, string email, string fullName)
+		: this(keycloakId, email, fullName[..(fullName.IndexOf(' '))], fullName[(fullName.IndexOf(' ') + 1)..])
+	{
+		
+	}
+
+	public Employee(Guid keycloakId, string email, string? firstName, string? lastName)
 		: base(keycloakId, $"{firstName} {lastName?.FirstOrDefault()}")
 	{
 		Email = email;

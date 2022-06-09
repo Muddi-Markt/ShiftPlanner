@@ -25,7 +25,7 @@ public static class Mappers
 	public static Shift MapToShift(this GetShiftResponse dto)
 	{
 		return new Shift(dto.Id,
-			new Employee(dto.Employee.Id, dto.Employee.Email, dto.Employee.FirstName, dto.Employee.LastName),
+			new Employee(dto.EmployeeId, "", dto.EmployeeFullName),
 			dto.Start.ToUniversalTime(),
 			dto.End.ToUniversalTime(),
 			dto.Type.MapToShiftType(),
@@ -39,7 +39,8 @@ public static class Mappers
 		{
 			Id = dto.Id,
 			ContainerId = dto.ContainerId,
-			Employee = new() { UserName = dto.User.Name, Id = dto.User.KeycloakId },
+			EmployeeId = dto.User.KeycloakId,
+			EmployeeFullName = dto.User.Name,
 			Start = dto.StartTime,
 			End = dto.EndTime,
 			Type = dto.Type.MapToShiftTypeResponse()

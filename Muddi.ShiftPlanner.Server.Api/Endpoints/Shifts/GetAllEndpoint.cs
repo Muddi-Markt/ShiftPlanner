@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
 
@@ -18,6 +19,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, GetShiftRe
 		IQueryable<ShiftEntity> query = Database.Shifts
 			.Include(s => s.Type)
 			.Include(s => s.ShiftContainer)
+			.ThenInclude(c => c.Location)
 			.OrderBy(s => s.Start);
 		if (request.Limit > 0)
 		{
@@ -25,7 +27,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, GetShiftRe
 		}
 
 		var res = await query
-			.Select(t => t.Adapt<GetShiftResponse>())
+			.Select(t => t.MapToShiftResponse(t.EmployeeKeycloakId, null))
 			.ToListAsync(ct);
 		return res;
 	}

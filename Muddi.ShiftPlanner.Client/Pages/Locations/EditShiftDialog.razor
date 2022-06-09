@@ -24,17 +24,18 @@
 			
 				<RadzenTextBox
 					ReadOnly="true"
-					Value="@($"{EntityToEdit.Employee?.UserName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
+					Value="@($"{EntityToEdit.EmployeeFullName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
 				</RadzenTextBox>
 			}
 			else
 			{
 				<RadzenDropDown
+					ValueProperty="Id"
+					TextProperty="FullName"
+					@bind-Value="EntityToEdit.EmployeeId"
 					Style="width:200px;"
-					TValue="GetEmployeeResponse"
-					Data="@_employeesToSelect"
-					@bind-Value="@EntityToEdit.Employee">
-					<Template Context="obj">@(obj is GetEmployeeResponse type ?  type.FullName : "?")</Template>
+					TValue="Guid"
+					Data="@_employeesToSelect">
 				</RadzenDropDown>
 			}
 		</div>

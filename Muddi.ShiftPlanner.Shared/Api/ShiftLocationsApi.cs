@@ -116,6 +116,9 @@ public interface IMuddiShiftApi
 
 	[Get("/employees/shifts-ics")]
 	Task<HttpContent> GetAllShiftsFromEmployeeAsIcsFile();
+
+	[Get("/shifts")]
+	Task<List<GetShiftResponse>> GetAllShifts();
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

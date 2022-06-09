@@ -37,7 +37,7 @@ public partial class EditShiftDialog
 			var keycloakId = _user.GetKeycloakId();
 			if (keycloakId != default)
 			{
-				_isShiftUser = keycloakId == EntityToEdit.Employee?.Id;
+				_isShiftUser = keycloakId == EntityToEdit.EmployeeId;
 				_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			}
 
@@ -59,7 +59,7 @@ public partial class EditShiftDialog
 			{
 				var allUser = await ShiftApi.GetAllEmployees();
 				_employeesToSelect = new(allUser);
-				EntityToEdit.Employee = _employeesToSelect.FirstOrDefault(e => e.Id == EntityToEdit.Employee.Id);
+				EntityToEdit.EmployeeId = _employeesToSelect.FirstOrDefault(e => e.Id == EntityToEdit.EmployeeId)?.Id ?? default;
 			}
 		}
 		catch (AccessTokenNotAvailableException)
@@ -80,7 +80,7 @@ public partial class EditShiftDialog
 		{
 			var res = await ShiftService.AddShiftToContainer(EntityToEdit.ContainerId, new CreateShiftRequest
 			{
-				EmployeeKeycloakId = EntityToEdit.Employee.Id,
+				EmployeeKeycloakId = EntityToEdit.EmployeeId,
 				ShiftTypeId = EntityToEdit.Type.Id,
 				Start = EntityToEdit.Start
 			});
@@ -103,7 +103,7 @@ public partial class EditShiftDialog
 		{
 			await ShiftApi.UpdateShift(EntityToEdit.Id, new CreateShiftRequest
 			{
-				EmployeeKeycloakId = EntityToEdit.Employee.Id,
+				EmployeeKeycloakId = EntityToEdit.EmployeeId,
 				ShiftTypeId = EntityToEdit.Type.Id,
 				Start = EntityToEdit.Start
 			});

@@ -1,0 +1,21 @@
+﻿@page "/statistics/employees"
+@using Muddi.ShiftPlanner.Shared.BlazorWASM
+@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
+
+@attribute [Authorize(Policy = Policies.IsAdmin)]
+
+<h3>Schicht-Statistiken</h3>
+
+<p>Insgesamt <b>@_shifts.Count</b> Schichten was <b>@Math.Floor(_totalShiftHours.TotalDays) Tage und @_totalShiftHours.Hours Stunden </b> entspricht</p>
+<RadzenDataGrid Data="_employeesShifts" TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" AllowSorting="true">
+	
+	<Columns>
+		<RadzenDataGridColumn TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" Property="Key.FullName" Title="Person"></RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" Property="Value.Count" SortOrder="SortOrder.Descending" Title="Schichten"></RadzenDataGridColumn>
+		<RadzenDataGridColumn TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" Property="Key.FullName" Title="Gesamtzeit" Sortable="false">
+			<Template>
+				@CalculateTotalTime(context.Value)
+			</Template>
+		</RadzenDataGridColumn>
+	</Columns>
+</RadzenDataGrid>
