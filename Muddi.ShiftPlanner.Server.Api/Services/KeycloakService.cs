@@ -7,7 +7,8 @@ namespace Muddi.ShiftPlanner.Server.Api.Services;
 public interface IKeycloakService
 {
 	Task<ApiResponse<GetTokenResponse>> GetToken(GetTokenRequest tokenRequest);
-	Task<GetEmployeeResponse> GetUserById(Guid reqId);
+	GetEmployeeResponse GetUserById(Guid reqId);
+	ValueTask<GetEmployeeResponse> GetUserByIdAsync(Guid reqId);
 	Task<IEnumerable<GetEmployeeResponse>> GetUsers();
 }
 
@@ -66,11 +67,35 @@ public class KeycloakService : IKeycloakService
 		return _keycloakApi.GetToken(Realm, tokenRequest);
 	}
 
-	public async Task<GetEmployeeResponse> GetUserById(Guid reqId)
+	public GetEmployeeResponse GetUserById(Guid reqId)
 	{
 		if (!_cache.TryGetValue(reqId, out GetEmployeeResponse response))
 		{
-			var apiResponse = await _keycloakApi.GetUserById(Realm, reqId);
+			var apiResponse = _keycloakApi.GetUserByIdAsync(Realm, reqId).GetAwaiter().GetResult();
+			var keycloakUser = apiResponse.Content;
+
+			if (apiResponse.IsSuccessStatusCode && keycloakUser is not null)
+				response = keycloakUser.MapToEmployeeResponse();
+			else
+				response = new()
+				{
+					Email = string.Empty,
+					Id = reqId,
+					UserName = "Unknown User",
+					FirstName = "Unknown",
+					LastName = "Unknown"
+				};
+			_cache.Set(reqId, response, TimeSpan.FromHours(1));
+		}
+
+		return response;
+	}
+
+	public async ValueTask<GetEmployeeResponse> GetUserByIdAsync(Guid reqId)
+	{
+		if (!_cache.TryGetValue(reqId, out GetEmployeeResponse response))
+		{
+			var apiResponse = await _keycloakApi.GetUserByIdAsync(Realm, reqId);
 			var keycloakUser = apiResponse.Content;
 
 			if (apiResponse.IsSuccessStatusCode && keycloakUser is not null)

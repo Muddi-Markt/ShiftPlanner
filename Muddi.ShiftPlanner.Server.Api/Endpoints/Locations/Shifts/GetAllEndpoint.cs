@@ -53,7 +53,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 
 	private async Task<GetShiftResponse> MapToShiftResponse(ShiftEntity shift)
 	{
-		var user = await _keycloakService.GetUserById(shift.EmployeeKeycloakId);
+		var user = await _keycloakService.GetUserByIdAsync(shift.EmployeeKeycloakId);
 		return shift.MapToShiftResponse(user);
 	}
 }

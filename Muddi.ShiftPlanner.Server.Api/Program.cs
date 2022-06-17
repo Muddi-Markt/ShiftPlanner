@@ -3,6 +3,7 @@ using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
+using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Extensions;
 using Npgsql;
 using Serilog;
@@ -18,6 +19,8 @@ builder.Services.AddAuthenticationMuddiConnect(builder.Configuration);
 builder.Services.AddMuddiShiftPlannerContext(builder.Configuration);
 builder.Services.AddDatabaseMigrations();
 builder.Services.AddMemoryCache();
+
+builder.Services.AddTransient<ExcelService>();
 
 var app = builder.Build();
 

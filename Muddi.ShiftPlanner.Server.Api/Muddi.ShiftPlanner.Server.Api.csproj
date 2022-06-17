@@ -11,6 +11,7 @@
   </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="ClosedXML" Version="0.95.4" />
       <PackageReference Include="FastEndpoints" Version="4.1.0" />
       <PackageReference Include="FastEndpoints.Security" Version="4.0.0" />
       <PackageReference Include="FastEndpoints.Swagger" Version="4.1.0" />
@@ -29,6 +30,12 @@
     <ItemGroup>
       <ProjectReference Include="..\Muddi.ShiftPlanner.Server.Database\Muddi.ShiftPlanner.Server.Database.csproj" />
       <ProjectReference Include="..\Muddi.ShiftPlanner.Shared\Muddi.ShiftPlanner.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Templates\template.xlsx">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

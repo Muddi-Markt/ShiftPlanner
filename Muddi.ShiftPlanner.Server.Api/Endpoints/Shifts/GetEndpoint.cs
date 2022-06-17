@@ -32,7 +32,7 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftResponse>
 			.FirstOrDefaultAsync(s => s.Id == id, cancellationToken: ct);
 		if (entity is null)
 			return null;
-		var employee = await _keycloakService.GetUserById(entity.EmployeeKeycloakId);
+		var employee = await _keycloakService.GetUserByIdAsync(entity.EmployeeKeycloakId);
 
 		return entity.MapToShiftResponse(employee);
 	}

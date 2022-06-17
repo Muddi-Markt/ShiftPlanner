@@ -26,7 +26,9 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 		Roles(ApiRoles.Admin); //Can be replaced in CrudConfigure() but default is Admin
 		CrudConfigure();
 // #if DEBUG
-		// AllowAnonymous();
+// 		AllowAnonymous();
+// #else
+// 		#error Don't AllowAnonymous ever at default
 // #endif
 		Options(t => t.Produces<TResponse>());
 #if !DEBUG

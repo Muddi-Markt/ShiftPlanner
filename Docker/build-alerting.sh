@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 cd ..
 current_timestamp=`date +%s`

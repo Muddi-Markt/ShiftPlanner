@@ -28,6 +28,9 @@ public interface IMuddiShiftApi
 	[Headers("Authorization: Bearer")]
 	Task DeleteLocationAsync(Guid id);
 
+	[Get("/locations/{Id}/export/xlsx")]
+	Task<HttpContent> LocationExportToExcel(Guid Id, ExportToExcelRequest request);
+
 	#endregion
 
 	#region location-types

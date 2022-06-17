@@ -1,0 +1,49 @@
+﻿@page "/admin/export"
+@using Muddi.ShiftPlanner.Shared.Api
+@using Blazor.DownloadFileFast.Interfaces
+@using System.Xml.Xsl
+@using System.Web
+@inject IMuddiShiftApi ShiftApi;
+@inject IBlazorDownloadFileService BlazorDownloadFileService;
+<h3>Export</h3>
+
+<div class="d-flex flex-column" style="gap: .5rem">
+	<div>
+		<RadzenCheckBox @bind-Value="_request.Anonymous" Name="CheckBox1" TValue="bool"/>
+		<RadzenLabel Text="Anonymisiert (Namen werden entfernt)" Component="CheckBox1" Style="margin-left: 8px; vertical-align: middle;"/>
+	</div>
+	<div class="d-flex mb-3" style="gap: 1rem">
+		<h4>Location</h4>
+		<RadzenDropDown class="w-100" @bind-Value="_location"
+		                Data="_locations"
+		                TextProperty="@nameof(GetLocationResponse.Name)">
+
+		</RadzenDropDown>
+	</div>
+	<RadzenButton Text="Download Excel Datei (XLSX)" Click="Download"></RadzenButton>
+</div>
+
+@code {
+	readonly ExportToExcelRequest _request = new();
+	GetLocationResponse _location = new();
+	private IEnumerable<GetLocationResponse> _locations = Enumerable.Empty<GetLocationResponse>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		_locations = await ShiftApi.GetAllLocations();
+		_location = _locations.First();
+	}
+
+	private async Task Download()
+	{
+		_request.LocationId = _location.Id;
+		var xlsx = await ShiftApi.LocationExportToExcel(_location.Id, _request);
+		var bytes = await xlsx.ReadAsByteArrayAsync();
+		string fileName = _location.Name.Replace(' ', '_').ToLower() + ".xlsx";
+		if (_request.Anonymous)
+			fileName = "anonymous-" + fileName;
+		fileName = HttpUtility.UrlEncode(fileName);
+		await BlazorDownloadFileService.DownloadFileAsync(fileName, bytes);
+	}
+
+}

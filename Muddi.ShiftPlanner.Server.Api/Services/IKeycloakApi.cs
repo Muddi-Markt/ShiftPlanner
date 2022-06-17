@@ -7,7 +7,7 @@ public interface IKeycloakApi
 {
 	[Get("/admin/realms/{realm}/users/{userId}")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<KeycloakUserRepresentation>> GetUserById(string realm, Guid userId);
+	Task<ApiResponse<KeycloakUserRepresentation>> GetUserByIdAsync(string realm, Guid userId);
 
 	[Get("/admin/realms/{realm}/users")]
 	[Headers("Authorization: Bearer")]

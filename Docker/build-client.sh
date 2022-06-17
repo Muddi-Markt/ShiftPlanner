@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 cd ..
 current_timestamp=`date +%s`
 #sed -i "s/cacheVersion\ =\ '.*'/cacheVersion = '${current_timestamp}'/g" Muddi.ShiftPlanner.Client/wwwroot/service-worker.published.js
