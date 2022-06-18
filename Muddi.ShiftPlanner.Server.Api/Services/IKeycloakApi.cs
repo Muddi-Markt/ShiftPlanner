@@ -11,7 +11,7 @@ public interface IKeycloakApi
 
 	[Get("/admin/realms/{realm}/users")]
 	[Headers("Authorization: Bearer")]
-	Task<ApiResponse<ICollection<KeycloakUserRepresentation>>> GetUsers(string realm);
+	Task<ApiResponse<ICollection<KeycloakUserRepresentation>>> GetUsers(string realm, int max = -1);
 
 
 	[Post("/realms/{realm}/protocol/openid-connect/token")]
