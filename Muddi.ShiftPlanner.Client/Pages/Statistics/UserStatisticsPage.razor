@@ -8,11 +8,28 @@
 
 <p>Insgesamt <b>@_shifts.Count</b> Schichten was <b>@Math.Floor(_totalShiftHours.TotalDays) Tage und @_totalShiftHours.Hours Stunden </b> entspricht</p>
 <RadzenDataGrid Data="_employeesShifts" TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" AllowSorting="true">
-	
+
 	<Columns>
-		<RadzenDataGridColumn TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" Property="Key.FullName" Title="Person"></RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" Property="Value.Count" SortOrder="SortOrder.Descending" Title="Schichten"></RadzenDataGridColumn>
-		<RadzenDataGridColumn TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>" Property="Key.FullName" Title="Gesamtzeit" Sortable="false">
+		<RadzenDataGridColumn
+			TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>"
+			Property="Key.FullName"
+			Title="Person">
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn
+			TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>"
+			SortOrder="SortOrder.Descending"
+			Title="Schichten">
+			<Template>
+				<RadzenLink Path="javascript:void(0);"
+				            @onclick="async () => await ShowUserShifts(context.Key, context.Value)" 
+				            Text="@context.Value.Count.ToString()">
+				</RadzenLink>
+			</Template>
+		</RadzenDataGridColumn>
+		<RadzenDataGridColumn
+			TItem="KeyValuePair<GetEmployeeResponse, List<GetShiftResponse>>"
+			Title="Gesamtzeit"
+			Sortable="false">
 			<Template>
 				@CalculateTotalTime(context.Value)
 			</Template>
