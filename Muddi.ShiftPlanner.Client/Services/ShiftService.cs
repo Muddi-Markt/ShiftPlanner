@@ -55,10 +55,9 @@ public class ShiftService
 		return _shiftLocations ?? Enumerable.Empty<ShiftLocation>();
 	}
 
-	public ShiftLocation? GetLocationsById(Guid id)
+	public ShiftLocation? FindLocationById(Guid id)
 	{
 		return _shiftLocations?.First(l => l.Id == id);
-		;
 	}
 
 	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,

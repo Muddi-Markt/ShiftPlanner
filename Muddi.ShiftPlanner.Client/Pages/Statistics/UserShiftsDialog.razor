@@ -5,7 +5,7 @@
 	<Template Context="c">
 		<div class="d-flex justify-content-between" style="margin: 0; padding: .25rem; background: @c.Type?.Color">
 			<a style="color:white" href="@($"/locations/{c.LocationId}?StartDate={c.Start:yyyy-MM-dd}")">
-				@(ShiftService.GetLocationsById(c.LocationId)?.Name) - @c.Start.ToString("ddd, dd.MM. HH:mm")
+				@(ShiftService.FindLocationById(c.LocationId)?.Name) - @c.Start.ToString("ddd, dd.MM. HH:mm")
 			</a>
 		</div>
 
