@@ -20,25 +20,45 @@ namespace Muddi.ShiftPlanner.Client.Services;
 public class ShiftService
 {
 	private readonly IMuddiShiftApi _shiftApi;
+	public Task InitializedTask => _initializedTsc.Task;
+	private readonly TaskCompletionSource _initializedTsc = new();
+	private SemaphoreSlim _initalizeLock = new(1,1); 
 
 	public ShiftService(IMuddiShiftApi shiftApi)
 	{
 		_shiftApi = shiftApi;
 	}
 
-	public async Task<IEnumerable<ShiftLocation>> GetAllShiftLocationsAsync()
+	private IEnumerable<ShiftLocation>? _shiftLocations;
+
+	public async Task Initialize()
 	{
-		var dtos = await _shiftApi.GetAllLocations();
-		var counts = await _shiftApi.GetAllLocationShiftsCount();
-		return dtos.Join(counts, d => d.Id, c => c.Id, (d, c) => d.MapToShiftLocation(c));
+
+		await _initalizeLock.WaitAsync();
+		if (_initializedTsc.Task.IsCompleted)
+			return;
+		try
+		{
+			var dtos = await _shiftApi.GetAllLocations();
+			var counts = await _shiftApi.GetAllLocationShiftsCount();
+			_shiftLocations = dtos.Join(counts, d => d.Id, c => c.Id, (d, c) => d.MapToShiftLocation(c));
+			_initializedTsc.SetResult();
+		}
+		finally
+		{
+			_initalizeLock.Release();
+		}
 	}
 
-	public async Task<ShiftLocation> GetLocationsByIdAsync(Guid id)
+	public IEnumerable<ShiftLocation> GetAllShiftLocations()
 	{
-		var dto = await _shiftApi.GetLocationById(id);
-		var count = await _shiftApi.GetLocationShiftsCount(id);
+		return _shiftLocations ?? Enumerable.Empty<ShiftLocation>();
+	}
 
-		return dto.MapToShiftLocation(count);
+	public ShiftLocation? GetLocationsById(Guid id)
+	{
+		return _shiftLocations?.First(l => l.Id == id);
+		;
 	}
 
 	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,
@@ -135,5 +155,13 @@ public class ShiftService
 	{
 		var res = await _shiftApi.GetAllShiftsFromEmployeeAsIcsFile();
 		return await res.ReadAsByteArrayAsync();
+	}
+
+	public async Task<ShiftLocation?> GetLocationsByIdAsync(Guid id)
+	{
+		var dto = await _shiftApi.GetLocationById(id);
+		var count = await _shiftApi.GetLocationShiftsCount(id);
+
+		return dto.MapToShiftLocation(count);
 	}
 }

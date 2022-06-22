@@ -101,8 +101,6 @@
 
 	private List<ShiftLocation> _locations = new();
 
-	public IEnumerable<ShiftLocation> Locations => _locations;
-
 	protected override async Task OnParametersSetAsync()
 	{
 		try
@@ -111,7 +109,10 @@
 				return;
 			var u = await AuthStateTask;
 			if (u.User.Identity?.IsAuthenticated == true)
-				_locations = (await ShiftService.GetAllShiftLocationsAsync()).ToList();
+			{
+				await ShiftService.Initialize();
+				_locations = ShiftService.GetAllShiftLocations().ToList();
+			}
 		}
 		catch (AccessTokenNotAvailableException)
 		{

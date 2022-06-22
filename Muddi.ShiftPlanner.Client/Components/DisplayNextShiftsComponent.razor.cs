@@ -17,13 +17,13 @@ public partial class DisplayNextShiftsComponent
 	[Inject] private ShiftService ShiftService { get; set; }
 	[Inject] public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 	[CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; }
-	[CascadingParameter] private MainLayout MainLayout { get; set; }
 	private List<Appointment>? _myShifts;
 	private List<Appointment>? _freeShifts;
 
 	protected override async Task OnInitializedAsync()
 	{
 		var authState = await AuthStateTask;
+		await ShiftService.InitializedTask;
 		if (authState.User.Identity?.IsAuthenticated == true)
 		{
 			var shifts = await ShiftService.GetAllShiftsFromUser(authState.User, 6, DateTime.UtcNow);
