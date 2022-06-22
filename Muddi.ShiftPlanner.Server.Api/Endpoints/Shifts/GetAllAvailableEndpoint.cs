@@ -36,7 +36,8 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, G
 		}
 
 		bool isAdmin = User.IsInRole(ApiRoles.Admin);
-		
+		var startingFrom = request.StartingFrom?.ToUniversalTime();
+
 		IEnumerable<GetShiftTypesCountResponse> shifts =
 			locations.SelectMany(l => l.Containers
 					.SelectMany(container => container.GetStartTimes()
@@ -44,6 +45,8 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, G
 				.Where(s => s.AvailableCount > 0 && (s.Type.OnlyAssignableByAdmin == false || isAdmin))
 				.OrderBy(st => st.Start);
 
+		if (startingFrom is not null)
+			shifts = shifts.Where(s => s.Start >= startingFrom);
 		if (request.Limit > 0)
 			shifts = shifts.Take(request.Limit.Value);
 

@@ -11,4 +11,5 @@ public class GetShiftsFromEmployeeRequest
 	/// Most recent count, if smaller then 0 all will be shown
 	/// </summary>
 	public int? Count { get; set; } = -1;
+	public DateTime? StartingFrom { get; set; }
 }

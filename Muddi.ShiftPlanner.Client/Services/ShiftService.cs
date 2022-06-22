@@ -87,15 +87,15 @@ public class ShiftService
 	}
 
 
-	public async Task<IEnumerable<Shift>> GetAllAvailableShifts(int limit)
+	public async Task<IEnumerable<Shift>> GetAllAvailableShifts(int limit, DateTime? startingFrom = null)
 	{
-		var types = await _shiftApi.GetAvailableShiftTypes(new() { Limit = limit });
+		var types = await _shiftApi.GetAvailableShiftTypes(new() { Limit = limit, StartingFrom = startingFrom });
 		return types.Select(t => t.MapToShift());
 	}
 
-	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1)
+	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1, DateTime? startingFrom = null)
 	{
-		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count);
+		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count, startingFrom);
 		return shifts.Select(s => s.MapToShift());
 	}
 

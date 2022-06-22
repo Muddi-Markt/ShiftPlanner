@@ -133,7 +133,7 @@ public interface IMuddiShiftApi
 
 	[Get("/employees/{keycloakId}/shifts")]
 	[Headers("Authorization: Bearer")]
-	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId, int count);
+	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId, int count, DateTime? startingFrom);
 
 	[Get("/locations/{Id}/get-all-available-shifts-types")]
 	[Headers("Authorization: Bearer")]

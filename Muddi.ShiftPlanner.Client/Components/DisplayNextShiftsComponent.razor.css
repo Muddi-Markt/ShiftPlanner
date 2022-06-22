@@ -1,5 +1,4 @@
 .shift-container {
-    max-height: 300px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

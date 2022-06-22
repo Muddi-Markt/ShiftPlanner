@@ -27,6 +27,7 @@ public class GetShiftsEndpoint : CrudGetAllEndpoint<GetShiftsFromEmployeeRequest
 	public override async Task<List<GetShiftResponse>?> CrudExecuteAsync(GetShiftsFromEmployeeRequest request, CancellationToken ct)
 	{
 		var count = request.Count ?? -1;
+		var date = request.StartingFrom?.ToUniversalTime();
 		var id = request.Id ?? User.GetKeycloakId();
 		if (count == 0)
 			return new();
@@ -44,6 +45,8 @@ public class GetShiftsEndpoint : CrudGetAllEndpoint<GetShiftsFromEmployeeRequest
 			.ThenInclude(c => c.Location)
 			.Where(s => s.EmployeeKeycloakId == id)
 			.OrderBy(s => s.Start);
+		if (date is not null)
+			b = b.Where(s => s.Start >= date);
 		if (count > 0)
 			b = b.Take(count);
 
