@@ -11,6 +11,9 @@ using Telegram.Bot.Types.Enums;
 
 namespace Muddi.ShiftPlanner.Services.Alerting.Services;
 
+/// <summary>
+/// Quick and dirty implementation of an telegram bot
+/// </summary>
 public class AutomaticShiftCheckingService : IHostedService
 {
 	private readonly ITelegramBotClient _telegramClient;
@@ -22,6 +25,7 @@ public class AutomaticShiftCheckingService : IHostedService
 	private readonly string _muddiClientBaseUri;
 	private readonly ChatId _muddiGroupId;
 	private readonly DateTime _startDate;
+
 
 	public AutomaticShiftCheckingService(
 		IConfiguration configuration,
@@ -38,10 +42,12 @@ public class AutomaticShiftCheckingService : IHostedService
 		_locations = locations;
 		_muddiGroupId = new ChatId(configuration.GetSection("Telegram").GetValue<long>("GroupId"));
 		_startDate = DateTime.ParseExact(configuration["Telegram:StartDate"], "dd.MM.yyyy", CultureInfo.InvariantCulture);
-		
+		var startImmediately = configuration.GetSection("Telegram").GetValue<bool>("SendOnProgramStart");
+
 		var sendTime = TimeSpan.Parse(configuration["Telegram:SendTime"]);
 		var dueTime = CalculateDueTime(sendTime);
-		Execute(null); //execute directly
+		if (startImmediately)
+			Execute(null); //execute directly
 		_timer = new Timer(Execute, null, dueTime, TimeSpan.FromHours(24));
 	}
 
@@ -74,13 +80,14 @@ public class AutomaticShiftCheckingService : IHostedService
 			if (!allShiftsTomorrow.Any())
 			{
 				_logger.LogInformation("No shifts for {Tomorrow}", tomorrow);
-				await _telegramClient.SendTextMessageAsync(_muddiGroupId, "Alle Schichten besetzt :)", ParseMode.MarkdownV2);
+				await _telegramClient.SendTextMessageAsync(_muddiGroupId, $"Alle Schichten für {ToDateStringMarkup(tomorrow)} besetzt :\\)",
+					ParseMode.MarkdownV2);
 			}
 			else
 			{
 				_logger.LogInformation("Found {N} free shifts for tomorrow", allShiftsTomorrow.Count);
-				var text = await CreateTextForBot(allShiftsTomorrow,tomorrow);
-				await _telegramClient.SendTextMessageAsync(new ChatId(-794685427), text, ParseMode.MarkdownV2);
+				var text = await CreateTextForBot(allShiftsTomorrow, tomorrow);
+				await _telegramClient.SendTextMessageAsync(_muddiGroupId, text, ParseMode.MarkdownV2);
 			}
 		}
 		catch (Exception ex)
@@ -89,18 +96,25 @@ public class AutomaticShiftCheckingService : IHostedService
 		}
 	}
 
-	private async Task<string> CreateTextForBot(List<GetShiftTypesCountResponse> shifts, DateTime tomorrow)
+	private async Task<string> CreateTextForBot(IReadOnlyCollection<GetShiftTypesCountResponse> shifts, DateTime tomorrow)
 	{
 		StringBuilder sb = new();
-		sb.Append($"⚠️Für den nächsten KiWo Tag \\({tomorrow.Day}\\.{tomorrow.Month}\\.\\) gibt es noch {shifts.Count} freie Schichten\\.⚠️\n");
-		foreach (var locations in shifts.GroupBy(s => s.LocationId))
+		var availableShifts = shifts.Sum(s => s.AvailableCount);
+		sb.Append(
+			$"⚠️Für den nächsten KiWo Tag \\({ToDateStringMarkup(tomorrow)}\\) gibt es noch {availableShifts} freie Schichten\\.⚠️\n");
+		foreach (var locationGroup in shifts.GroupBy(s => s.LocationId))
 		{
-			var name = await _locations.GetName(locations.Key).ConfigureAwait(false);
-			sb.Append($"\t[{name}]({_muddiClientBaseUri}/locations/{locations.Key}):\t{locations.Count()} freie Schichten\n");
+			var name = await _locations.GetName(locationGroup.Key).ConfigureAwait(false);
+			var url = $"{_muddiClientBaseUri}/locations/{locationGroup.Key}?StartDate={tomorrow.ToString("yyyy-MM-dd")}";
+			availableShifts = locationGroup.Sum(l => l.AvailableCount);
+
+			sb.Append($"\t[{name}]({url}):\t{availableShifts} freie Schichten\n");
 		}
 
 		return sb.ToString();
 	}
+
+	private static string ToDateStringMarkup(DateTime dt) => $"{dt.Day}\\.{dt.Month}\\.";
 
 
 	public Task StopAsync(CancellationToken cancellationToken)
