@@ -70,24 +70,24 @@ public class ExcelService
 						                                        && s.Start == typesGroup.Key))
 						{
 							var user = _keycloakService.GetUserById(shift.EmployeeKeycloakId);
-							worksheet.Cell(row, cell).RichText.AddText($"{user.FirstName} {user.LastName?[0]}.").AddNewLine();
+							worksheet.Cell(row, cell).GetRichText().AddText($"{user.FirstName} {user.LastName?[0]}.").AddNewLine();
 						}
 					}
 
 					var cnt = typesGroup.Where(g => g.Type.Id == types.Type.Id).Sum(g => g.AvailableCount);
 					if (cnt > 0)
 					{
-						worksheet.Cell(row, cell).RichText.AddText($"({cnt} FREI)").SetFontSize(8);
+						worksheet.Cell(row, cell).GetRichText().AddText($"({cnt} FREI)").SetFontSize(8);
 					}
 					else
 					{
 						if (anonymous)
 						{
-							worksheet.Cell(row, cell).RichText.AddText("VOLL BESETZT");
+							worksheet.Cell(row, cell).GetRichText().AddText("VOLL BESETZT");
 						}
 						else
 						{
-							worksheet.Cell(row, cell).RichText.AddText("(VOLL BESETZT)").SetFontSize(8);
+							worksheet.Cell(row, cell).GetRichText().AddText("(VOLL BESETZT)").SetFontSize(8);
 						}
 					}
 				}

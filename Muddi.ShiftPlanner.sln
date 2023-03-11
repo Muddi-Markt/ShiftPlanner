@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Services
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Shared.BlazorWASM", "Muddi.ShiftPlanner.Shared.BlazorWASM\Muddi.ShiftPlanner.Shared.BlazorWASM.csproj", "{5A9DEB2D-F4CA-45EE-B53E-7C2AE4FF7779}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Client", "src\Muddi.ShiftPlanner.Client\Muddi.ShiftPlanner.Client.csproj", "{27147157-3A92-48ED-B0BF-FB3D10DAA35D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{5A9DEB2D-F4CA-45EE-B53E-7C2AE4FF7779}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A9DEB2D-F4CA-45EE-B53E-7C2AE4FF7779}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A9DEB2D-F4CA-45EE-B53E-7C2AE4FF7779}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27147157-3A92-48ED-B0BF-FB3D10DAA35D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27147157-3A92-48ED-B0BF-FB3D10DAA35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27147157-3A92-48ED-B0BF-FB3D10DAA35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27147157-3A92-48ED-B0BF-FB3D10DAA35D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BC1DB81F-F177-434D-8266-11CF99880A0C} = {AC5258DF-B5A9-4510-89C5-B30C0DDB6846}
@@ -73,5 +79,6 @@ Global
 		{4354D2AB-6E11-4B96-9EE1-EEBFE6501370} = {FE185E5A-869C-4D1A-8EC1-6CD8D2A409BE}
 		{120F711C-9804-4186-A8A0-DFECF3AA372D} = {52BE1149-95AE-4F01-A01B-5F9EE6737D22}
 		{5A9DEB2D-F4CA-45EE-B53E-7C2AE4FF7779} = {13B183E3-AAB9-4F0C-AA14-C69B63E61FEC}
+		{27147157-3A92-48ED-B0BF-FB3D10DAA35D} = {5057D602-84E6-40D0-B1FB-54B5E1275ECB}
 	EndGlobalSection
 EndGlobal

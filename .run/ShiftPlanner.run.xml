@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ShiftPlanner" type="CompoundRunConfigurationType">
+    <toRun name="Muddi.ShiftPlanner.Client: http" type="LaunchSettings" />
+    <toRun name="Muddi.ShiftPlanner.Server.Api: Muddi.ShiftPlaner.Server.Api" type="LaunchSettings" />
+    <method v="2" />
+  </configuration>
+</component>

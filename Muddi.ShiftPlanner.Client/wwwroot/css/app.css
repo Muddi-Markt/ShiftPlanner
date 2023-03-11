@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --muddi-red: #e42725;
     --muddi-white: #eaf1df;
     --muddi-beige: #fde1cc;
@@ -29,7 +29,7 @@
 @media (min-width: 1200px) {
     .only-my-shifts-button {
         position: absolute;
-        font-size: 1rem!important;
+        font-size: 1rem !important;
         left: 130px;
         top: 11px;
         width: 210px !important;
@@ -60,7 +60,7 @@
 
 .only-my-shifts-button > * {
     line-height: 1px !important;
-    vertical-align: unset!important;
+    vertical-align: unset !important;
 }
 
 

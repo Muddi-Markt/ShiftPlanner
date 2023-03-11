@@ -25,7 +25,7 @@ public class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
 		var apiResp = await _keycloakService.GetToken(new(req.Email, req.Password, "shift-planner"));
 		if (!apiResp.IsSuccessStatusCode || apiResp.Content is null)
 		{
-			ValidationFailures.Add(new ValidationFailure("Api", apiResp.ReasonPhrase));
+			ValidationFailures.Add(new ValidationFailure("Api", apiResp.Error?.Content ?? apiResp.ReasonPhrase));
 			await SendErrorsAsync((int)apiResp.StatusCode, ct);
 			return;
 		}
