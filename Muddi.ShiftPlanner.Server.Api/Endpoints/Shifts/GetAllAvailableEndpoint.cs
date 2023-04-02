@@ -31,7 +31,7 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, G
 			.ToListAsync(cancellationToken: ct);
 		if (locations.Count == 0)
 		{
-			await SendNotFoundAsync("location");
+			await SendNoContent();
 			return null;
 		}
 

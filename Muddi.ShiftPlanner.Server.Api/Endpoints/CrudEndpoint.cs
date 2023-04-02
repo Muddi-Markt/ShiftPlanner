@@ -2,6 +2,7 @@
 using FastEndpoints;
 using FluentValidation.Results;
 using Mapster;
+using Microsoft.AspNetCore.Authentication;
 using Muddi.ShiftPlanner.Server.Api.Exceptions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
@@ -34,6 +35,15 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 #if !DEBUG
 		Throttle(500, 60);
 #endif
+	}
+
+	private static TResponse Empty = new();
+
+	protected Task SendNoContent()
+	{
+		//I would prefer this but as Refit has an issue so we have to return 200: https://github.com/reactiveui/refit/issues/1128
+		// return SendAsync(Empty, StatusCodes.Status204NoContent);
+		return SendAsync(Empty);
 	}
 
 
