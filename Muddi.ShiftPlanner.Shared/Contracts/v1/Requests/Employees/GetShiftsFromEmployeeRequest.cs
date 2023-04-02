@@ -12,4 +12,5 @@ public class GetShiftsFromEmployeeRequest
 	/// </summary>
 	public int? Count { get; set; } = -1;
 	public DateTime? StartingFrom { get; set; }
+	public Guid SeasonId { get; set; }
 }

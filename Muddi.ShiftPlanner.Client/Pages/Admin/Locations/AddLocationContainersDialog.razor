@@ -1,6 +1,7 @@
-﻿@inherits UpdateDialogBase<GetContainerResponse>
+﻿@using Muddi.ShiftPlanner.Client.Services
+@inherits UpdateDialogBase<GetContainerResponse>
 
-
+@inject ShiftService ShiftService;
 <div class="row mt-1 mb-1 w-100">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="Framework"/>
@@ -78,8 +79,8 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		_frameworks = await ShiftApi.GetAllFrameworks();
-		EntityToEdit.Start = new DateTime(2022, 06, 17, 10, 0, 0, DateTimeKind.Local);
+		_frameworks = await ShiftApi.GetAllFrameworks(new(){ SeasonId = ShiftService.CurrentSeason.Id});
+		EntityToEdit.Start = ShiftService.CurrentSeason.StartDate;
 		EntityToEdit.TotalShifts = 1;
 	}
 

@@ -6,7 +6,7 @@ using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations;
 
-public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetLocationResponse>
+public class GetAllEndpoint : CrudGetAllEndpoint<GetLocationRequest, GetLocationResponse>
 {
 	public GetAllEndpoint(ShiftPlannerContext database) : base(database)
 	{
@@ -18,10 +18,12 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetLocationRespon
 		Get("/locations");
 	}
 
-	public override async Task<List<GetLocationResponse>> CrudExecuteAsync(EmptyRequest _, CancellationToken ct) =>
+	public override async Task<List<GetLocationResponse>> CrudExecuteAsync(GetLocationRequest req, CancellationToken ct) =>
 		await Database.ShiftLocations
 			.Include(l => l.Type)
+			.Where(l => l.Season.Id == req.SeasonId)
 			.Select(t => t.Adapt<GetLocationResponse>())
 			.AsNoTracking()
 			.ToListAsync(cancellationToken: ct);
 }
+

@@ -3,7 +3,9 @@
 @using Blazor.DownloadFileFast.Interfaces
 @using System.Xml.Xsl
 @using System.Web
+@using Muddi.ShiftPlanner.Client.Services
 @inject IMuddiShiftApi ShiftApi;
+@inject ShiftService ShiftService;
 @inject IBlazorDownloadFileService BlazorDownloadFileService;
 <h3>Export</h3>
 
@@ -30,7 +32,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		_locations = await ShiftApi.GetAllLocations();
+		_locations = await ShiftApi.GetAllLocations(new GetLocationRequest { SeasonId = ShiftService.CurrentSeason.Id });
 		_location = _locations.First();
 	}
 

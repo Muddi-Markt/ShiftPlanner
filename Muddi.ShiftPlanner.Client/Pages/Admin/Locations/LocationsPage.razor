@@ -1,5 +1,6 @@
 ﻿@page "/admin/locations"
 @using Refit
+@inject ShiftService ShiftService;
 @inherits GetAllPageBase<GetLocationResponse, CreateLocationDialog>
 
 <RadzenButton Icon="add" Click="Create"></RadzenButton>
@@ -31,7 +32,7 @@
 
 @code {
 
-	protected override Task<IReadOnlyCollection<GetLocationResponse>> LoadData() => ShiftApi.GetAllLocations();
+	protected override Task<IReadOnlyCollection<GetLocationResponse>> LoadData() => ShiftApi.GetAllLocations(new() { SeasonId = ShiftService.CurrentSeason.Id });
 	protected override string NameOfEntity => "Standort";
 	protected override Task Delete(GetLocationResponse request) => ShiftApi.DeleteLocationAsync(request.Id);
 

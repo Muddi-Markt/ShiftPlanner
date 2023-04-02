@@ -75,6 +75,7 @@ public partial class LocationPage
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
 			MainLayout.SetTitle($"{_location.Name} ({_location.AssignedShifts}/{_location.TotalShifts} Schichten)");
 			_user = state.User;
+			_startDate = DateTime.Now > ShiftService.CurrentSeason.StartDate ? DateTime.Now : ShiftService.CurrentSeason.StartDate;
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			await ForceReloadScheduler();
@@ -262,7 +263,7 @@ public partial class LocationPage
 
 
 	private bool _isAdmin;
-	private DateTime _startDate = DateTime.Now > GlobalSettings.FirstDate ? DateTime.Now : GlobalSettings.FirstDate;
+	private DateTime _startDate = DateTime.Now;
 	private RadzenDayViewFix _dayView;
 	private RadzenWeekView _weekView;
 	[Inject] private NavigationManager NavigationManager { get; set; }

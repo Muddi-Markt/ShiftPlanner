@@ -51,6 +51,7 @@ public class GetShiftsAsIcsEndpoint : Endpoint<GetShiftsFromEmployeeRequest>
 		}
 
 		IQueryable<ShiftEntity> b = _database.Shifts
+			.Where(s => s.Type.Season.Id == request.SeasonId)
 			.Include(s => s.Type)
 			.Include(s => s.ShiftContainer)
 			.ThenInclude(c => c.Location)

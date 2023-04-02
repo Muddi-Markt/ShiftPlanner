@@ -19,6 +19,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateFrameworkRequest>
 	public override async Task CrudExecuteAsync(UpdateFrameworkRequest request, CancellationToken ct)
 	{
 		var entity = await Database.ShiftFrameworks
+			.Include(f => f.Season)
 			.Include(f => f.ShiftTypeCounts)
 			.ThenInclude(s => s.ShiftType)
 			.FirstOrDefaultAsync(f => f.Id == request.Id, cancellationToken: ct);
@@ -61,6 +62,10 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateFrameworkRequest>
 		}
 
 		entity.Name = request.Name;
+
+		if (entity.Season.Id != request.SeasonId)
+			entity.Season = new() { Id = request.SeasonId };
+
 		var typesToAdd = request.TypeCounts.ToList();
 		entity.ShiftTypeCounts.RemoveAll(q => request.TypeCounts.All(tc => tc.ShiftTypeId != q.ShiftType.Id));
 		foreach (var stc in entity.ShiftTypeCounts)

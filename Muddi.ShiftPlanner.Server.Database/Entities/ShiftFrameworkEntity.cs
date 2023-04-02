@@ -9,5 +9,6 @@ public class ShiftFrameworkEntity
 	public int SecondsPerShift { get; set; }
 	public List<ShiftFrameworkTypeCountEntity> ShiftTypeCounts { get; set; }
 	[NotMapped] public TimeSpan TimePerShift => TimeSpan.FromSeconds(SecondsPerShift);
+	public SeasonEntity Season { get; set; }
 	
 }

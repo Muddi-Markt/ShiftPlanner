@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
@@ -26,11 +27,19 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateLocationRequest, GetLocat
 			return null;
 		}
 
+		var season = await Database.Seasons.FindAsync(req.SeasonId);
+		if (season is null)
+		{
+			await SendNotFoundAsync(nameof(req.SeasonId));
+			return null;
+		}
+
 		var location = new ShiftLocationEntity
 		{
 			Id = Guid.NewGuid(),
 			Name = req.Name,
 			Type = type,
+			Season = season,
 			Containers = new List<ShiftContainerEntity>()
 		};
 		Database.Add(location);

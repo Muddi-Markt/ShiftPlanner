@@ -19,6 +19,7 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, G
 	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetAllShiftsRequest request, CancellationToken ct)
 	{
 		var locations = await Database.ShiftLocations
+			.Where(l => l.Season.Id == request.SeasonId)
 			.Include(l => l.Containers)
 			.ThenInclude(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)

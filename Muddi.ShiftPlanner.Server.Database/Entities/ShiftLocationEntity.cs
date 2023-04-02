@@ -6,4 +6,5 @@ public class ShiftLocationEntity
 	public string Name { get; set; }
 	public ShiftLocationTypeEntity Type { get; set; }
 	public IList<ShiftContainerEntity> Containers { get; set; }
+	public SeasonEntity Season { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Reflection.Metadata;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Refit;
 
@@ -18,7 +19,7 @@ public interface IMuddiShiftApi
 
 	[Get("/locations")]
 	[Headers("Authorization: Bearer")]
-	Task<IReadOnlyCollection<GetLocationResponse>> GetAllLocations();
+	Task<IReadOnlyCollection<GetLocationResponse>> GetAllLocations(GetLocationRequest request);
 
 	[Post("/locations")]
 	[Headers("Authorization: Bearer")]
@@ -49,7 +50,7 @@ public interface IMuddiShiftApi
 
 	[Get("/shift-types")]
 	[Headers("Authorization: Bearer")]
-	Task<IReadOnlyCollection<GetShiftTypesResponse>> GetAllShiftTypes();
+	Task<IReadOnlyCollection<GetShiftTypesResponse>> GetAllShiftTypes(GetShiftTypesRequest request);
 
 	[Post("/shift-types")]
 	[Headers("Authorization: Bearer")]
@@ -67,7 +68,7 @@ public interface IMuddiShiftApi
 
 	[Get("/frameworks")]
 	[Headers("Authorization: Bearer")]
-	Task<IReadOnlyCollection<GetFrameworkResponse>> GetAllFrameworks();
+	Task<IReadOnlyCollection<GetFrameworkResponse>> GetAllFrameworks(GetFrameworkRequest request);
 
 	[Delete("/frameworks/{Id}")]
 	[Headers("Authorization: Bearer")]
@@ -133,7 +134,7 @@ public interface IMuddiShiftApi
 
 	[Get("/employees/{keycloakId}/shifts")]
 	[Headers("Authorization: Bearer")]
-	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId, int count, DateTime? startingFrom);
+	Task<IEnumerable<GetShiftResponse>> GetAllShiftsFromEmployee(Guid keycloakId, int count, DateTime? startingFrom, Guid seasonId);
 
 	[Get("/locations/{Id}/get-all-available-shifts-types")]
 	[Headers("Authorization: Bearer")]
@@ -146,7 +147,7 @@ public interface IMuddiShiftApi
 
 	[Get("/locations/get-all-shifts-count")]
 	[Headers("Authorization: Bearer")]
-	Task<IEnumerable<GetShiftsCountResponse>> GetAllLocationShiftsCount();
+	Task<IEnumerable<GetShiftsCountResponse>> GetAllLocationShiftsCount(GetShiftsCountRequest request);
 
 	[Get("/locations/{locationId}/get-shifts-count")]
 	[Headers("Authorization: Bearer")]
@@ -158,7 +159,11 @@ public interface IMuddiShiftApi
 
 	[Get("/shifts")]
 	[Headers("Authorization: Bearer")]
-	Task<List<GetShiftResponse>> GetAllShifts();
+	Task<List<GetShiftResponse>> GetAllShifts(GetAllShiftsRequest request);
+
+	[Get("/seasons")]
+	[Headers("Authorization: Bearer")]
+	Task<IEnumerable<GetSeasonResponse>> GetAllSeasons();
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

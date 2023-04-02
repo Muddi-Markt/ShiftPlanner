@@ -16,7 +16,10 @@ public class ShiftLocation
 	private readonly List<ShiftContainer> _containers;
 	public int TotalShifts { get; }
 	public int AssignedShifts { get; }
-	public int PercentageAlreadyAssignedShifts => Convert.ToInt32(Math.Min(Math.Round((double)AssignedShifts / TotalShifts * 100.0), 100.0));
+	public int PercentageAlreadyAssignedShifts =>
+		TotalShifts == 0
+			? -1
+			: Convert.ToInt32(Math.Min(Math.Round((double)AssignedShifts / TotalShifts * 100.0), 100.0));
 
 	public ShiftLocation(Guid id, string name, GetLocationTypesResponse type, IEnumerable<ShiftContainer> shiftContainers, int totalShifts,
 		int assignedShifts)

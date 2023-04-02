@@ -9,4 +9,5 @@ public class ShiftTypeEntity
 	public string Color { get; set; }
 	public TimeSpan StartingTimeShift { get; set; }
 	public bool OnlyAssignableByAdmin { get; set; }
+	public SeasonEntity Season { get; set; }
 }

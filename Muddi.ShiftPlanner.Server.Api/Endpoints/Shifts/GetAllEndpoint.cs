@@ -17,6 +17,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, GetShiftRe
 	public override async Task<List<GetShiftResponse>?> CrudExecuteAsync(GetAllShiftsRequest request, CancellationToken ct)
 	{
 		IQueryable<ShiftEntity> query = Database.Shifts
+			.Where(s => s.Type.Season.Id == request.SeasonId)
 			.Include(s => s.Type)
 			.Include(s => s.ShiftContainer)
 			.ThenInclude(c => c.Location)

@@ -1,10 +1,12 @@
-﻿using System.Net;
+﻿using System.Collections.Immutable;
+using System.Net;
 using System.Security.Claims;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons;
 using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Services;
@@ -22,32 +24,44 @@ public class ShiftService
 	private readonly IMuddiShiftApi _shiftApi;
 	public Task InitializedTask => _initializedTsc.Task;
 	private readonly TaskCompletionSource _initializedTsc = new();
-	private SemaphoreSlim _initalizeLock = new(1,1); 
+	private SemaphoreSlim _initalizeLock = new(1, 1);
+
+	public Season CurrentSeason { get; private set; }
+	public event Func<Task>? OnSeasonChanged;
 
 	public ShiftService(IMuddiShiftApi shiftApi)
 	{
 		_shiftApi = shiftApi;
+		CurrentSeason = new();
 	}
 
 	private IEnumerable<ShiftLocation>? _shiftLocations;
+	public IReadOnlyCollection<Season> Seasons;
 
 	public async Task Initialize()
 	{
-
 		await _initalizeLock.WaitAsync();
 		if (_initializedTsc.Task.IsCompleted)
 			return;
 		try
 		{
-			var dtos = await _shiftApi.GetAllLocations();
-			var counts = await _shiftApi.GetAllLocationShiftsCount();
-			_shiftLocations = dtos.Join(counts, d => d.Id, c => c.Id, (d, c) => d.MapToShiftLocation(c));
+			Seasons = (await _shiftApi.GetAllSeasons()).Select(Season.FromResponse).ToImmutableList();
+			await ChangeSeason(Seasons.Last());
 			_initializedTsc.SetResult();
 		}
 		finally
 		{
 			_initalizeLock.Release();
 		}
+	}
+
+	public async Task ChangeSeason(Season season)
+	{
+		CurrentSeason = season;
+		var dtos = await _shiftApi.GetAllLocations(new GetLocationRequest { SeasonId = season.Id });
+		var counts = await _shiftApi.GetAllLocationShiftsCount(new() { SeasonId = season.Id });
+		_shiftLocations = dtos.Join(counts, d => d.Id, c => c.Id, (d, c) => d.MapToShiftLocation(c));
+		OnSeasonChanged?.Invoke();
 	}
 
 	public IEnumerable<ShiftLocation> GetAllShiftLocations()
@@ -57,7 +71,7 @@ public class ShiftService
 
 	public ShiftLocation? FindLocationById(Guid id)
 	{
-		return _shiftLocations?.First(l => l.Id == id);
+		return _shiftLocations?.FirstOrDefault(l => l.Id == id);
 	}
 
 	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,
@@ -108,13 +122,18 @@ public class ShiftService
 
 	public async Task<IEnumerable<Shift>> GetAllAvailableShifts(int limit, DateTime? startingFrom = null)
 	{
-		var types = await _shiftApi.GetAvailableShiftTypes(new() { Limit = limit, StartingFrom = startingFrom });
+		var types = await _shiftApi.GetAvailableShiftTypes(new()
+		{
+			Limit = limit,
+			StartingFrom = startingFrom,
+			SeasonId = CurrentSeason.Id
+		});
 		return types.Select(t => t.MapToShift());
 	}
 
 	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1, DateTime? startingFrom = null)
 	{
-		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count, startingFrom);
+		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count, startingFrom, CurrentSeason.Id);
 		return shifts.Select(s => s.MapToShift());
 	}
 

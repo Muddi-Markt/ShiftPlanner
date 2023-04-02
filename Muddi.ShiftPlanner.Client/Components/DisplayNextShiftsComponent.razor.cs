@@ -12,7 +12,7 @@ using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Components;
 
-public partial class DisplayNextShiftsComponent
+public partial class DisplayNextShiftsComponent : IDisposable
 {
 	[Inject] private ShiftService ShiftService { get; set; }
 	[Inject] public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
@@ -22,14 +22,21 @@ public partial class DisplayNextShiftsComponent
 
 	protected override async Task OnInitializedAsync()
 	{
-		var authState = await AuthStateTask;
 		await ShiftService.InitializedTask;
+		ShiftService.OnSeasonChanged += Init;
+		await Init();
+	}
+
+	private async Task Init()
+	{
+		var authState = await AuthStateTask;
 		if (authState.User.Identity?.IsAuthenticated == true)
 		{
 			var shifts = await ShiftService.GetAllShiftsFromUser(authState.User, 6, DateTime.UtcNow);
 			_myShifts = new(shifts.Select(s => s.ToAppointment()));
 			var availableShifts = await ShiftService.GetAllAvailableShifts(12, DateTime.UtcNow);
 			_freeShifts = new(availableShifts.Select(s => s.ToAppointment()));
+			await InvokeAsync(StateHasChanged);
 		}
 	}
 
@@ -45,5 +52,10 @@ public partial class DisplayNextShiftsComponent
 	{
 		var bytes = await ShiftService.GetAllShiftsFromUserAsICal();
 		await BlazorDownloadFileService.DownloadFileAsync("muddi-calendar.ics", bytes);
+	}
+
+	public void Dispose()
+	{
+		ShiftService.OnSeasonChanged -= Init;
 	}
 }

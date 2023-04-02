@@ -1,5 +1,7 @@
 ﻿@using System.Collections
+@using Muddi.ShiftPlanner.Client.Services
 @inherits UpdateDialogBase<GetFrameworkResponse>
+@inject ShiftService ShiftService;
 <div class="row">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="Name"/>
@@ -68,6 +70,7 @@
 	protected override Task Create()
 		=> ShiftApi.CreateFramework(new CreateFrameworkRequest()
 		{
+			SeasonId = ShiftService.CurrentSeason.Id,
 			Name = EntityToEdit.Name,
 			SecondsPerShift = Convert.ToInt32(_timePerShift.TimeOfDay.TotalSeconds),
 			TypeCounts = _shiftTypeCount
@@ -76,6 +79,7 @@
 	protected override Task Update()
 		=> ShiftApi.UpdateFramework(EntityToEdit.Id, new UpdateFrameworkRequest()
 		{
+			SeasonId = ShiftService.CurrentSeason.Id,
 			Id = EntityToEdit.Id,
 			Name = EntityToEdit.Name,
 			SecondsPerShift = Convert.ToInt32(_timePerShift.TimeOfDay.TotalSeconds),
@@ -100,7 +104,7 @@
 		{
 			_shiftTypeCount.Add(new());
 		}
-		_shiftTypesRaw = await ShiftApi.GetAllShiftTypes();
+		_shiftTypesRaw = await ShiftApi.GetAllShiftTypes(new() { SeasonId = ShiftService.CurrentSeason.Id });
 		_shiftTypes = _shiftTypesRaw;
 	}
 

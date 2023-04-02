@@ -8,6 +8,7 @@ public class CreateFrameworkRequest
 {
 	public string Name { get; set; }
 	public int SecondsPerShift { get; set; }
+	public Guid SeasonId { get; set; }
 	public IList<ShiftFrameworkTypeCountDto> TypeCounts { get; set; }
 }
 

@@ -26,22 +26,6 @@
 }
 
 
-@media (min-width: 1200px) {
-    .only-my-shifts-button {
-        position: absolute;
-        font-size: 1rem !important;
-        left: 130px;
-        top: 11px;
-        width: 210px !important;
-        height: 30px !important;
-    }
-
-    .only-my-shifts-button > * {
-        line-height: 1px !important;
-    }
-}
-
-
 .title {
     color: #333;
     font-weight: 700;
@@ -54,7 +38,7 @@
 
 
 .only-my-shifts-button {
-    margin-left: 10px;
+    margin-bottom: 10px;
 }
 
 

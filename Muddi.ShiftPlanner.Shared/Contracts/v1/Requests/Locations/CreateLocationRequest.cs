@@ -14,4 +14,5 @@ public class CreateLocationRequest
 {
 	public string Name { get; set; }
 	public Guid TypeId { get; set; }
+	public Guid SeasonId { get; set; }
 }

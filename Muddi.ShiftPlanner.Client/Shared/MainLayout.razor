@@ -25,6 +25,14 @@
 
 
 					</div>
+					<div style="margin-right: 20px">
+						<RadzenDropDown TValue="Season"
+						                Value="ShiftService.CurrentSeason"
+						                Data="ShiftService.Seasons"
+						                TextProperty="@nameof(Season.Name)"
+						                ValueChanged="Callback">
+						</RadzenDropDown>
+					</div>
 					<div class="d-flex align-items-center justify-content-end">
 						<a href="/help">
 							<RadzenIcon Icon="help"
@@ -151,5 +159,12 @@
 		_isMediaMaxWidth768 = obj;
 	}
 
+
+	private async Task Callback(Season s)
+	{
+		await ShiftService.ChangeSeason(s);
+	//We navigate to home as we are too lazy to implement OnSeasonChange event on every page ~~	 
+		NavigationManager.NavigateTo("/");
+	}
 
 }

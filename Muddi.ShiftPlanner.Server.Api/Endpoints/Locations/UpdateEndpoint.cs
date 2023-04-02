@@ -19,6 +19,7 @@ namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations
 		public override async Task CrudExecuteAsync(UpdateLocationRequest request, CancellationToken ct)
 		{
 			var entity = await Database.ShiftLocations
+				.Include(l => l.Season)
 				.Include(f => f.Type)
 				.FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken: ct);
 			if (entity is null)
@@ -33,6 +34,9 @@ namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations
 				entity.Type = new() { Id = request.TypeId };
 				Database.Attach(entity.Type);
 			}
+
+			if (entity.Season.Id != request.SeasonId)
+				entity.Season = new() { Id = request.SeasonId };
 
 			await Database.SaveChangesAsync(ct);
 		}

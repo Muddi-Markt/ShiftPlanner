@@ -16,17 +16,20 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateShiftTypeRequest>
 
 	public override async Task CrudExecuteAsync(UpdateShiftTypeRequest request, CancellationToken ct)
 	{
-		var entity = await Database.ShiftTypes.FindAsync(request.Id);
+		var entity = await Database.ShiftTypes.Include(x => x.Season)
+			.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: ct);
 		if (entity is null)
 		{
 			await SendNotFoundAsync("shift-type");
 			return;
 		}
+
 		entity.Color = request.Color;
 		entity.Name = request.Name;
 		entity.StartingTimeShift = request.StartingTimeShift;
 		entity.OnlyAssignableByAdmin = request.OnlyAssignableByAdmin;
+		if (entity.Season.Id != request.SeasonId)
+			entity.Season = new() { Id = request.SeasonId };
 		await Database.SaveChangesAsync(ct);
-
 	}
 }

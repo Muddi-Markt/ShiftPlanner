@@ -40,6 +40,7 @@ public class GetShiftsEndpoint : CrudGetAllEndpoint<GetShiftsFromEmployeeRequest
 
 		var user = await _keycloakService.GetUserByIdAsync(id);
 		IQueryable<ShiftEntity> b = Database.Shifts
+			.Where(s => s.Type.Season.Id == request.SeasonId)
 			.Include(s => s.Type)
 			.Include(s => s.ShiftContainer)
 			.ThenInclude(c => c.Location)
