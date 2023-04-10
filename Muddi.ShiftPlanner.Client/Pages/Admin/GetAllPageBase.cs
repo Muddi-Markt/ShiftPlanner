@@ -49,7 +49,7 @@ public abstract class GetAllPageBase<TResponse, TCreateDialog> : ComponentBase
 		}
 	}
 
-	protected async Task Create()
+	protected virtual async Task Create()
 	{
 		if (await DialogService.OpenAsync<TCreateDialog>($"Erstelle '{NameOfEntity}'") is true)
 		{

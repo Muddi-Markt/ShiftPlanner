@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Reflection.Metadata;
+using Muddi.ShiftPlanner.Server.Api.Endpoints.Seasons;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Refit;
@@ -163,7 +164,19 @@ public interface IMuddiShiftApi
 
 	[Get("/seasons")]
 	[Headers("Authorization: Bearer")]
-	Task<IEnumerable<GetSeasonResponse>> GetAllSeasons();
+	Task<IReadOnlyCollection<GetSeasonResponse>> GetAllSeasons();
+
+	[Post("/seasons")]
+	[Headers("Authorization: Bearer")]
+	Task CreateSeason(CreateSeasonRequest request);
+
+	[Put("/seasons/{EntityToEdit.Id}")]
+	[Headers("Authorization: Bearer")]
+	Task UpdateSeason(GetSeasonResponse entityToEdit);
+
+	[Delete("/seasons/{id}")]
+	[Headers("Authorization: Bearer")]
+	Task DeleteSeasons(Guid id);
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

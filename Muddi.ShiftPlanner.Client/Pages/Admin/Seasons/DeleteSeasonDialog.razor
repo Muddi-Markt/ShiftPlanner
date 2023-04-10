@@ -1,0 +1,77 @@
+﻿@using Muddi.ShiftPlanner.Shared.Api
+@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons
+@inject DialogService DialogService;
+<RadzenLabel Text="@_dialogText"/>
+
+@if (_needToWriteNameToDelete)
+{
+	@foreach (var t in _listText)
+	{
+		<RadzenLabel Text="@t"/>
+	}
+
+
+	<RadzenLabel Text="@_dialogText2"/>
+	<div class="row">
+		<div class="col-md-4 align-items-center d-flex">
+			<RadzenLabel Text="Name"/>
+		</div>
+		<div class="col-md-8">
+			<RadzenTextBox @bind-Value="_typedName"></RadzenTextBox>
+		</div>
+	</div>
+}
+
+<div class="row mb-3 mt-4">
+	<div class="col-md-12 text-right">
+		<RadzenButton Click="DeleteAndClose" ButtonStyle="ButtonStyle.Danger" Text="Delete"/>
+		<RadzenButton Click="@(() => DialogService.Close(false))" ButtonStyle="ButtonStyle.Light" Text="Abort" Class="mr-1"/>
+	</div>
+</div>
+
+
+@code {
+
+	[Inject]
+	protected IMuddiShiftApi ShiftApi { get; set; } = default!;
+
+	[Parameter]
+	public GetSeasonResponse Season { get; set; }
+
+	private string _dialogText = string.Empty;
+	private string _dialogText2 = string.Empty;
+	private IEnumerable<string> _listText = Array.Empty<string>();
+	private bool _needToWriteNameToDelete = false;
+	private string? _typedName;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_dialogText = $"Are you REALLY sure that you want to delete the season {Season.Name}?";
+		var locationsInSeason = await ShiftApi.GetAllLocations(new() { SeasonId = Season.Id });
+		var framworksInSeason = await ShiftApi.GetAllFrameworks(new() { SeasonId = Season.Id });
+		var shiftTypesInSeason = await ShiftApi.GetAllShiftTypes(new() { SeasonId = Season.Id });
+		if (locationsInSeason.Count > 0 || framworksInSeason.Count > 0 || shiftTypesInSeason.Count > 0)
+		{
+			_needToWriteNameToDelete = true;
+			_dialogText += $"There are {locationsInSeason.Count} Locations, {framworksInSeason.Count} Frameworks and {shiftTypesInSeason.Count} ShiftTypes in this season. You would delete the following for ever, too:";
+			_listText = new[]
+			{
+				$"Locations: {string.Join(',', locationsInSeason.Select(l => l.Name))}",
+				$"Frameworks: {string.Join(',', framworksInSeason.Select(l => l.Name))}",
+				$"ShiftTypes: {string.Join(',', shiftTypesInSeason.Select(l => l.Name))}"
+			};
+			_dialogText2 = $"If you are sure, please write the name of the season ({Season.Name}) in this field and click on delete";
+		}
+	}
+
+	private async Task DeleteAndClose()
+	{
+		if (_needToWriteNameToDelete && _typedName != Season.Name)
+		{
+			await DialogService.Alert($"Please enter the name ({Season.Name}) in the field");
+			return;
+		}
+		DialogService.Close(true);
+	}
+
+}

@@ -1,0 +1,52 @@
+﻿@page "/admin/seasons"
+@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons
+@inherits GetAllPageBase<GetSeasonResponse, CreateSeasonDialog>
+@inject NavigationManager NavMan;
+
+<RadzenButton Icon="add" Click="Create"></RadzenButton>
+<RadzenButton Icon="refresh" Click="LoadGridData"></RadzenButton>
+<RadzenDataGrid @ref="DataGrid" TItem="GetSeasonResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">
+	<Columns>
+		<RadzenDataGridColumn TItem="GetSeasonResponse" Title="Delete" Width="100px">
+			<Template>
+				<RadzenButton Icon="edit" Click="@(() => Edit(context))"></RadzenButton>
+				<RadzenButton Icon="delete" Style="background: #f00" Click="@(() => DeleteItem(context, context.Name))"></RadzenButton>
+			</Template>
+		</RadzenDataGridColumn>
+
+		<RadzenDataGridColumn TItem="GetSeasonResponse" Title="Name">
+			<Template>@context.Name</Template>
+		</RadzenDataGridColumn>
+
+		<RadzenDataGridColumn TItem="GetSeasonResponse" Title="Start from">
+			<Template>@context.StartDate.ToString("g")</Template>
+		</RadzenDataGridColumn>
+
+		<RadzenDataGridColumn TItem="GetSeasonResponse" Title="End at">
+			<Template>@context.EndDate.ToString("g")</Template>
+		</RadzenDataGridColumn>
+	</Columns>
+</RadzenDataGrid>
+
+
+@code {
+
+	protected override Task<IReadOnlyCollection<GetSeasonResponse>> LoadData() => ShiftApi.GetAllSeasons();
+	protected override string NameOfEntity => "Saison";
+
+	protected override async Task Delete(GetSeasonResponse request)
+	{
+		var dialogRes = await DialogService.OpenAsync<DeleteSeasonDialog>("Delete Season", new() { [nameof(DeleteSeasonDialog.Season)] = request });
+		if (dialogRes != true)
+			return;
+		await ShiftApi.DeleteSeasons(request.Id);
+		NavMan.NavigateTo(NavMan.Uri,true);
+	}
+
+	protected override async Task Create()
+	{
+		await base.Create();
+		NavMan.NavigateTo(NavMan.Uri,true);
+	}
+
+}

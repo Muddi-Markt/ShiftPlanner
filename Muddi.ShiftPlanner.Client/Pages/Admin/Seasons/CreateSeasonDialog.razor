@@ -1,0 +1,56 @@
+﻿@inherits UpdateDialogBase<Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons.GetSeasonResponse>
+@inject ShiftService ShiftService;
+<div class="row">
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="Name"/>
+	</div>
+	<div class="col-md-8">
+		<RadzenTextBox @bind-Value="EntityToEdit.Name" Placeholder="Name"></RadzenTextBox>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="Start from"/>
+	</div>
+	<div class="col-md-8">
+		<RadzenDatePicker @bind-Value="EntityToEdit.StartDate"></RadzenDatePicker>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="End at"/>
+	</div>
+	<div class="col-md-8">
+		<RadzenDatePicker @bind-Value="EntityToEdit.EndDate"></RadzenDatePicker>
+	</div>
+</div>
+<div class="row mb-3 mt-4">
+	<div class="col-md-12 text-right">
+		<RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
+		<RadzenButton Click="CloseWithoutSave" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
+	</div>
+</div>
+
+@code {
+
+	protected override void OnParametersSet()
+	{
+		if (EntityToEdit.StartDate == default)
+			EntityToEdit.StartDate = new DateTime(DateTime.UtcNow.Year, 06, 01, 0, 0, 0, DateTimeKind.Utc);
+		if (EntityToEdit.EndDate == default)
+			EntityToEdit.EndDate = new DateTime(DateTime.UtcNow.Year, 06, 30, 0, 0, 0, DateTimeKind.Utc);
+		base.OnParametersSet();
+	}
+
+	protected override Task Create()
+		=> ShiftApi.CreateSeason(new()
+		{
+			Name = EntityToEdit.Name,
+			StartDate = new DateTime(EntityToEdit.StartDate.Ticks, DateTimeKind.Utc),
+			EndDate = new DateTime(EntityToEdit.EndDate.Ticks, DateTimeKind.Utc)
+		});
+
+	protected override Task Update()
+		=> ShiftApi.UpdateSeason(EntityToEdit);
+
+}
