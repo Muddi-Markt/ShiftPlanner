@@ -10,5 +10,5 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=55078ab7_002De64a_002D4a36_002Db057_002D0ccb82f3d4b5/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldCreateShift" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Solution /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=27147157_002D3a92_002D48ed_002Db0bf_002Dfb3d10daa35d_0023Muddi_002EShiftPlanner_002EClient/@EntryIndexedValue">True</s:Boolean>
+	
 	</wpf:ResourceDictionary>
