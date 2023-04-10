@@ -169,9 +169,9 @@ public class ShiftService
 		}
 	}
 
-	public async Task<byte[]> GetAllShiftsFromUserAsICal()
+	public async Task<byte[]> GetAllShiftsFromUserAsICal(Guid seasonId)
 	{
-		var res = await _shiftApi.GetAllShiftsFromEmployeeAsIcsFile();
+		var res = await _shiftApi.GetAllShiftsFromEmployeeAsIcsFile(new() { SeasonId = seasonId });
 		return await res.ReadAsByteArrayAsync();
 	}
 

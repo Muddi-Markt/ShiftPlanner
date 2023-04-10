@@ -9,12 +9,14 @@ using Muddi.ShiftPlanner.Client.Pages.Locations;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Client.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
+using Radzen;
 
 namespace Muddi.ShiftPlanner.Client.Components;
 
 public partial class DisplayNextShiftsComponent : IDisposable
 {
-	[Inject] private ShiftService ShiftService { get; set; }
+	[Inject] private ShiftService ShiftService { get; set; } = default!;
+	[Inject] private DialogService DialogService { get; set; } = default!;
 	[Inject] public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 	[CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; }
 	private List<Appointment>? _myShifts;
@@ -50,7 +52,13 @@ public partial class DisplayNextShiftsComponent : IDisposable
 
 	private async Task Download_iCal()
 	{
-		var bytes = await ShiftService.GetAllShiftsFromUserAsICal();
+		var bytes = await ShiftService.GetAllShiftsFromUserAsICal(ShiftService.CurrentSeason.Id);
+		if (!bytes.Any())
+		{
+			await DialogService.Alert("Du hast leider noch keine Schichten");
+			return;
+		}
+
 		await BlazorDownloadFileService.DownloadFileAsync("muddi-calendar.ics", bytes);
 	}
 

@@ -156,7 +156,7 @@ public interface IMuddiShiftApi
 
 	[Get("/employees/shifts-ics")]
 	[Headers("Authorization: Bearer")]
-	Task<HttpContent> GetAllShiftsFromEmployeeAsIcsFile();
+	Task<HttpContent> GetAllShiftsFromEmployeeAsIcsFile(GetShiftsFromEmployeeRequest request);
 
 	[Get("/shifts")]
 	[Headers("Authorization: Bearer")]
