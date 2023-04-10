@@ -24,8 +24,10 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 
 	public override void Configure()
 	{
-		Roles(ApiRoles.Admin); //Can be replaced in CrudConfigure() but default is Admin
 		CrudConfigure();
+		//If no roles are specified, add admin role as default
+		if (Definition.AllowedRoles?.Count == 0)
+			Roles(ApiRoles.Admin);
 // #if DEBUG
 // 		AllowAnonymous();
 // #else
