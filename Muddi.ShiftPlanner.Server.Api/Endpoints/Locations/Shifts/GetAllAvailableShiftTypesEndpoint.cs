@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Math;
+using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
@@ -42,7 +43,12 @@ public class GetAllAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailable
 		var shifts = location.Containers
 			.SelectMany(container => container.GetStartTimes()
 				.SelectMany(container.GetAvailableShiftTypes));
-
+		
+		shifts = shifts.OrderBy(x => x.Start).ThenByDescending(x => x.AvailableCount);
+		
+		if (request.Limit > 0)
+			shifts = shifts.Take(request.Limit);
+		
 		return shifts.ToList();
 	}
 }

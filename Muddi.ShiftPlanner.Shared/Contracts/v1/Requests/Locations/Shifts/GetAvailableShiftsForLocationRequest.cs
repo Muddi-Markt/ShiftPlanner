@@ -5,4 +5,5 @@ public class GetAvailableShiftsForLocationRequest
 	public Guid LocationId { get; set; }
 	public DateTime? StartTime { get; set; }
 	public DateTime? EndTime { get; set; }
+	public int Limit { get; set; }
 }

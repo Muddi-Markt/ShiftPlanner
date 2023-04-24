@@ -75,13 +75,14 @@ public class ShiftService
 	}
 
 	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,
-		DateTime? end = null)
+		DateTime? end = null, int limit = -1)
 	{
 		var dtos = await _shiftApi.GetAllAvailableShiftTypesFromLocationAsync(id, new GetAvailableShiftsForLocationRequest
 		{
 			LocationId = id,
 			StartTime = start,
-			EndTime = end
+			EndTime = end,
+			Limit = limit
 		});
 		return dtos;
 	}

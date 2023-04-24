@@ -25,7 +25,12 @@ public partial class LocationPage
 	[Inject] private DialogService DialogService { get; set; } = default!;
 	[Inject] private ShiftService ShiftService { get; set; } = default!;
 	[Inject] private ILogger<LocationPage> Logger { get; set; } = default!;
-	[Parameter] public Guid Id { get; set; }
+
+	/// <summary>
+	/// LocationId
+	/// </summary>
+	[Parameter]
+	public Guid Id { get; set; }
 
 	[SupplyParameterFromQuery] [Parameter] public bool ShowOnlyUsersShifts { get; set; }
 	[SupplyParameterFromQuery] [Parameter] public int SelectedViewIndex { get; set; }
@@ -73,9 +78,16 @@ public partial class LocationPage
 		{
 			var state = await AuthenticationState;
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
+			var availabe =
+				await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, ShiftService.CurrentSeason.StartDate,
+					ShiftService.CurrentSeason.EndDate, 1);
 			MainLayout.SetTitle($"{_location.Name} ({_location.AssignedShifts}/{_location.TotalShifts} Schichten)");
 			_user = state.User;
-			_startDate = DateTime.Now > ShiftService.CurrentSeason.StartDate ? DateTime.Now : ShiftService.CurrentSeason.StartDate;
+			var startDate = (availabe.FirstOrDefault()?.Start ?? ShiftService.CurrentSeason.StartDate).ToLocalTime();
+			Console.WriteLine("startDate: " + availabe.FirstOrDefault()?.Start.Kind);
+			Console.WriteLine("CurrentSeason: " + ShiftService.CurrentSeason.StartDate.Kind);
+			Console.WriteLine("StartDate: " + StartDate.Kind);
+			_startDate = DateTime.Now > startDate ? DateTime.Now : startDate;
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			await ForceReloadScheduler();
@@ -196,8 +208,7 @@ public partial class LocationPage
 			var idx = GetSelectedViewIndex();
 			bool shiftsAny = _shifts.Any();
 			bool dateNotChanged = arg.Start == _oldStart && arg.End == _oldEnd;
-			//I dont know why, but we need this query, as if we do not use this
-			//we have not needed api queries
+			//I dont know why, but we need this
 			bool isCorrectFormat = (idx == WeekViewIndex && arg.End - arg.Start > TimeSpan.FromDays(1))
 			                       || (idx == DayViewIndex && arg.End - arg.Start <= TimeSpan.FromDays(1));
 			if ((shiftsAny && dateNotChanged) || !isCorrectFormat)
@@ -205,11 +216,13 @@ public partial class LocationPage
 				return;
 			}
 
+			Console.WriteLine(arg.Start);
+			Console.WriteLine(arg.Start.Kind);
 			_oldStart = arg.Start;
 			_oldEnd = arg.End;
 			_isLoading = true;
 			_shifts.Clear();
-			
+
 			switch (idx)
 			{
 				case WeekViewIndex:
