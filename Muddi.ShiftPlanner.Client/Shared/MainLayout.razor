@@ -2,6 +2,7 @@
 @using System.Globalization
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Muddi.ShiftPlanner.Shared.BlazorWASM
 @using Muddi.ShiftPlanner.Shared.Entities
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager;
@@ -26,12 +27,19 @@
 
 					</div>
 					<div style="margin-right: 20px">
-						<RadzenDropDown TValue="Season"
-						                Value="ShiftService.CurrentSeason"
-						                Data="ShiftService.Seasons"
-						                TextProperty="@nameof(Season.Name)"
-						                ValueChanged="Callback">
-						</RadzenDropDown>
+						<AuthorizeView Policy="@Policies.IsAdmin">
+							<Authorized>
+								<RadzenDropDown TValue="Season"
+								                Value="ShiftService.CurrentSeason"
+								                Data="ShiftService.Seasons"
+								                TextProperty="@nameof(Season.Name)"
+								                ValueChanged="Callback">
+								</RadzenDropDown>
+							</Authorized>
+							<NotAuthorized>
+								<RadzenTextBox Value="@ShiftService.CurrentSeason.Name" Disabled="true"></RadzenTextBox>
+							</NotAuthorized>
+						</AuthorizeView>
 					</div>
 					<div class="d-flex align-items-center justify-content-end">
 						<a href="/help">

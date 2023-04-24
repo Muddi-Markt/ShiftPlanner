@@ -46,7 +46,7 @@ public class ShiftService
 		try
 		{
 			Seasons = (await _shiftApi.GetAllSeasons()).Select(Season.FromResponse).ToImmutableList();
-			await ChangeSeason(Seasons.Last());
+			await ChangeSeason(Seasons.FirstOrDefault(x => x.IsSelected) ?? Seasons.Last());
 			_initializedTsc.SetResult();
 		}
 		finally

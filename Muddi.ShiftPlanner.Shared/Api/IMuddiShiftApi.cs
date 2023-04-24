@@ -173,6 +173,11 @@ public interface IMuddiShiftApi
 	[Put("/seasons/{EntityToEdit.Id}")]
 	[Headers("Authorization: Bearer")]
 	Task UpdateSeason(GetSeasonResponse entityToEdit);
+	
+	[Put("/seasons/current/{EntityToEdit.Id}")]
+	[Headers("Authorization: Bearer")]
+	Task SetCurrentSeason(DefaultGetRequest entityToEdit);
+
 
 	[Delete("/seasons/{id}")]
 	[Headers("Authorization: Bearer")]

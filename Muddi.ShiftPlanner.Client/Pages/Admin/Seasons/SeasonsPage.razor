@@ -2,15 +2,20 @@
 @using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons
 @inherits GetAllPageBase<GetSeasonResponse, CreateSeasonDialog>
 @inject NavigationManager NavMan;
+@inject TooltipService tooltipService
 
 <RadzenButton Icon="add" Click="Create"></RadzenButton>
 <RadzenButton Icon="refresh" Click="LoadGridData"></RadzenButton>
 <RadzenDataGrid @ref="DataGrid" TItem="GetSeasonResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">
 	<Columns>
-		<RadzenDataGridColumn TItem="GetSeasonResponse" Title="Delete" Width="100px">
+		<RadzenDataGridColumn TItem="GetSeasonResponse" Title="Action" Width="130px">
 			<Template>
 				<RadzenButton Icon="edit" Click="@(() => Edit(context))"></RadzenButton>
 				<RadzenButton Icon="delete" Style="background: #f00" Click="@(() => DeleteItem(context, context.Name))"></RadzenButton>
+				<RadzenButton Icon="check_circle" Style="@(context.IsSelectedAsCurrent ? "background: #0a0" : "background: #777")" 
+				              Click="@(() => SetAsDefault(context))"
+				              MouseEnter="@(e => tooltipService.Open(e,"Set as current Season"))"
+				              ></RadzenButton>
 			</Template>
 		</RadzenDataGridColumn>
 
@@ -40,13 +45,19 @@
 		if (dialogRes != true)
 			return;
 		await ShiftApi.DeleteSeasons(request.Id);
-		NavMan.NavigateTo(NavMan.Uri,true);
+		NavMan.NavigateTo(NavMan.Uri, true);
 	}
 
 	protected override async Task Create()
 	{
 		await base.Create();
-		NavMan.NavigateTo(NavMan.Uri,true);
+		NavMan.NavigateTo(NavMan.Uri, true);
+	}
+
+	private async Task SetAsDefault(GetSeasonResponse context)
+	{
+		await ShiftApi.SetCurrentSeason(new() { Id = context.Id });
+		await LoadGridData();
 	}
 
 }
