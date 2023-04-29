@@ -1,20 +1,37 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@using Toolbelt.Blazor.PWA.Updater.Service
+@inject IPWAUpdaterService PWAUpdaterService
+@inject DialogService DialogService
+@implements IDisposable
+
+
+<Router AppAssembly="@typeof(App).Assembly">
 	<Found Context="routeData">
-		<AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-			<NotAuthorized>
-				@if (context.User.Identity?.IsAuthenticated != true)
-				{
-					<RedirectToLogin/>
-				}
-				else
-				{
-					<p role="alert">Du hast keine Erlaubnis diese Resource zu sehen.</p>
-				}
-			</NotAuthorized>
-			<Authorizing>
+		@if (ShowContent)
+		{
+			<AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+				<NotAuthorized>
+					@if (context.User.Identity?.IsAuthenticated != true)
+					{
+						<RedirectToLogin/>
+					}
+					else
+					{
+						<p role="alert">Du hast keine Erlaubnis diese Resource zu sehen.</p>
+					}
+				</NotAuthorized>
+				<Authorizing>
+					<LoadingSpinner/>
+				</Authorizing>
+			</AuthorizeRouteView>
+		}
+		else
+		{
+			<div class="muddi-plain-content mt-5">
 				<LoadingSpinner/>
-			</Authorizing>
-		</AuthorizeRouteView>
+				<h1 style="color: var(--muddi-red)">NEUE VERSION!</h1>
+				<p>Eine neue Version wurde gefunden. Sie wird in 5 Sekunden aktualisiert...</p>
+			</div>
+		}
 		@* <FocusOnNavigate RouteData="@routeData" Selector="h1"/> *@
 	</Found>
 	<NotFound>
@@ -25,3 +42,39 @@
 		</LayoutView>
 	</NotFound>
 </Router>
+
+@code {
+	// ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+	// We need it for release mode
+	private bool ShowContent { get; set; } = true;
+#if RELEASE
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (firstRender)
+		{
+			PWAUpdaterService.NextVersionIsWaiting += PWAUpdaterService_NextVersionIsWaiting;
+		}
+	}
+
+	private async void PWAUpdaterService_NextVersionIsWaiting(object? sender, EventArgs e)
+	{
+		ShowContent = false;
+		_ = InvokeAsync(StateHasChanged);
+		await Task.Delay(5000);
+		await PWAUpdaterService.SkipWaitingAsync();
+	}
+
+	public void Dispose()
+	{
+		PWAUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
+	}
+
+#else
+
+	public void Dispose()
+	{
+	//Empty
+	}
+
+#endif
+}
