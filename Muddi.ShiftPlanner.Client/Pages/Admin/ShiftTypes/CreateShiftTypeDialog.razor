@@ -55,14 +55,20 @@
 		base.OnParametersSet();
 	}
 
-	protected override Task Create()
-		=> ShiftApi.CreateShiftType(new()
+	protected override async Task Create()
+	{
+		if (string.IsNullOrWhiteSpace(EntityToEdit.Name))
+			throw new ArgumentException("Bitte wähle ein Namen aus");
+		if (string.IsNullOrWhiteSpace(EntityToEdit.Color))
+			throw new ArgumentException("Bitte wähle eine Farbe aus und klicke bei dem Farbauswähler auf 'Ok' (das is manchmal ein wenig buggy...)");
+		await ShiftApi.CreateShiftType(new()
 		{
 			SeasonId = ShiftService.CurrentSeason.Id,
 			Name = EntityToEdit.Name,
 			Color = EntityToEdit.Color,
 			StartingTimeShift = TimeSpan.FromMinutes(_startingTimeShift)
 		});
+	}
 
 	protected override Task Update()
 		=> ShiftApi.UpdateShiftType(EntityToEdit);
