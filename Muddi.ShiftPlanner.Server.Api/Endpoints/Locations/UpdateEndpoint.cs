@@ -35,9 +35,6 @@ namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations
 				Database.Attach(entity.Type);
 			}
 
-			if (entity.Season.Id != request.SeasonId)
-				entity.Season = new() { Id = request.SeasonId };
-
 			await Database.SaveChangesAsync(ct);
 		}
 	}

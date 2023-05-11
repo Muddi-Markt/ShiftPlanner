@@ -62,10 +62,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateFrameworkRequest>
 		}
 
 		entity.Name = request.Name;
-
-		if (entity.Season.Id != request.SeasonId)
-			entity.Season = new() { Id = request.SeasonId };
-
+		
 		var typesToAdd = request.TypeCounts.ToList();
 		entity.ShiftTypeCounts.RemoveAll(q => request.TypeCounts.All(tc => tc.ShiftTypeId != q.ShiftType.Id));
 		foreach (var stc in entity.ShiftTypeCounts)

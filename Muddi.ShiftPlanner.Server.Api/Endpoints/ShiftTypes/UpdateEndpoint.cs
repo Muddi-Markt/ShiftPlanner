@@ -28,8 +28,6 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateShiftTypeRequest>
 		entity.Name = request.Name;
 		entity.StartingTimeShift = request.StartingTimeShift;
 		entity.OnlyAssignableByAdmin = request.OnlyAssignableByAdmin;
-		if (entity.Season.Id != request.SeasonId)
-			entity.Season = new() { Id = request.SeasonId };
 		await Database.SaveChangesAsync(ct);
 	}
 }
