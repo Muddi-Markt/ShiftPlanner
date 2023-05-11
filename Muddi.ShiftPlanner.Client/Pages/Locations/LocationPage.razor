@@ -13,14 +13,14 @@
 				</div>
 			</div>
 		}
-		
+
 		<RadzenButton Text="Nur meine Schichten"
 		              class="only-my-shifts-button"
-			              Style="@(ShowOnlyUsersShifts ? "background: var(--muddi-red); box-shadow: inset 0 3px 0 0 rgb(0 0 0 / 10%);" : "background: grey")"
-			              Click="ShowOnlyUserShiftsButtonPressed"
-			              ></RadzenButton>
+		              Style="@(ShowOnlyUsersShifts ? "background: var(--muddi-red); box-shadow: inset 0 3px 0 0 rgb(0 0 0 / 10%);" : "background: grey")"
+		              Click="ShowOnlyUserShiftsButtonPressed">
+		</RadzenButton>
 
-		
+
 		<SwipeComponent OnSwipe="Swipe" Orientation="SwipeOrientation.Horizontal">
 			<RadzenScheduler
 				TItem="Appointment"
@@ -43,13 +43,13 @@
 					@ref="_dayView"
 					TimeFormat="HH:mm"
 					Text="Tag"
-					StartTime="TimeSpan.FromHours(9)"
+					StartTime="TimeSpan.FromHours(8)"
 					EndTime="TimeSpan.FromHours(27)"
 					MinutesPerSlot="30"/>
 				<RadzenWeekView
 					@ref="_weekView"
 					Text="Woche"
-					StartTime="TimeSpan.FromHours(9)"
+					StartTime="TimeSpan.FromHours(8)"
 					EndTime="TimeSpan.FromHours(27)"
 					MinutesPerSlot="30"
 					TimeFormat="HH:mm"/>
