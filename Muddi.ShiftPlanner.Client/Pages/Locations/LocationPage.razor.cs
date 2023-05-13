@@ -78,16 +78,23 @@ public partial class LocationPage
 		{
 			var state = await AuthenticationState;
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
-			var availabe =
-				await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, ShiftService.CurrentSeason.StartDate,
-					ShiftService.CurrentSeason.EndDate, 1);
+			if (_location is null)
+				throw new NullReferenceException($"Location with id {Id} not found");
+			var available =
+				(await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, ShiftService.CurrentSeason.StartDate,
+					ShiftService.CurrentSeason.EndDate, 1)).ToList();
 			MainLayout.SetTitle($"{_location.Name} ({_location.AssignedShifts}/{_location.TotalShifts} Schichten)");
 			_user = state.User;
-			var startDate = (availabe.FirstOrDefault()?.Start ?? ShiftService.CurrentSeason.StartDate).ToLocalTime();
-			Console.WriteLine("startDate: " + availabe.FirstOrDefault()?.Start.Kind);
-			Console.WriteLine("CurrentSeason: " + ShiftService.CurrentSeason.StartDate.Kind);
-			Console.WriteLine("StartDate: " + StartDate.Kind);
-			_startDate = DateTime.Now > startDate ? DateTime.Now : startDate;
+			if (_startDate == default)
+			{
+				var startDate =
+					(available.FirstOrDefault()?.Start ?? ShiftService.CurrentSeason.StartDate).ToLocalTime();
+				Console.WriteLine("startDate: " + available.FirstOrDefault()?.Start.Kind);
+				Console.WriteLine("CurrentSeason: " + ShiftService.CurrentSeason.StartDate.Kind);
+				Console.WriteLine("StartDate: " + StartDate.Kind);
+				_startDate = DateTime.Now > startDate ? DateTime.Now : startDate;
+			}
+
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);
 			await ForceReloadScheduler();
@@ -228,8 +235,11 @@ public partial class LocationPage
 				case WeekViewIndex:
 				{
 					//Week view
-					var myShifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End, _userKeycloakId)).ToList();
-					var shiftTypes = await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, arg.Start, arg.End);
+					var myShifts =
+						(await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End, _userKeycloakId))
+						.ToList();
+					var shiftTypes =
+						await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, arg.Start, arg.End);
 					var group = shiftTypes.GroupBy(st => new { st.Start, st.End });
 					var appointments = group.Select(g => CreateNewAppointment(g.Key.Start, g.Key.End, g, myShifts));
 					_shifts = appointments.ToList();
@@ -276,7 +286,7 @@ public partial class LocationPage
 
 
 	private bool _isAdmin;
-	private DateTime _startDate = DateTime.Now;
+	private DateTime _startDate;
 	private RadzenDayViewFix _dayView;
 	private RadzenWeekView _weekView;
 	[Inject] private NavigationManager NavigationManager { get; set; }
