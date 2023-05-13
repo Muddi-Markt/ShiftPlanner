@@ -5,6 +5,23 @@ self.importScripts('./service-worker-assets.js?v3');
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
+self.addEventListener('updatefound', () => {
+    // An updated service worker has appeared in reg.installing!
+    let newWorker = self.installing;
+
+    newWorker.addEventListener('statechange', () => {
+        // Has network.state changed?
+        switch (newWorker.state) {
+            case 'installed':
+                if (navigator.serviceWorker.controller) {
+                    // At this point, the updated precached content has been fetched,
+                    // but the previous service worker will still serve the older content until all client tabs are closed.
+                    console.log('New content is available, reload page.');
+                    window.location.reload();
+                }
+                break;
+        }
+    });});
 self.addEventListener('message', event => { 
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
