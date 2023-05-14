@@ -80,18 +80,17 @@ public partial class LocationPage
 			_location = await ShiftService.GetLocationsByIdAsync(Id);
 			if (_location is null)
 				throw new NullReferenceException($"Location with id {Id} not found");
-			var available =
+			var firstAvailableShift =
 				(await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, ShiftService.CurrentSeason.StartDate,
 					ShiftService.CurrentSeason.EndDate, 1)).ToList();
 			MainLayout.SetTitle($"{_location.Name} ({_location.AssignedShifts}/{_location.TotalShifts} Schichten)");
 			_user = state.User;
-			if (_startDate == default)
+
+			var firstShiftStartDate = firstAvailableShift.FirstOrDefault()?.Start;
+			if (_startDate == default || _startDate < firstShiftStartDate)
 			{
 				var startDate =
-					(available.FirstOrDefault()?.Start ?? ShiftService.CurrentSeason.StartDate).ToLocalTime();
-				Console.WriteLine("startDate: " + available.FirstOrDefault()?.Start.Kind);
-				Console.WriteLine("CurrentSeason: " + ShiftService.CurrentSeason.StartDate.Kind);
-				Console.WriteLine("StartDate: " + StartDate.Kind);
+					(firstShiftStartDate ?? ShiftService.CurrentSeason.StartDate).ToLocalTime();
 				_startDate = DateTime.Now > startDate ? DateTime.Now : startDate;
 			}
 

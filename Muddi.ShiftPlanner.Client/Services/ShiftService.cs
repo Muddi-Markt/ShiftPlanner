@@ -74,6 +74,14 @@ public class ShiftService
 		return _shiftLocations?.FirstOrDefault(l => l.Id == id);
 	}
 
+	/// <summary>
+	/// Returns an ordered by StartTime list
+	/// </summary>
+	/// <param name="id"></param>
+	/// <param name="start"></param>
+	/// <param name="end"></param>
+	/// <param name="limit"></param>
+	/// <returns></returns>
 	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,
 		DateTime? end = null, int limit = -1)
 	{
