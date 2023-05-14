@@ -21,7 +21,6 @@
 		<div class="col-md-8">
 			@if (_employeesToSelect is null)
 			{
-			
 				<RadzenTextBox
 					ReadOnly="true"
 					Value="@($"{EntityToEdit.EmployeeFullName} {(_isShiftUser ? "(Das bist du!)" : "")}")">
@@ -46,7 +45,7 @@
 			<RadzenLabel Text="Start"/>
 		</div>
 		<div class="col-md-8">
-			<RadzenTextBox Name="Start" Value="@EntityToEdit.StartToDisplayString()" ReadOnly="true"/>
+			<RadzenTextBox Style="width:200px;" Name="Start" Value="@EntityToEdit.StartToDisplayString()" ReadOnly="true"/>
 		</div>
 	</div>
 	<div class="row">
@@ -55,6 +54,7 @@
 		</div>
 		<div class="col-md-8">
 			<RadzenTextBox
+				Style="width:200px;"
 				Name="End"
 				Value="@EntityToEdit.EndToDisplayString()"
 				ReadOnly="true"/>
@@ -87,7 +87,22 @@
 				<RadzenTextBox Name="Type" Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")" ReadOnly="true"/>
 			}
 		</div>
+
+		
 	</div>
+	@if (EntityToEdit.Type?.Description is {} description)
+	{
+		<div class="row">
+			<div class="col-md-4 align-items-center d-flex">
+				<RadzenLabel Text="Deine Aufgabe:"/>
+			</div>
+			<div class="col-md-8">
+				<p class="rz-textarea" style="width:200px;">
+					@description
+				</p>
+			</div>
+		</div>
+	}
 	@if ((_isShiftUser || _isAdmin) && EntityToEdit.Id != default)
 	{
 		<div class="row">

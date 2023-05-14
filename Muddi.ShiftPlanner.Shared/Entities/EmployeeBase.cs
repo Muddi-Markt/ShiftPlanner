@@ -5,7 +5,8 @@ public record ShiftType(
 	string Name,
 	string Color,
 	bool OnlyAssignableByAdmin,
-	TimeSpan StartingTimeShift);
+	TimeSpan StartingTimeShift,
+	string? Description);
 
 public enum UserRoles
 {

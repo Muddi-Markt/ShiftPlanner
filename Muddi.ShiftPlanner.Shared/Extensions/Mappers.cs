@@ -55,12 +55,13 @@ public static class Mappers
 			Name = shiftType.Name,
 			Color = shiftType.Color,
 			StartingTimeShift = shiftType.StartingTimeShift,
-			OnlyAssignableByAdmin = shiftType.OnlyAssignableByAdmin
+			OnlyAssignableByAdmin = shiftType.OnlyAssignableByAdmin,
+			Description = shiftType.Description
 		};
 	}
 
 	public static ShiftType MapToShiftType(this GetShiftTypesResponse dto)
-		=> new ShiftType(dto.Id, dto.Name, dto.Color, dto.OnlyAssignableByAdmin, dto.StartingTimeShift);
+		=> new ShiftType(dto.Id, dto.Name, dto.Color, dto.OnlyAssignableByAdmin, dto.StartingTimeShift, dto.Description);
 
 	public static Shift ToLocalTime(this Shift shift)
 		=> new(shift.Id,

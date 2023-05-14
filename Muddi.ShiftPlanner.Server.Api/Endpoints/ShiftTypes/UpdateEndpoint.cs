@@ -28,6 +28,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateShiftTypeRequest>
 		entity.Name = request.Name;
 		entity.StartingTimeShift = request.StartingTimeShift;
 		entity.OnlyAssignableByAdmin = request.OnlyAssignableByAdmin;
+		entity.Description =  string.IsNullOrWhiteSpace(request.Description) ? null : request.Description;
 		await Database.SaveChangesAsync(ct);
 	}
 }

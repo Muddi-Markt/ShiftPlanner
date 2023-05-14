@@ -13,4 +13,5 @@ public class CreateShiftTypeRequest
 	public TimeSpan StartingTimeShift { get; set; }
 	public bool OnlyAssignableByAdmin { get; set; }
 	public Guid SeasonId { get; set; }
+	public string? Description { get; set; }
 }

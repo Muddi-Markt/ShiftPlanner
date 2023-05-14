@@ -10,4 +10,5 @@ public class ShiftTypeEntity
 	public TimeSpan StartingTimeShift { get; set; }
 	public bool OnlyAssignableByAdmin { get; set; }
 	public SeasonEntity Season { get; set; }
+	public string? Description { get; set; }
 }

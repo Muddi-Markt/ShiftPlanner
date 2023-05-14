@@ -7,4 +7,5 @@ public class GetShiftTypesResponse : IMuddiResponse
 	public string Color { get; set; }
 	public TimeSpan StartingTimeShift { get; set; }
 	public bool OnlyAssignableByAdmin { get; set; }
+	public string? Description { get; set; }
 }

@@ -30,7 +30,9 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateShiftTypeRequest, GetShif
 			Name = req.Name,
 			Color = req.Color,
 			Season = season,
-			StartingTimeShift = req.StartingTimeShift
+			OnlyAssignableByAdmin = req.OnlyAssignableByAdmin,
+			StartingTimeShift = req.StartingTimeShift,
+			Description = string.IsNullOrWhiteSpace(req.Description) ? null : req.Description
 		};
 		Database.Add(type);
 		await Database.SaveChangesAsync(ct);
