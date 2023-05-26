@@ -29,11 +29,12 @@ a:hover {
     text-decoration: none !important;
 }
 
-.rz-event{
+.rz-event {
     cursor: pointer;
 }
-.rz-chkbox-box.rz-state-active{
-    background: var(--muddi-red)!important;
+
+.rz-chkbox-box.rz-state-active {
+    background: var(--muddi-red) !important;
 }
 
 .rz-event-content:first-line {
@@ -44,10 +45,15 @@ a:hover {
     white-space: pre-line;
     text-align: center;
 }
-.rz-event-content:hover{
+
+.rz-event-content:hover {
     outline: 2px dashed #852121;
 }
 
-.rz-week-view .rz-event-content {
+.rz-scheduler {
+    height: 955px !important;
+}
 
-} 
+.rz-view-content {
+    overflow: hidden !important;
+}

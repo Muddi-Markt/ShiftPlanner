@@ -24,7 +24,6 @@
 		<SwipeComponent OnSwipe="Swipe" Orientation="SwipeOrientation.Horizontal">
 			<RadzenScheduler
 				TItem="Appointment"
-				style="height: 1000px;"
 				@ref="_scheduler"
 				SlotRender=@OnSlotRender
 				Data=@Shifts
@@ -44,13 +43,13 @@
 					TimeFormat="HH:mm"
 					Text="Tag"
 					StartTime="TimeSpan.FromHours(8)"
-					EndTime="TimeSpan.FromHours(27)"
+					EndTime="TimeSpan.FromHours(26)"
 					MinutesPerSlot="30"/>
 				<RadzenWeekView
 					@ref="_weekView"
 					Text="Woche"
 					StartTime="TimeSpan.FromHours(8)"
-					EndTime="TimeSpan.FromHours(27)"
+					EndTime="TimeSpan.FromHours(26)"
 					MinutesPerSlot="30"
 					TimeFormat="HH:mm"/>
 			</RadzenScheduler>
