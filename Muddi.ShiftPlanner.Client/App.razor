@@ -29,7 +29,7 @@
 			<div class="muddi-plain-content mt-5">
 				<LoadingSpinner/>
 				<h1 style="color: var(--muddi-red)">NEUE VERSION!</h1>
-				<p>Eine neue Version wurde gefunden. Sie wird in 5 Sekunden aktualisiert...</p>
+				<p>Eine neue Version wurde gefunden. Sie wird aktualisiert...</p>
 			</div>
 		}
 		@* <FocusOnNavigate RouteData="@routeData" Selector="h1"/> *@
@@ -60,7 +60,7 @@
 	{
 		ShowContent = false;
 		_ = InvokeAsync(StateHasChanged);
-		await Task.Delay(5000);
+		await Task.Delay(1000);
 		await PWAUpdaterService.SkipWaitingAsync();
 	}
 
