@@ -222,8 +222,6 @@ public partial class LocationPage
 				return;
 			}
 
-			Console.WriteLine(arg.Start);
-			Console.WriteLine(arg.Start.Kind);
 			_oldStart = arg.Start;
 			_oldEnd = arg.End;
 			_isLoading = true;

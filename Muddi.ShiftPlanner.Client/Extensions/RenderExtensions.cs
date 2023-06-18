@@ -1,4 +1,5 @@
-﻿using Muddi.ShiftPlanner.Client.Entities;
+﻿using System.Text.RegularExpressions;
+using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
@@ -8,8 +9,8 @@ namespace Muddi.ShiftPlanner.Client;
 
 public static class RenderExtensions
 {
-
-	public static void SetSlotRenderStyle(this SchedulerSlotRenderEventArgs args, IReadOnlyList<ShiftContainer> containers)
+	public static void SetSlotRenderStyle(this SchedulerSlotRenderEventArgs args,
+		IReadOnlyList<ShiftContainer> containers)
 	{
 		switch (args.View.Text)
 		{
@@ -31,19 +32,27 @@ public static class RenderExtensions
 			}
 		}
 	}
-	
-	public static void SetAppointmentRenderStyle(this SchedulerAppointmentRenderEventArgs<Appointment> args, Guid userKeycloakId)
+
+	public static void SetAppointmentRenderStyle(this SchedulerAppointmentRenderEventArgs<Appointment> args,
+		Guid userKeycloakId)
 	{
 		args.Attributes["style"] = string.Empty;
+
+		//WeekView (quite hacky ;) )
 		if (args.Data.Shift is not { } shift)
 		{
-			if (args.Data.Title.StartsWith('0'))
-				args.Attributes["style"] += $"background: #00000033";
-			else
-				args.Attributes["style"] += $"background: #000000BB";
+			var match = Regex.Match(args.Data.Title, @"(\d*?)\/(\d*?)\n");
+			var from = double.Parse(match.Groups[1].Value);
+			var to = double.Parse(match.Groups[2].Value);
+			int num = Convert.ToInt32(0x33 + (136.0 * from / to));
+			var numHex = num.ToString("X2");
+
+			args.Attributes["style"] += $"background: #000000{numHex}";
 			return;
 		}
 
+
+		//DayView
 		if (shift.User == Mappers.NotAssignedEmployee)
 		{
 			args.Attributes["style"] += $"background: #ffffffD0; color:{shift.Type.Color};";
