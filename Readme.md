@@ -14,7 +14,9 @@ this will start up the services you need for development.
 ### Keycloak
 
 In [keycloak admin console](http://localhost:28080/admin/) login with user `admin` and pass `admin`, click on master realm and
-on `Add realm`. Then `Select file` and select `./Docker/muddi-shiftplanner-compose/config/keycloak/realm-export.json`. Then create a new user called `api-admin@muddimarkt.org` in the Muddi Realm, make sure you set 'E-Mail verified' and then set the Credentials (password) as `admin`. Also give the user under Role Mappings all roles for the shift-planner Client. 
+on `Add realm`. Then `Select file` and select `./Docker/muddi-shiftplanner-compose/config/keycloak/realm-export.json`.
+
+Then create a new user called `api-admin@muddimarkt.org` in the Muddi Realm, make sure you set 'E-Mail verified' and then set the Credentials (password) as `admin`. Also give the user under Role Mappings all roles for the shift-planner Client and also in client role `realm-management` the role `view-users`
 
 In Role Mappings you can also set Client Roles for shift-planner (e.g. admin, editor, super-admin or viewer)
 ### Dotnet secrets
