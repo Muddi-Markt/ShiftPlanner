@@ -118,8 +118,12 @@ public class KeycloakService : IKeycloakService
 	public async Task<IEnumerable<GetEmployeeResponse>> GetUsers()
 	{
 		var apiResponse = await _keycloakApi.GetUsers(Realm);
-		return apiResponse.IsSuccessStatusCode && apiResponse.Content is not null
-			? apiResponse.Content.Select(u => u.MapToEmployeeResponse())
-			: Enumerable.Empty<GetEmployeeResponse>();
+		if (!apiResponse.IsSuccessStatusCode)
+			throw new Exception("Failed to get users: " + (apiResponse.Error?.Message ??
+			                                               apiResponse.ReasonPhrase ??
+			                                               apiResponse.StatusCode.ToString()));
+		return apiResponse.Content is null
+			? Enumerable.Empty<GetEmployeeResponse>()
+			: apiResponse.Content.Select(u => u.MapToEmployeeResponse());
 	}
 }
