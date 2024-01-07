@@ -9,7 +9,7 @@ namespace Muddi.ShiftPlanner.Shared.BlazorWASM;
 
 public static partial class ServiceCollectionExtensions
 {
-    public static void AddMuddiConnect(this IServiceCollection services, IConfigurationSection configuration)
+    public static void AddOauthConnect(this IServiceCollection services, IConfigurationSection configuration)
     {
         services.AddAuthorizationCore(options =>
         {

@@ -10,7 +10,7 @@ namespace Muddi.ShiftPlanner.Shared.BlazorWASM;
 
 public static partial class ServiceCollectionExtensions
 {
-	public static void MuddiShiftApiExtensions(this IServiceCollection services, IConfigurationSection configuration)
+	public static void AddShiftApiExtensions(this IServiceCollection services, IConfigurationSection configuration)
 	{
 		var baseUri = configuration["BaseUrl"] ??
 		              throw new ArgumentNullException(nameof(configuration), "Failed to get BaseUrl from configuration");

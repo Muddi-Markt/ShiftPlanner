@@ -1,10 +1,4 @@
-:root {
-    --muddi-red: #e42725;
-    --muddi-white: #eaf1df;
-    --muddi-beige: #fde1cc;
-    --muddi-light-blue: #e3eee8;
-    --muddi-light-green: #e0fcd0;
-}
+
 
 .muddi-plain-content {
     display: flex;

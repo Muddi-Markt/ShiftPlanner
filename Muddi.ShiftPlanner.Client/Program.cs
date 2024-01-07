@@ -10,8 +10,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddRadzen();
-builder.Services.AddMuddiConnect(builder.Configuration.GetRequiredSection("MuddiConnect"));
-builder.Services.MuddiShiftApiExtensions(builder.Configuration.GetRequiredSection("MuddiShiftApi"));
+builder.Services.AddOauthConnect(builder.Configuration.GetRequiredSection("OAuth"));
+builder.Services.AddShiftApiExtensions(builder.Configuration.GetRequiredSection("ShiftApi"));
 builder.Services.AddScoped<ShiftService>();
 builder.Services.AddBlazorDownloadFile();
 

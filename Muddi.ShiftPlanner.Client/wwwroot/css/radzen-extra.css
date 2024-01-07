@@ -34,7 +34,7 @@ a:hover {
 }
 
 .rz-chkbox-box.rz-state-active {
-    background: var(--muddi-red) !important;
+    background: var(--main-primary) !important;
 }
 
 .rz-event-content:first-line {

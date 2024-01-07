@@ -1,6 +1,6 @@
 {
-  "name": "MUDDIs Schichtplanner",
-  "short_name": "MUDDI-shifts",
+  "name": "Techno TÜV Nord Schichtplanner",
+  "short_name": "TTN-shifts",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -8,7 +8,7 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "customization/favicon.png",
+      "src": "favicon.png",
       "type": "image/png",
       "sizes": "192x192"
     }
