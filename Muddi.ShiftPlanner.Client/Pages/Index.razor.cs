@@ -10,19 +10,10 @@ namespace Muddi.ShiftPlanner.Client.Pages;
 
 public partial class Index
 {
-	[Inject] private IAccessTokenProvider AccessTokenProvider { get; set; }
-	[Inject] private NavigationManager NavigationManager { get; set; }
 	[CascadingParameter] public MainLayout MainLayout { get; set; } = default!;
 
-	private string _token;
-
-
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		MainLayout.SetTitle("Start");
-		var t = await AccessTokenProvider.RequestAccessToken();
-		_token = t.TryGetToken(out var tok)
-			? tok.Value
-			: $"Failed to obtain token. Status: {t.Status}";
+		MainLayout.SetTitle(null);
 	}
 }

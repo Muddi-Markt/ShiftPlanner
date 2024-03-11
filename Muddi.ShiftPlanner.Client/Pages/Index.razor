@@ -1,17 +1,13 @@
 ﻿@page "/"
 @attribute [Authorize]
+@inject IOptions<AppCustomization> AppCustomization;
 <AuthorizeView>
 	<Authorized>
-		<h2>Moin @(context.User.Identity.Name)!</h2>
+		<h2>Moin @(context.User.Identity?.Name)!</h2>
 		<br/>
 		<DisplayNextShiftsComponent/>
 		<br/>
-		<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="mailto:gastro@muddimarkt.org">gastro@muddimarkt.org</a></p>
-		@* Token:
-		<br/>
-		<br/>
-		<textarea value="@_token" style="width:100%; height:400px;"/>
-		*@
+		<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
 	</Authorized>
 
 	<NotAuthorized>

@@ -2,8 +2,8 @@
     try {
         const response = await fetch('customization/customization.json');
         const settings = await response.json();
-        const title = settings.App.Title; // Replace 'AppTitle' with your actual key
-        const subtitle = settings.App.Subtitle; // Replace 'AppTitle' with your actual key
+        const title = settings.App.Title;
+        const subtitle = settings.App.Subtitle;
         document.querySelector('.muddi-plain-content h1').textContent = title;
         document.querySelector('.muddi-plain-content p').textContent = subtitle;
         document.title = title;

@@ -1,12 +1,14 @@
-﻿@inject DialogService DialogService
+﻿@using Microsoft.Extensions.Options
+@inject DialogService DialogService
+@inject IOptions<AppCustomization> AppCustomization;
 <div>
-	<p>Ein Fehler ist passiert. Das ist nicht schlimm, aber wenn du Hilfe brauchst wende dich bitte an <a href="mailto:gasto@muddimarkt.org">gastro@muddimarkt.org</a></p>
-	<p style="white-space: pre-line">@Text</p>
-	<RadzenButton Text="Ok" Click="() => DialogService.Close()"></RadzenButton>
+    <p>Ein Fehler ist passiert. Das ist nicht schlimm, aber wenn du Hilfe brauchst wende dich bitte an 
+        <a href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
+    <p style="white-space: pre-line">@Text</p>
+    <RadzenButton Text="Ok" Click="() => DialogService.Close()"></RadzenButton>
 </div>
 
 
 @code{
-	[Parameter]
-	public string Text { get; set; }
+    [Parameter] public string Text { get; set; }
 }

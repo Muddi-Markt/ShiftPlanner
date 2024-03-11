@@ -1,14 +1,12 @@
-﻿@using Muddi.ShiftPlanner.Client.Services
-@using System.Globalization
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Muddi.ShiftPlanner.Shared.BlazorWASM
-@using Muddi.ShiftPlanner.Shared.Entities
+
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager;
 @inject ShiftService ShiftService;
 @inject DialogService DialogService;
 @inject TooltipService TooltipService;
+@inject IOptions<AppCustomization> AppCustomization;
 <RadzenDialog/>
 <RadzenNotification/>
 <RadzenTooltip/>
@@ -21,7 +19,7 @@
 					<div class="d-flex align-items-center w-100">
 						<RadzenSidebarToggle Click="@(_ => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
 						</RadzenSidebarToggle>
-						<RadzenLink class="title" Text="@($"MUDDIs Schichtplaner {(string.IsNullOrEmpty(_title) ? "" : "» ")}")" Path="/"></RadzenLink>
+						<RadzenLink class="title" Text="@($"{AppCustomization.Value.Title} {(string.IsNullOrEmpty(_title) ? "" : "» ")}")" Path="/"></RadzenLink>
 						<RadzenLabel Text=@_title class="title-page mx-2"></RadzenLabel>
 
 
@@ -96,7 +94,7 @@
 								<RadzenLabel Text="MUDDI Markt Shift Planner"></RadzenLabel>
 								<br/>
 								<div class="d-flex" style="gap: 4px">
-									<RadzenLabel Text="&copy; 2022-2023 Max Reble,"></RadzenLabel>
+									<RadzenLabel Text="&copy; 2022-2024 Max Reble,"></RadzenLabel>
 									<RadzenLink Target="_blank" Path="https://muddimarkt.org">MUDDI Markt e.V.</RadzenLink>
 								</div>
 							</div>
