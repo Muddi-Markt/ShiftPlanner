@@ -3,6 +3,9 @@
 @inject ShiftService ShiftService;
 @inherits GetAllPageBase<GetLocationResponse, CreateLocationDialog>
 
+<RadzenText TextStyle="TextStyle.H4">Locations</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1">Definiere Orte (z.B. Bar 1, Lemonaid Stand, Aufbau, ...)</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1">und Schicht-Container (Wie häufig sollen Frameworks an welchen Tagen in den jeweiligen Locations stattfinden)<br/>Benutze für die Container halbtransparente Farben.</RadzenText>
 <RadzenButton Icon="add" Click="Create"></RadzenButton>
 <RadzenButton Icon="refresh" Click="LoadGridData"></RadzenButton>
 <RadzenDataGrid @ref="DataGrid" TItem="GetLocationResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">

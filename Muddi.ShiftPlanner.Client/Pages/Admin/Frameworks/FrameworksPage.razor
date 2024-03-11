@@ -4,6 +4,8 @@
 @inherits GetAllPageBase<GetFrameworkResponse, CreateFrameworkDialog>
 @inject ShiftService ShiftService;
 
+<RadzenText TextStyle="TextStyle.H4">Frameworks</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1">Definiere Schicht-Frameworks (z.B. Frühschicht, Nachtschicht, Aufbau, Abbau, ...)</RadzenText>
 <RadzenButton Icon="add" Click="Create"></RadzenButton>
 <RadzenButton Icon="refresh" Click="LoadGridData"></RadzenButton>
 <RadzenDataGrid @ref="DataGrid" TItem="GetFrameworkResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">

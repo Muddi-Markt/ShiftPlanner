@@ -4,6 +4,8 @@
 @inject NavigationManager NavMan;
 @inject TooltipService tooltipService
 
+<RadzenText TextStyle="TextStyle.H4">Saisons</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1">Einzelne Events (z.B. Kieler Woche 2023 oder Techno TÜV Festival 2024)</RadzenText>
 <RadzenButton Icon="add" Click="Create"></RadzenButton>
 <RadzenButton Icon="refresh" Click="LoadGridData"></RadzenButton>
 <RadzenDataGrid @ref="DataGrid" TItem="GetSeasonResponse" Data="@Data" LoadData="LoadGridData" Count="Count" IsLoading="@IsLoading">
