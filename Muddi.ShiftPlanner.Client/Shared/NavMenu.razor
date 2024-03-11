@@ -16,10 +16,10 @@
 			</AuthorizeView>
 			<AuthorizeView Policy="@Policies.IsAdmin">
 				<RadzenPanelMenuItem Text="Admin">
+					<RadzenPanelMenuItem Text="Seasons" Path="/admin/seasons"></RadzenPanelMenuItem>
 					<RadzenPanelMenuItem Text="ShiftTypes" Path="/admin/shift-types"></RadzenPanelMenuItem>
 					<RadzenPanelMenuItem Text="Frameworks" Path="/admin/frameworks"></RadzenPanelMenuItem>
 					<RadzenPanelMenuItem Text="Locations" Path="/admin/locations"></RadzenPanelMenuItem>
-					<RadzenPanelMenuItem Text="Seasons" Path="/admin/seasons"></RadzenPanelMenuItem>
 				</RadzenPanelMenuItem>
 				<RadzenPanelMenuItem Text="Statikstiken für Admins" Path="/statistics/employees"></RadzenPanelMenuItem>
 				<RadzenPanelMenuItem Text="Export" Path="/admin/export"></RadzenPanelMenuItem>
