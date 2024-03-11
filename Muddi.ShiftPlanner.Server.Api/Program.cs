@@ -14,7 +14,8 @@ builder.Host.UseSerilog((context, configuration) => configuration
 
 builder.Services.AddCors();
 builder.Services.AddFastEndpoints();
-builder.Services.AddSwaggerDoc();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerDocument();
 builder.Services.AddAuthenticationMuddiConnect(builder.Configuration);
 builder.Services.AddMuddiShiftPlannerContext(builder.Configuration);
 builder.Services.AddDatabaseMigrations();
@@ -38,7 +39,7 @@ app.UseAuthorization();
 
 app.UseFastEndpoints();
 app.UseOpenApi();
-app.UseSwaggerUi3(s => s.ConfigureDefaults());
+app.UseSwaggerUi(s => s.ConfigureDefaults());
 
 try
 {

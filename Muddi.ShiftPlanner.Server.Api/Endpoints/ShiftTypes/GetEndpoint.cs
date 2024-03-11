@@ -12,7 +12,7 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftTypesResponse>
 
 	protected override void CrudConfigure()
 	{
-		Get("/shift-types/{Id}");
+		Get("shift-types/{Id}");
 	}
 
 	public override async Task<GetShiftTypesResponse?> CrudExecuteAsync(Guid id, CancellationToken ct)
