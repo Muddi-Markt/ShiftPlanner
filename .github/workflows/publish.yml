@@ -56,6 +56,3 @@ jobs:
             NETWORK=host
           # Verwende load anstatt push, um mit buildx zu bauen und dann manuell zu pushen
           load: true
-      - name: Create and push image with network host
-        run: |
-          docker buildx build --tag ghcr.io/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ github.sha }} --network host --push .
