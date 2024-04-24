@@ -36,10 +36,10 @@ jobs:
         with:
           dotnet-version: ${{ env.DOT_NET_VERSION }}
       - name: Build .NET project
-        run: dotnet build --configuration Release --no-restore  --verbosity normal
+        run: dotnet build --no-restore
 
       - name: Test .NET project
-        run: dotnet test --no-restore
+        run: dotnet test --no-build --verbosity normal
 
       - name: Set up Docker Build
         uses: docker/setup-buildx-action@v1
