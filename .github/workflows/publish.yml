@@ -8,7 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DOT_NET_VERSION: '8.x'
+  DOT_NET_VERSION: '7.0.202'
 
 jobs:
   build-and-push-image:
