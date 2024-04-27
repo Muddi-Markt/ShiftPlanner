@@ -43,4 +43,6 @@ jobs:
           context: .
           file: ./${{ matrix.app.path }}/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ github.sha }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:v1.0
