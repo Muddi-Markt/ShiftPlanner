@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.18 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
