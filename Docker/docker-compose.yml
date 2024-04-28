@@ -30,5 +30,32 @@ services:
     volumes:
       - postgresql_data:/var/lib/postgresql/data
       - ./config/postgresql/initdb:/docker-entrypoint-initdb.d
+
+  shift-planner-api:
+    restart: unless-stopped
+    image: ghcr.io/muddi-markt/shiftplanner/api:v1
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Host=postgresql;Database=shiftplanner;Username=postgres;Password=verySecurePasswordForDevelopment"
+      Keycloak__Authority: "http://keycloak:8080/auth/realms/shiftplanner"
+      Keycloak__ClientId: "shiftplanner-api"
+      Keycloak__ClientSecret: "superDuperSecret"
+    ports:
+      - "8008:80"
+    depends_on:
+      - keycloak
+      - postgresql
+    network_mode: "host"
+
+  shift-planner-client:
+    restart: unless-stopped
+    image: ghcr.io/muddi-markt/shiftplanner/client:v1
+    ports:
+      - "8009:80"
+    volumes:
+      - ./config/customization:/usr/share/nginx/html/customization
+      - ./config/manifest.json:/usr/share/nginx/html/manifest.json
+    network_mode: "host"
+
 volumes:
   postgresql_data:
