@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
 env:
   REGISTRY: ghcr.io
 
@@ -49,6 +50,7 @@ jobs:
         with:
           context: .
           file: ./${{ matrix.app.path }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ github.sha }}
           build-args: |
