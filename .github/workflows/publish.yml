@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'release/v*'
+      - develop
 env:
   REGISTRY: ghcr.io
 
