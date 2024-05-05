@@ -3,17 +3,19 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH=amd64
 WORKDIR /src
 COPY ["Muddi.ShiftPlanner.Services.Alerting/Muddi.ShiftPlanner.Services.Alerting.csproj", "Muddi.ShiftPlanner.Services.Alerting/"]
 COPY ["Muddi.ShiftPlanner.Shared/Muddi.ShiftPlanner.Shared.csproj", "Muddi.ShiftPlanner.Shared/"]
-RUN dotnet restore "Muddi.ShiftPlanner.Services.Alerting/Muddi.ShiftPlanner.Services.Alerting.csproj"
+RUN dotnet restore "Muddi.ShiftPlanner.Services.Alerting/Muddi.ShiftPlanner.Services.Alerting.csproj" -a $TARGETARCH
 COPY . .
 WORKDIR "/src/Muddi.ShiftPlanner.Services.Alerting"
-RUN dotnet build "Muddi.ShiftPlanner.Services.Alerting.csproj" -c Release -o /app/build
+RUN dotnet build "Muddi.ShiftPlanner.Services.Alerting.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish
-RUN dotnet publish "Muddi.ShiftPlanner.Services.Alerting.csproj" -c Release -o /app/publish
+ARG TARGETARCH=amd64
+RUN dotnet publish "Muddi.ShiftPlanner.Services.Alerting.csproj" -c Release -o /app/publish -a $TARGETARCH
 
 FROM base AS final
 WORKDIR /app
