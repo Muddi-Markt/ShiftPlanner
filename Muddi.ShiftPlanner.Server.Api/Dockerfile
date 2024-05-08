@@ -1,4 +1,5 @@
 ﻿FROM  mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.18 AS base
+ARG TARGETARCH=amd64
 WORKDIR /app
 EXPOSE 80
 
@@ -14,7 +15,7 @@ WORKDIR "/src/Muddi.ShiftPlanner.Server.Api"
 RUN dotnet build "Muddi.ShiftPlanner.Server.Api.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish
-ARG TARGETARCH=amd64
+ARG TARGETARCH
 RUN dotnet publish "Muddi.ShiftPlanner.Server.Api.csproj" -c Release -o /app/publish -a $TARGETARCH
 
 FROM base AS final

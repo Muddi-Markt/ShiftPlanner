@@ -15,6 +15,7 @@ public interface IKeycloakService
 public class KeycloakService : IKeycloakService
 {
 	private readonly IMemoryCache _cache;
+	private readonly string _realm; // Hold realm as a field
 	private const string Realm = "muddi";
 	private readonly IKeycloakApi _keycloakApi;
 
@@ -22,12 +23,20 @@ public class KeycloakService : IKeycloakService
 	public KeycloakService(IConfiguration configuration, IMemoryCache cache)
 	{
 		_cache = cache;
+
+		// Reading authority and realm from environment or configuration
+        var host = Environment.GetEnvironmentVariable("KEYCLOAK_HOST") ?? configuration["Keycloak:Host"];
+        _realm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM") ?? configuration["Keycloak:Realm"] ?? "muddi";
+            
+		if (string.IsNullOrEmpty(host))
+			throw new InvalidOperationException("Keycloak host must be specified in environment variables or configuration.");
+
 		var authority = configuration["MuddiConnect:Authority"];
 
-
 		var c = configuration.GetSection("MuddiConnect");
-		var keycloakUser = c["AdminUser"];
-		var keycloakPass = c["AdminPassword"];
+		// Reading admin credentials from environment variables or configuration
+        var keycloakUser = Environment.GetEnvironmentVariable("KEYCLOAK_ADMIN") ?? configuration["MuddiConnect:AdminUser"];
+        var keycloakPass = Environment.GetEnvironmentVariable("KEYCLOAK_ADMIN_PASSWORD") ?? configuration["MuddiConnect:AdminPassword"];
 
 		if (string.IsNullOrEmpty(keycloakUser) || string.IsNullOrEmpty(keycloakPass))
 			throw new InvalidOperationException("You need to specify AdminUser and AdminPassword in MuddiConnect");
