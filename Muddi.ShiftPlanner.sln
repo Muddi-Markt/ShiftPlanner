@@ -5,10 +5,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Shared", "Muddi.ShiftPlanner.Shared\Muddi.ShiftPlanner.Shared.csproj", "{8EB4C779-D3AB-44EE-8110-C7D600185009}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{3173C785-C62C-4E58-A939-F124214B748D}"
-	ProjectSection(SolutionItems) = preProject
-		Docker\muddi-shiftplanner-compose\config\postgresql\initdb\001-init-keycloak.sh = Docker\muddi-shiftplanner-compose\config\postgresql\initdb\001-init-keycloak.sh
-		Docker\muddi-shiftplanner-compose\docker-compose.yml = Docker\muddi-shiftplanner-compose\docker-compose.yml
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Muddi.ShiftPlanner.Tests.Unit", "Muddi.ShiftPlanner.Tests.Unit\Muddi.ShiftPlanner.Tests.Unit.csproj", "{BC1DB81F-F177-434D-8266-11CF99880A0C}"
 EndProject

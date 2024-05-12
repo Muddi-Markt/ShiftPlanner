@@ -1,0 +1,98 @@
+version: '3.7'
+
+services:
+  shift-planner-api:
+    restart: unless-stopped
+    image: ghcr.io/muddi-markt/shiftplanner/api:v1.2
+    depends_on:
+      - keycloak
+      - postgres
+    networks:
+      - shiftplanner
+    ports:
+      - "5280:80"
+    environment:
+      Database__USER: ${MUDDI_POSTGRES_USER}
+      Database__PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
+      Database__Name: ${MUDDI_POSTGRES__DB}
+      Database__HOST: postgres
+      Database__PORT: 5432
+      MuddiConnect__AdminPassword: admin #todo this will be a service account in future
+      ConnectionStrings__ShiftPlannerDb: Server=postgres;Port=5432;Database=shift_planner;User Id=muddi;Password=YourSuperDuperSecretPassword_ChangeMe
+  
+  shift-planner-client:
+    restart: unless-stopped
+    image: ghcr.io/muddi-markt/shiftplanner/client:v1.2
+    volumes:
+      - ./config/muddi/customization:/usr/share/nginx/html/customization
+      - ./config/muddi/appsettings.json:/usr/share/nginx/html/appsettings.json
+      - ./config/muddi/manifest.json:/usr/share/nginx/html/manifest.json
+    networks:
+      - shiftplanner
+    ports:
+      - "5281:80"
+
+  keycloak:
+    restart: unless-stopped
+    image: quay.io/keycloak/keycloak:18.0
+    command: start #see https://www.keycloak.org/server/configuration-production
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
+      KEYCLOAK_LOGLEVEL: INFO
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTP: "false"
+      KC_PROXY: edge
+    depends_on:
+      - postgres
+    ports:
+      - "28080:8080"
+    volumes:
+      - ./config/keycloak/realm-export.json:/opt/keycloak/data/import
+    networks:
+      - shiftplanner
+      
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ChangeMeBetterNow
+      MUDDI_POSTGRES_USER: ${MUDDI_POSTGRES_USER}
+      MUDDI_POSTGRES_PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
+      MUDDI_POSTGRES_DB: shift_planner
+      KEYCLOAK_POSTGRES_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+      - ./config/postgres/initdb:/docker-entrypoint-initdb.d
+    networks:
+      - shiftplanner
+    ports:
+      - "25432:5432"
+
+  #shift-planner-alerting:
+  #  restart: unless-stopped
+  #  image: ghcr.io/muddi-markt/shiftplanner/alerting:v1.2
+  #  build:
+  #    context: ../Muddi.ShiftPlanner.Services.Alerting
+  #    dockerfile: Dockerfile
+  #    target: final
+  #    args:
+  #      - TARGETARCH=arm64
+  #  depends_on:
+  #    - postgres
+  #  networks:
+  #    - shiftplanner
+
+volumes:
+  postgres_data:
+
+networks:
+  shiftplanner:
