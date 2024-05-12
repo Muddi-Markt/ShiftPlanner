@@ -39,7 +39,7 @@
 	private async Task RefreshLocationTypes()
 	{
 		_locationTypes = (await ShiftApi.GetAllLocationTypes());
-		if (EntityToEdit.Type.Id == default)
+		if (EntityToEdit.Type.Id == default && _locationTypes.Any())
 			EntityToEdit.Type = _locationTypes.First();
 	}
 
