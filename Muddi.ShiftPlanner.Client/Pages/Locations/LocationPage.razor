@@ -3,56 +3,64 @@
 @attribute [Authorize]
 @if (_location is not null)
 {
-	<div style="position:relative;">
-		@if (_isLoading && _enableLoadingSpinner)
-		{
-			<div class="" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10;backdrop-filter: blur(2px)">
-				<div class="d-flex align-items-center flex-column mt-5">
-					<LoadingSpinner/>
-					<h3 style="color: var(--main-primary)">MUDDI sucht Schichten...</h3>
-				</div>
-			</div>
-		}
+    <div style="position:relative;">
+        @if (_isLoading && _enableLoadingSpinner)
+        {
+            <div class="" style="position: absolute;left: 0;top: 0;width: 100%; height:100%;background: #ffffff99;z-index: 10;backdrop-filter: blur(2px)">
+                <div class="d-flex align-items-center flex-column mt-5">
+                    <LoadingSpinner/>
+                    <h3 style="color: var(--main-primary)">MUDDI sucht Schichten...</h3>
+                </div>
+            </div>
+        }
 
-		<RadzenButton Text="Nur meine Schichten"
-		              class="only-my-shifts-button"
-		              Style="@(ShowOnlyUsersShifts ? "background: var(--main-primary); box-shadow: inset 0 3px 0 0 rgb(0 0 0 / 10%);" : "background: grey")"
-		              Click="ShowOnlyUserShiftsButtonPressed">
-		</RadzenButton>
+        <div class="flex-row d-flex justify-content-between">
+            <RadzenButton Text="Nur meine Schichten"
+                          class="only-my-shifts-button"
+                          Style="@(ShowOnlyUsersShifts ? "background: var(--main-primary); box-shadow: inset 0 3px 0 0 rgb(0 0 0 / 10%);" : "background: grey")"
+                          Click="ShowOnlyUserShiftsButtonPressed">
+            </RadzenButton>
+            <RadzenDatePicker TValue="DateTime"
+                              ShowTime="false"
+                              AllowInput="false"
+                              DateFormat="dd.MM.yyyy"
+                              Style="width: 110px"
+                              @bind-Value="StartDate"/>
 
+        </div>
 
-		<SwipeComponent OnSwipe="Swipe" Orientation="SwipeOrientation.Horizontal">
-			<RadzenScheduler
-				TItem="Appointment"
-				@ref="_scheduler"
-				SlotRender=@OnSlotRender
-				Data=@Shifts
-				LoadData="@LoadShifts"
-				Date="StartDate"
-				StartProperty="@nameof(Appointment.LocalStartTime)"
-				EndProperty="@nameof(Appointment.LocalEndTime)"
-				TextProperty="@nameof(Appointment.Title)"
-				TodayText="Heute"
-				SelectedIndex="@SelectedViewIndex"
-				AppointmentRender=@OnAppointmentRender
-				SlotSelect=@OnSlotSelect
-				AppointmentSelect=@OnShiftSelect>
+        <SwipeComponent OnSwipe="Swipe" Orientation="SwipeOrientation.Horizontal">
+            <RadzenScheduler
+                TItem="Appointment"
+                @ref="_scheduler"
+                SlotRender=@OnSlotRender
+                Data=@Shifts
+                LoadData="@LoadShifts"
+                Date="StartDate"
+                StartProperty="@nameof(Appointment.LocalStartTime)"
+                EndProperty="@nameof(Appointment.LocalEndTime)"
+                TextProperty="@nameof(Appointment.Title)"
+                TodayText="Heute"
+                SelectedIndex="@SelectedViewIndex"
+                AppointmentRender=@OnAppointmentRender
+                SlotSelect=@OnSlotSelect
+                AppointmentSelect=@OnShiftSelect>
 
-				<RadzenDayViewFix
-					@ref="_dayView"
-					TimeFormat="HH:mm"
-					Text="Tag"
-					StartTime="TimeSpan.FromHours(8)"
-					EndTime="TimeSpan.FromHours(26)"
-					MinutesPerSlot="30"/>
-				<RadzenWeekView
-					@ref="_weekView"
-					Text="Woche"
-					StartTime="TimeSpan.FromHours(8)"
-					EndTime="TimeSpan.FromHours(26)"
-					MinutesPerSlot="30"
-					TimeFormat="HH:mm"/>
-			</RadzenScheduler>
-		</SwipeComponent>
-	</div>
+                <RadzenDayViewFix
+                    @ref="_dayView"
+                    TimeFormat="HH:mm"
+                    Text="Tag"
+                    StartTime="TimeSpan.FromHours(8)"
+                    EndTime="TimeSpan.FromHours(26)"
+                    MinutesPerSlot="30"/>
+                <RadzenWeekView
+                    @ref="_weekView"
+                    Text="Woche"
+                    StartTime="TimeSpan.FromHours(8)"
+                    EndTime="TimeSpan.FromHours(26)"
+                    MinutesPerSlot="30"
+                    TimeFormat="HH:mm"/>
+            </RadzenScheduler>
+        </SwipeComponent>
+    </div>
 }
