@@ -24,43 +24,49 @@ self.addEventListener('message', event => {
     if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
+const cacheNamePrefix = 'offline-cache-';
+const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
+const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/];
+const offlineAssetsExclude = [/^service-worker\.js$/];
+const skipIntegrityCheck = [/appsettings\.json$/, /manifest\.json$/, /^\/customization\//];
+
 async function onInstall(event) {
     console.info('Service worker Install ' + cacheName);
-    try {
-        const assetsRequests = self.assetsManifest.assets
-            .filter(asset => offlineAssetsInclude.some(pattern => pattern.test(asset.url)))
-            .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
-            .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
-        const cache = await caches.open(cacheName);
-        await cache.addAll(assetsRequests);
-    } catch (error) {
-        console.error('Error during service worker install:', error);
-    }
+    // Fetch and cache all matching items from the assets manifest
+    const assetsRequests = self.assetsManifest.assets
+        .filter(asset => offlineAssetsInclude.some(pattern => pattern.test(asset.url)))
+        .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
+        .map(asset => {
+            // Conditionally set the integrity and cache control based on URL patterns
+            const options = skipIntegrityCheck.some(pattern => pattern.test(asset.url))
+                ? { cache: 'no-cache' } // Skip integrity check
+                : { integrity: asset.hash, cache: 'no-cache' };
+            return new Request(asset.url, options);
+        });
+    await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
 }
 
 async function onActivate(event) {
     console.info('Service worker Activate');
-    try {
-        const cacheKeys = await caches.keys();
-        await Promise.all(cacheKeys
-            .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
-            .map(key => caches.delete(key)));
-    } catch (error) {
-        console.error('Error during service worker activate:', error);
-    }
+
+    // Delete unused caches
+    const cacheKeys = await caches.keys();
+    await Promise.all(cacheKeys
+        .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
+        .map(key => caches.delete(key)));
 }
 
 async function onFetch(event) {
-    if (event.request.method !== 'GET') return fetch(event.request);
+    let cachedResponse = null;
+    if (event.request.method === 'GET') {
+        // For all navigation requests, try to serve index.html from cache
+        // If you need some URLs to be server-rendered, edit the following check to exclude those URLs
+        const shouldServeIndexHtml = event.request.mode === 'navigate';
 
-    const shouldServeIndexHtml = event.request.mode === 'navigate';
-    const request = shouldServeIndexHtml ? 'index.html' : event.request;
-    const cache = await caches.open(cacheName);
-
-    try {
-        const cachedResponse = await cache.match(request);
-        return cachedResponse || fetch(event.request);
-    } catch (error) {
-        return fetch(event.request);
+        const request = shouldServeIndexHtml ? 'index.html' : event.request;
+        const cache = await caches.open(cacheName);
+        cachedResponse = await cache.match(request);
     }
+
+    return cachedResponse || fetch(event.request);
 }
