@@ -6,62 +6,61 @@ self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
 self.addEventListener('updatefound', () => {
-    // An updated service worker has appeared in reg.installing!
     let newWorker = self.installing;
-
     newWorker.addEventListener('statechange', () => {
-        // Has network.state changed?
         switch (newWorker.state) {
             case 'installed':
                 if (navigator.serviceWorker.controller) {
-                    // At this point, the updated precached content has been fetched,
-                    // but the previous service worker will still serve the older content until all client tabs are closed.
-                    console.log('New content is available, reload page.');
-                    window.location.reload();
+                    // Inform any open pages to reload to start using the new service worker.
+                    self.clients.matchAll({ type: 'window' }).then(clients => {
+                        clients.forEach(client => client.postMessage('reload-window'));
+                    });
                 }
                 break;
         }
-    });});
-self.addEventListener('message', event => { 
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+    });
 });
-
-const cacheNamePrefix = 'offline-cache-';
-const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
-const offlineAssetsInclude = [ /\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/ ];
-const offlineAssetsExclude = [ /^service-worker\.js$/ ];
+self.addEventListener('message', event => {
+    if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
 async function onInstall(event) {
     console.info('Service worker Install ' + cacheName);
-    // Fetch and cache all matching items from the assets manifest
-    const assetsRequests = self.assetsManifest.assets
-        .filter(asset => offlineAssetsInclude.some(pattern => pattern.test(asset.url)))
-        .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
-        .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
-    await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
+    try {
+        const assetsRequests = self.assetsManifest.assets
+            .filter(asset => offlineAssetsInclude.some(pattern => pattern.test(asset.url)))
+            .filter(asset => !offlineAssetsExclude.some(pattern => pattern.test(asset.url)))
+            .map(asset => new Request(asset.url, { integrity: asset.hash, cache: 'no-cache' }));
+        const cache = await caches.open(cacheName);
+        await cache.addAll(assetsRequests);
+    } catch (error) {
+        console.error('Error during service worker install:', error);
+    }
 }
 
 async function onActivate(event) {
     console.info('Service worker Activate');
-
-    // Delete unused caches
-    const cacheKeys = await caches.keys();
-    await Promise.all(cacheKeys
-        .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
-        .map(key => caches.delete(key)));
+    try {
+        const cacheKeys = await caches.keys();
+        await Promise.all(cacheKeys
+            .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
+            .map(key => caches.delete(key)));
+    } catch (error) {
+        console.error('Error during service worker activate:', error);
+    }
 }
 
 async function onFetch(event) {
-    let cachedResponse = null;
-    if (event.request.method === 'GET') {
-        // For all navigation requests, try to serve index.html from cache
-        // If you need some URLs to be server-rendered, edit the following check to exclude those URLs
-        const shouldServeIndexHtml = event.request.mode === 'navigate';
+    if (event.request.method !== 'GET') return fetch(event.request);
 
-        const request = shouldServeIndexHtml ? 'index.html' : event.request;
-        const cache = await caches.open(cacheName);
-        cachedResponse = await cache.match(request);
+    const shouldServeIndexHtml = event.request.mode === 'navigate';
+    const request = shouldServeIndexHtml ? 'index.html' : event.request;
+    const cache = await caches.open(cacheName);
+
+    try {
+        const cachedResponse = await cache.match(request);
+        return cachedResponse || fetch(event.request);
+    } catch (error) {
+        return fetch(event.request);
     }
-
-    return cachedResponse || fetch(event.request);
 }
