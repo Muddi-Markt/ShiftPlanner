@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.JSInterop;
 using Muddi.ShiftPlanner.Client.Components;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
@@ -25,6 +26,7 @@ public partial class LocationPage
 	[Inject] private DialogService DialogService { get; set; } = default!;
 	[Inject] private ShiftService ShiftService { get; set; } = default!;
 	[Inject] private ILogger<LocationPage> Logger { get; set; } = default!;
+	[Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
 	/// <summary>
 	/// LocationId
@@ -291,13 +293,13 @@ public partial class LocationPage
 	private void UpdateQueryUri(DateTime date = default)
 	{
 		var sDate = (date == default ? _scheduler?.CurrentDate.Date : date)?.ToString("yyyy-MM-dd");
-		var s = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>
+		var queryParams = new Dictionary<string, object?>
 		{
 			[nameof(ShowOnlyUsersShifts)] = ShowOnlyUsersShifts,
 			[nameof(StartDate)] = sDate,
 			[nameof(SelectedViewIndex)] = SelectedViewIndex
-		});
-		NavigationManager.NavigateTo(s);
+		};
+		_ = JsRuntime.InvokeVoidAsync("updateQueryParameters", queryParams).AsTask();
 	}
 
 	private void ShowOnlyUserShiftsButtonPressed()
