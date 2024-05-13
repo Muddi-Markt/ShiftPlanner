@@ -60,9 +60,6 @@ public partial class LocationPage
 	private ShiftLocation? _location;
 	private ClaimsPrincipal? _user;
 
-	private bool _isLoading = true;
-	private bool _enableLoadingSpinner = true;
-
 	private IEnumerable<Appointment> Shifts => ShowOnlyUsersShifts
 		? _shifts.Where(s => s.Shift?.User.KeycloakId == _userKeycloakId)
 		: _shifts;
@@ -226,7 +223,6 @@ public partial class LocationPage
 
 			_oldStart = arg.Start;
 			_oldEnd = arg.End;
-			_isLoading = true;
 			_shifts.Clear();
 
 			switch (idx)
@@ -260,7 +256,6 @@ public partial class LocationPage
 		}
 		finally
 		{
-			_isLoading = false;
 			_semaphore.Release();
 		}
 	}
@@ -327,9 +322,7 @@ public partial class LocationPage
 			SwipeEvent.Right => view.Prev(),
 			_ => _scheduler.CurrentDate
 		};
-		_enableLoadingSpinner = view == _weekView;
 		await _scheduler.Reload();
-		_enableLoadingSpinner = true;
 	}
 
 	private const int WeekViewIndex = 1;
