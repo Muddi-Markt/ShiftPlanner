@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.JSInterop;
 using Muddi.ShiftPlanner.Client.Components;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
@@ -25,6 +26,7 @@ public partial class LocationPage
 	[Inject] private DialogService DialogService { get; set; } = default!;
 	[Inject] private ShiftService ShiftService { get; set; } = default!;
 	[Inject] private ILogger<LocationPage> Logger { get; set; } = default!;
+	[Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
 	/// <summary>
 	/// LocationId
@@ -57,9 +59,6 @@ public partial class LocationPage
 
 	private ShiftLocation? _location;
 	private ClaimsPrincipal? _user;
-
-	private bool _isLoading = true;
-	private bool _enableLoadingSpinner = true;
 
 	private IEnumerable<Appointment> Shifts => ShowOnlyUsersShifts
 		? _shifts.Where(s => s.Shift?.User.KeycloakId == _userKeycloakId)
@@ -224,7 +223,6 @@ public partial class LocationPage
 
 			_oldStart = arg.Start;
 			_oldEnd = arg.End;
-			_isLoading = true;
 			_shifts.Clear();
 
 			switch (idx)
@@ -258,7 +256,6 @@ public partial class LocationPage
 		}
 		finally
 		{
-			_isLoading = false;
 			_semaphore.Release();
 		}
 	}
@@ -291,13 +288,13 @@ public partial class LocationPage
 	private void UpdateQueryUri(DateTime date = default)
 	{
 		var sDate = (date == default ? _scheduler?.CurrentDate.Date : date)?.ToString("yyyy-MM-dd");
-		var s = NavigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>
+		var queryParams = new Dictionary<string, object?>
 		{
 			[nameof(ShowOnlyUsersShifts)] = ShowOnlyUsersShifts,
 			[nameof(StartDate)] = sDate,
 			[nameof(SelectedViewIndex)] = SelectedViewIndex
-		});
-		NavigationManager.NavigateTo(s);
+		};
+		_ = JsRuntime.InvokeVoidAsync("updateQueryParameters", queryParams).AsTask();
 	}
 
 	private void ShowOnlyUserShiftsButtonPressed()
@@ -325,9 +322,7 @@ public partial class LocationPage
 			SwipeEvent.Right => view.Prev(),
 			_ => _scheduler.CurrentDate
 		};
-		_enableLoadingSpinner = view == _weekView;
 		await _scheduler.Reload();
-		_enableLoadingSpinner = true;
 	}
 
 	private const int WeekViewIndex = 1;
