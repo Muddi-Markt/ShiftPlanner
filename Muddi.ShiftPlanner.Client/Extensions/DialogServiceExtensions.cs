@@ -13,11 +13,13 @@ public static class DialogServiceExtensions
 			ApiException apiException => $"{apiException.Message}\r\n{apiException.Content}",
 			_ => ex.Message + "\r\n" + ex.InnerException?.Message
 		};
-		
+		Console.WriteLine(ex);
 		return dialogService.Error(message, title ?? $"Error - {ex.GetType().Name}");
 	}
+
 	public static Task Error(this DialogService dialogService, string errorText, string title = "Error")
 	{
-		return dialogService.OpenAsync<ErrorDialog>(title, new Dictionary<string, object>(){[nameof(ErrorDialog.Text)] = errorText});
+		return dialogService.OpenAsync<ErrorDialog>(title,
+			new Dictionary<string, object>() { [nameof(ErrorDialog.Text)] = errorText });
 	}
 }

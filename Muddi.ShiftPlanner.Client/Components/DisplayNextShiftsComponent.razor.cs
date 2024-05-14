@@ -19,8 +19,8 @@ public partial class DisplayNextShiftsComponent : IDisposable
 	[Inject] private DialogService DialogService { get; set; } = default!;
 	[Inject] public IBlazorDownloadFileService BlazorDownloadFileService { get; set; }
 	[CascadingParameter] private Task<AuthenticationState> AuthStateTask { get; set; }
-	private List<Appointment>? _myShifts;
-	private List<Appointment>? _freeShifts;
+	private List<DayAppointment>? _myShifts;
+	private List<DayAppointment>? _freeShifts;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -37,12 +37,12 @@ public partial class DisplayNextShiftsComponent : IDisposable
 			var shifts = await ShiftService.GetAllShiftsFromUser(authState.User, 6, DateTime.UtcNow);
 			_myShifts = new(shifts.Select(s => s.ToAppointment()));
 			var availableShifts = await ShiftService.GetAllAvailableShifts(12, DateTime.UtcNow);
-			_freeShifts = new(availableShifts.Select(s => s.ToAppointment()));
+			_freeShifts = [..availableShifts.Select(s => s.ToAppointment())];
 			await InvokeAsync(StateHasChanged);
 		}
 	}
 
-	private static string MakeLocationUri(Appointment appointment, bool showOnlyUserShift = true)
+	private static string MakeLocationUri(DayAppointment appointment, bool showOnlyUserShift = true)
 	{
 		var query = HttpUtility.ParseQueryString(string.Empty);
 		query[nameof(LocationPage.StartDate)] = appointment.LocalStartTime.ToString("yyyy-MM-dd");

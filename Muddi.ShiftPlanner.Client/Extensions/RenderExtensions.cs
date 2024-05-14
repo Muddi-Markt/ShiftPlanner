@@ -1,9 +1,12 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Radzen;
+using Radzen.Blazor.Rendering;
+using Appointment = Muddi.ShiftPlanner.Client.Entities.Appointment;
 
 namespace Muddi.ShiftPlanner.Client;
 
@@ -38,19 +41,18 @@ public static class RenderExtensions
 	{
 		args.Attributes["style"] = string.Empty;
 
-		//WeekView (quite hacky ;) )
-		if (args.Data.Shift is not { } shift)
+		if (args.Data is WeekAppointment weekAppointment)
 		{
-			var match = Regex.Match(args.Data.Title, @"(\d*?)\/(\d*?)\n");
-			var from = double.Parse(match.Groups[1].Value);
-			var to = double.Parse(match.Groups[2].Value);
-			int num = Convert.ToInt32(0x33 + (136.0 * from / to));
-			var numHex = num.ToString("X2");
-
-			args.Attributes["style"] += $"background: #000000{numHex}";
+			var from = weekAppointment.AvailableShifts;
+			var to = weekAppointment.TotalShifts;
+			double num = Convert.ToInt32(40 + 40 * from / to) / 100.0;
+			args.Attributes["style"] = $"background: rgb(0,0,0,{num.ToInvariantString()});";
 			return;
 		}
 
+		if (args.Data is not DayAppointment dayAppointment)
+			throw new NotSupportedException("Unknown appointment type" + args.Data.GetType());
+		var shift = dayAppointment.Shift;
 
 		//DayView
 		if (shift.User == Mappers.NotAssignedEmployee)

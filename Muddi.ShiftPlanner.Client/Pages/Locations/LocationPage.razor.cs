@@ -1,9 +1,6 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.JSInterop;
 using Muddi.ShiftPlanner.Client.Components;
@@ -12,10 +9,8 @@ using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Client.Shared;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Muddi.ShiftPlanner.Shared.Entities;
-using Muddi.ShiftPlanner.Shared.Exceptions;
 using Radzen;
 using Radzen.Blazor;
 
@@ -61,7 +56,7 @@ public partial class LocationPage
 	private ClaimsPrincipal? _user;
 
 	private IEnumerable<Appointment> Shifts => ShowOnlyUsersShifts
-		? _shifts.Where(s => s.Shift?.User.KeycloakId == _userKeycloakId)
+		? _shifts.Where(s => (s as DayAppointment)?.Shift?.User.KeycloakId == _userKeycloakId)
 		: _shifts;
 
 
@@ -95,7 +90,7 @@ public partial class LocationPage
 
 			_userKeycloakId = _user.GetKeycloakId();
 			_isAdmin = _user.IsInRole(ApiRoles.Admin);
-			await ForceReloadScheduler();
+			await SetShifts(SelectedViewIndex);
 		}
 		catch (Exception ex)
 		{
@@ -107,8 +102,7 @@ public partial class LocationPage
 
 	Task ForceReloadScheduler()
 	{
-		_oldStart = default;
-		_oldEnd = default;
+		_shifts.Clear();
 		return _scheduler?.Reload() ?? Task.CompletedTask;
 	}
 
@@ -120,6 +114,8 @@ public partial class LocationPage
 
 	private async Task OnSlotSelect(DateTime startTime, ShiftType? type = null)
 	{
+		if (_location is null || _user is null)
+			return;
 		if (type is { OnlyAssignableByAdmin: true } && !_isAdmin)
 		{
 			await DialogService.Confirm($"Leider dürfen nur Admins '{type.Name}' Nutzer*Innen auswählen.");
@@ -165,23 +161,27 @@ public partial class LocationPage
 	private async Task OnShiftSelect(SchedulerAppointmentSelectEventArgs<Appointment> args)
 	{
 		//If appoint has no date and is WeekView, go to DayView of selected appointment
-		if (args.Data.Shift is null && SelectedViewIndex == WeekViewIndex)
+		if (args.Data is WeekAppointment && SelectedViewIndex == WeekViewIndex)
 		{
 			SelectedViewIndex = DayViewIndex;
 			StartDate = args.Start.Date;
+			await SetShifts(SelectedViewIndex, true);
 			return;
 		}
 
-		//If shift is null or the user is not assigned, create a new shift
-		if (args.Data.Shift is null || args.Data.Shift.User == Mappers.NotAssignedEmployee)
+		if (args.Data is not DayAppointment dayAppointment)
+			throw new NotSupportedException("Unknown appointment type" + args.Data.GetType());
+
+		//If the user is not assigned, create a new shift
+		if (dayAppointment.Shift.User == Mappers.NotAssignedEmployee)
 		{
-			await OnSlotSelect(args.Start, args.Data.Shift?.Type);
+			await OnSlotSelect(args.Start, dayAppointment.Shift?.Type);
 			return;
 		}
 
 		var param = new Dictionary<string, object>
 		{
-			[nameof(EditShiftDialog.EntityToEdit)] = args.Data.Shift.MapToShiftResponse()
+			[nameof(EditShiftDialog.EntityToEdit)] = dayAppointment.Shift.MapToShiftResponse()
 		};
 		var res = await DialogService.OpenAsync<EditShiftDialog>("Bearbeite Schicht", param);
 		if (res is true)
@@ -191,50 +191,37 @@ public partial class LocationPage
 	}
 
 	// Never call StateHasChanged in AppointmentRender - would lead to infinite loop
+	//TODO[perf] OnAppointmentRender will be called twice, on day/week leave and on day/week come
 	private void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Appointment> args)
-		=> args.SetAppointmentRenderStyle(_userKeycloakId);
+	{
+		args.SetAppointmentRenderStyle(_userKeycloakId);
+	}
 
 
 	private void OnSlotRender(SchedulerSlotRenderEventArgs args)
 		=> args.SetSlotRenderStyle(_location!.Containers);
 
 
-	private DateTime _oldStart;
-	private DateTime _oldEnd;
+	private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-
-	private SemaphoreSlim _semaphore = new(1, 1);
-
-	private async Task LoadShifts(SchedulerLoadDataEventArgs arg)
+	private async Task SetShifts(int idx, bool invokeStateHasChanged = false)
 	{
 		await _semaphore.WaitAsync();
 		try
 		{
-			var idx = GetSelectedViewIndex();
-			bool shiftsAny = _shifts.Any();
-			bool dateNotChanged = arg.Start == _oldStart && arg.End == _oldEnd;
-			//I dont know why, but we need this
-			bool isCorrectFormat = (idx == WeekViewIndex && arg.End - arg.Start > TimeSpan.FromDays(1))
-			                       || (idx == DayViewIndex && arg.End - arg.Start <= TimeSpan.FromDays(1));
-			if ((shiftsAny && dateNotChanged) || !isCorrectFormat)
-			{
-				return;
-			}
-
-			_oldStart = arg.Start;
-			_oldEnd = arg.End;
 			_shifts.Clear();
-
+			var start = ShiftService.CurrentSeason.StartDate;
+			var end = ShiftService.CurrentSeason.EndDate;
 			switch (idx)
 			{
 				case WeekViewIndex:
 				{
 					//Week view
 					var myShifts =
-						(await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End, _userKeycloakId))
+						(await ShiftService.GetAllShiftsFromLocationAsync(Id, start, end, _userKeycloakId))
 						.ToList();
 					var shiftTypes =
-						await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, arg.Start, arg.End);
+						await ShiftService.GetAllAvailableShiftTypesFromLocationAsync(Id, start, end);
 					var group = shiftTypes.GroupBy(st => new { st.Start, st.End });
 					var appointments = group.Select(g => CreateNewAppointment(g.Key.Start, g.Key.End, g, myShifts));
 					_shifts = appointments.ToList();
@@ -245,14 +232,17 @@ public partial class LocationPage
 				case DayViewIndex:
 				{
 					//day view
-					var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
-					ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
-					_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
+					var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, start, end)).ToList();
+					ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, start, end);
+					_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => (Appointment)s.ToAppointment()).ToList();
 					SelectedViewIndex = 0;
 					UpdateQueryUri();
 					break;
 				}
 			}
+
+			if (invokeStateHasChanged)
+				await InvokeAsync(StateHasChanged);
 		}
 		finally
 		{
@@ -272,10 +262,11 @@ public partial class LocationPage
 			getShiftTypesResponses = getShiftTypesResponses.Where(s => s.Type.OnlyAssignableByAdmin == false);
 
 		var arr = getShiftTypesResponses as GetShiftTypesCountResponse[] ?? getShiftTypesResponses.ToArray();
-		var available = Math.Max(0, arr.Sum(s => s.AvailableCount));
 		var total = arr.Sum(s => s.TotalCount);
+		var available = Math.Max(0, arr.Sum(s => s.AvailableCount));
+		// var available = Random.Shared.Next(0, total + 1);
 		var title = $"{available}/{total}\nfreie Schicht{(available != 1 ? "en" : "")}";
-		return new Appointment(start, end, title);
+		return new WeekAppointment(start, end, title, available, total);
 	}
 
 
@@ -287,14 +278,17 @@ public partial class LocationPage
 
 	private void UpdateQueryUri(DateTime date = default)
 	{
-		var sDate = (date == default ? _scheduler?.CurrentDate.Date : date)?.ToString("yyyy-MM-dd");
+		if (_scheduler is null)
+			return;
+		StartDate = (date == default ? _scheduler.CurrentDate.Date : date);
 		var queryParams = new Dictionary<string, object?>
 		{
 			[nameof(ShowOnlyUsersShifts)] = ShowOnlyUsersShifts,
-			[nameof(StartDate)] = sDate,
+			[nameof(StartDate)] = StartDate.ToString("yyyy-MM-dd"),
 			[nameof(SelectedViewIndex)] = SelectedViewIndex
 		};
 		_ = JsRuntime.InvokeVoidAsync("updateQueryParameters", queryParams).AsTask();
+		InvokeAsync(StateHasChanged); //For the DatePicker
 	}
 
 	private void ShowOnlyUserShiftsButtonPressed()
@@ -327,4 +321,13 @@ public partial class LocationPage
 
 	private const int WeekViewIndex = 1;
 	private const int DayViewIndex = 0;
+
+	private void LoadShifts(SchedulerLoadDataEventArgs obj)
+	{
+		UpdateQueryUri();
+		var current = GetSelectedViewIndex();
+		if (SelectedViewIndex == current && _shifts.Count > 0)
+			return;
+		_ = SetShifts(current, true);
+	}
 }
