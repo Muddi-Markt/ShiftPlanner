@@ -61,7 +61,7 @@ public partial class LocationPage
 	private ClaimsPrincipal? _user;
 
 	private IEnumerable<Appointment> Shifts => ShowOnlyUsersShifts
-		? _shifts.Where(s => s.Shift?.User.KeycloakId == _userKeycloakId)
+		? _shifts.Where(s => (s as DayAppointment)?.Shift?.User.KeycloakId == _userKeycloakId)
 		: _shifts;
 
 
@@ -165,23 +165,26 @@ public partial class LocationPage
 	private async Task OnShiftSelect(SchedulerAppointmentSelectEventArgs<Appointment> args)
 	{
 		//If appoint has no date and is WeekView, go to DayView of selected appointment
-		if (args.Data.Shift is null && SelectedViewIndex == WeekViewIndex)
+		if (args.Data is WeekAppointment && SelectedViewIndex == WeekViewIndex)
 		{
 			SelectedViewIndex = DayViewIndex;
 			StartDate = args.Start.Date;
 			return;
 		}
 
-		//If shift is null or the user is not assigned, create a new shift
-		if (args.Data.Shift is null || args.Data.Shift.User == Mappers.NotAssignedEmployee)
+		if (args.Data is not DayAppointment dayAppointment)
+			throw new NotSupportedException("Unknown appointment type" + args.Data.GetType());
+
+		//If the user is not assigned, create a new shift
+		if (dayAppointment.Shift.User == Mappers.NotAssignedEmployee)
 		{
-			await OnSlotSelect(args.Start, args.Data.Shift?.Type);
+			await OnSlotSelect(args.Start, dayAppointment.Shift?.Type);
 			return;
 		}
 
 		var param = new Dictionary<string, object>
 		{
-			[nameof(EditShiftDialog.EntityToEdit)] = args.Data.Shift.MapToShiftResponse()
+			[nameof(EditShiftDialog.EntityToEdit)] = dayAppointment.Shift.MapToShiftResponse()
 		};
 		var res = await DialogService.OpenAsync<EditShiftDialog>("Bearbeite Schicht", param);
 		if (res is true)
@@ -245,9 +248,9 @@ public partial class LocationPage
 				case DayViewIndex:
 				{
 					//day view
-					var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, arg.Start, arg.End)).ToList();
-					ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, arg.Start, arg.End);
-					_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => s.ToAppointment()).ToList();
+					var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, start, end)).ToList();
+					ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, start, end);
+					_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => (Appointment)s.ToAppointment()).ToList();
 					SelectedViewIndex = 0;
 					UpdateQueryUri();
 					break;
@@ -275,7 +278,7 @@ public partial class LocationPage
 		var available = Math.Max(0, arr.Sum(s => s.AvailableCount));
 		var total = arr.Sum(s => s.TotalCount);
 		var title = $"{available}/{total}\nfreie Schicht{(available != 1 ? "en" : "")}";
-		return new Appointment(start, end, title);
+		return new WeekAppointment(start, end, title, available, total);
 	}
 
 

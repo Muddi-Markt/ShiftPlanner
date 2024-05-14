@@ -5,5 +5,5 @@ namespace Muddi.ShiftPlanner.Client;
 
 public static class ShiftExtensions
 {
-	public static Appointment ToAppointment(this Shift shift) => new(shift);
+	public static DayAppointment ToAppointment(this Shift shift) => new(shift);
 }
