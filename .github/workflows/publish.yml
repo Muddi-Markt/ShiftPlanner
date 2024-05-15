@@ -63,9 +63,9 @@ jobs:
         run: |
           VERSION=${{ env.FULL_VERSION }}
           CLEAN_VERSION=${VERSION#v}
-          sed -i "s/AssemblyVersion(\"[^\"]*\")/AssemblyVersion(\"$CLEAN_VERSION\")/g" Properties/AssemblyInfo.cs
-          sed -i "s/AssemblyInformationalVersion(\"[^\"]*\")/AssemblyInformationalVersion(\"$CLEAN_VERSION\")/g" Properties/AssemblyInfo.cs
-          sed -i "s/AssemblyFileVersion(\"[^\"]*\")/AssemblyFileVersion(\"$CLEAN_VERSION\")/g" Properties/AssemblyInfo.cs
+          sed -i "s/AssemblyVersion(\"[^\"]*\")/AssemblyVersion(\"$CLEAN_VERSION\")/g" ${{ matrix.app.path }}/Properties/AssemblyInfo.cs
+          sed -i "s/AssemblyInformationalVersion(\"[^\"]*\")/AssemblyInformationalVersion(\"$CLEAN_VERSION\")/g" ${{ matrix.app.path }}/Properties/AssemblyInfo.cs
+          sed -i "s/AssemblyFileVersion(\"[^\"]*\")/AssemblyFileVersion(\"$CLEAN_VERSION\")/g" ${{ matrix.app.path }}/Properties/AssemblyInfo.cs
 
       - name: Log in to the Container registry
         uses: docker/login-action@v1
