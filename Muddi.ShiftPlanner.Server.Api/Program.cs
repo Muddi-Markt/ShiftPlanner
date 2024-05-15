@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Reflection;
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
@@ -24,6 +25,9 @@ builder.Services.AddMemoryCache();
 builder.Services.AddTransient<ExcelService>();
 
 var app = builder.Build();
+
+var assembly = Assembly.GetEntryAssembly()!.GetName();
+app.Logger.LogInformation("Start {AssemblyName} v{AssemblyVersion}", assembly.Name, assembly.Version);
 
 var corsOrigins = builder.Configuration.GetSection("Cors").GetSection("Origins").Get<string[]>();
 
