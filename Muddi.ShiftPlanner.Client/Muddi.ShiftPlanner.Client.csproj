@@ -8,25 +8,16 @@
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-		<Deterministic>False</Deterministic>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
 	</ItemGroup>
 
-
-	<ItemGroup>
-		<!-- TODO This is a workaround as there is a bug in dotnet 8.0.4 - will be fixed in 8.0.5 then remove this 
-		see https://github.com/dotnet/aspnetcore/issues/49956#issuecomment-1992857288
-		-->
-		<TrimmerRootAssembly Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication"/>
-	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="BlazorDownloadFileFast" Version="0.2.0"/>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.4"/>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.4" PrivateAssets="all"/>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.5" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0"/>
 		<PackageReference Include="Radzen.Blazor" Version="4.31.4"/>
 		<PackageReference Include="Refit.HttpClientFactory" Version="6.3.2"/>
