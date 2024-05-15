@@ -1,0 +1,16 @@
+﻿@keyframes swipeInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes swipeInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+.swipe-in-left {
+    animation: swipeInRight 0.2s forwards;
+}
+
+.swipe-in-right {
+    animation: swipeInLeft 0.2s forwards;
+}

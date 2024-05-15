@@ -1,64 +1,79 @@
 ﻿@using Muddi.ShiftPlanner.Client.Entities
 <section class="@Class" style="@Style" @ontouchstart="HandleTouchStart" @ontouchend="HandleTouchEnd" @onkeypress:preventDefault="true">
-	@ChildContent
+    <div class="@_swipeAnimationClass">
+        @ChildContent
+    </div>
 </section>
 
 @code {
-	//from https://github.com/EdCharbeneau/BlazorPowerHour/issues/2#issuecomment-754687360
-	//TODO create a new github repo for this, this is amazing!
-	[Parameter]
-	public RenderFragment? ChildContent { get; set; }
+    private string _swipeAnimationClass = string.Empty;
 
-	[Parameter]
-	public string Style { get; set; } = "";
+    //from https://github.com/EdCharbeneau/BlazorPowerHour/issues/2#issuecomment-754687360
+    //TODO create a new github repo for this, this is amazing!
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 
-	[Parameter]
-	public string Class { get; set; } = string.Empty;
+    [Parameter] public string Style { get; set; } = "";
 
-	[Parameter]
-	public EventCallback<SwipeEvent> OnSwipe { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
 
-	[Parameter]
-	public SwipeOrientation Orientation { get; set; } = SwipeOrientation.Horizontal | SwipeOrientation.Vertical;
+    [Parameter] public EventCallback<SwipeEvent> OnSwipe { get; set; }
 
-	[Parameter]
-	public double SwipeThreshold { get; set; } = 0.8;
+    [Parameter] public SwipeOrientation Orientation { get; set; } = SwipeOrientation.Horizontal | SwipeOrientation.Vertical;
 
-	(TouchPoint? ReferencePoint, DateTime StartTime) _startPoint;
+    [Parameter] public double SwipeThreshold { get; set; } = 0.8;
 
-	void HandleTouchStart(TouchEventArgs t)
-	{
-		_startPoint.ReferencePoint = t.TargetTouches[0];
-		_startPoint.StartTime = DateTime.Now;
-	}
+    (TouchPoint? ReferencePoint, DateTime StartTime) _startPoint;
 
-	void HandleTouchEnd(TouchEventArgs t)
-	{
-		if (_startPoint.ReferencePoint is null)
-			return;
+    void HandleTouchStart(TouchEventArgs t)
+    {
+        _startPoint.ReferencePoint = t.TargetTouches[0];
+        _startPoint.StartTime = DateTime.Now;
+    }
+
+    async Task HandleTouchEnd(TouchEventArgs t)
+    {
+        if (_startPoint.ReferencePoint is null)
+            return;
 
 
-		var endReferencePoint = t.ChangedTouches[0];
+        var endReferencePoint = t.ChangedTouches[0];
 
-		var diffX = _startPoint.ReferencePoint.ClientX - endReferencePoint.ClientX;
-		var diffY = _startPoint.ReferencePoint.ClientY - endReferencePoint.ClientY;
-		var diffTime = DateTime.Now - _startPoint.StartTime;
-		var velocityX = Math.Abs(diffX / diffTime.Milliseconds);
-		var velocityY = Math.Abs(diffY / diffTime.Milliseconds);
+        var diffX = _startPoint.ReferencePoint.ClientX - endReferencePoint.ClientX;
+        var diffY = _startPoint.ReferencePoint.ClientY - endReferencePoint.ClientY;
+        var diffTime = DateTime.Now - _startPoint.StartTime;
+        var velocityX = Math.Abs(diffX / diffTime.Milliseconds);
+        var velocityY = Math.Abs(diffY / diffTime.Milliseconds);
 
-		if (velocityX < SwipeThreshold && velocityY < SwipeThreshold) return;
-		if (Math.Abs(velocityX - velocityY) < .5) return;
+        if (velocityX < SwipeThreshold && velocityY < SwipeThreshold) return;
+        if (Math.Abs(velocityX - velocityY) < .5) return;
 
-		if (velocityY >= SwipeThreshold)
-		{
-			if (Orientation.HasFlag(SwipeOrientation.Vertical))
-				OnSwipe.InvokeAsync(diffY < 0 ? SwipeEvent.Down : SwipeEvent.Up);
-			//Never Swipe whens scrolled vertically
-			return;
-		}
-		if (Orientation.HasFlag(SwipeOrientation.Horizontal) && velocityX >= SwipeThreshold)
-		{
-			OnSwipe.InvokeAsync(diffX < 0 ? SwipeEvent.Right : SwipeEvent.Left);
-		}
-	}
+        if (velocityY >= SwipeThreshold)
+        {
+            if (Orientation.HasFlag(SwipeOrientation.Vertical))
+                await OnSwipe.InvokeAsync(diffY < 0 ? SwipeEvent.Down : SwipeEvent.Up);
+            //Never Swipe whens scrolled vertically
+            return;
+        }
+
+        if (Orientation.HasFlag(SwipeOrientation.Horizontal) && velocityX >= SwipeThreshold)
+        {
+            await SwipeToNextPage(diffX < 0 ? SwipeEvent.Right : SwipeEvent.Left);
+        }
+    }
+
+    private async Task SwipeToNextPage(SwipeEvent swipeEvent)
+    {
+        _swipeAnimationClass = "swipe-in-" + swipeEvent.ToString().ToLower();
+        StateHasChanged();
+        await OnSwipe.InvokeAsync(swipeEvent);
+        // Change the content and swipe it in
+
+
+        // Wait for the swipe-in animation to complete
+        await Task.Delay(200);
+
+        // Reset the class for future use
+        _swipeAnimationClass = string.Empty;
+    }
+
 }
