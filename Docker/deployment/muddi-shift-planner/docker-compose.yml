@@ -18,7 +18,6 @@ services:
       Database__HOST: postgres
       Database__PORT: 5432
       MuddiConnect__AdminPassword: admin #todo this will be a service account in future
-      ConnectionStrings__ShiftPlannerDb: Server=postgres;Port=5432;Database=shift_planner;User Id=muddi;Password=YourSuperDuperSecretPassword_ChangeMe
   
   shift-planner-client:
     restart: unless-stopped
