@@ -14,7 +14,7 @@ services:
     environment:
       Database__USER: ${MUDDI_POSTGRES_USER}
       Database__PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
-      Database__Name: ${MUDDI_POSTGRES__DB}
+      Database__Name: ${MUDDI_POSTGRES_DB}
       Database__HOST: postgres
       Database__PORT: 5432
       MuddiConnect__AdminPassword: admin #todo this will be a service account in future
