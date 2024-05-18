@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using System.Diagnostics;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
@@ -23,7 +24,8 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 		Get("/locations/{Id:guid}/shifts");
 	}
 
-	public override async Task<List<GetShiftResponse>> CrudExecuteAsync(GetAllShiftsForLocationRequest req, CancellationToken ct)
+	public override async Task<List<GetShiftResponse>?> CrudExecuteAsync(GetAllShiftsForLocationRequest req,
+		CancellationToken ct)
 	{
 		//TODO why is DateTime always converted to local time by fast-endpoints?!
 		var start = req.Start.ToUniversalTime();
@@ -35,17 +37,16 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 				(req.KeycloakEmployeeId.HasValue ? s.EmployeeKeycloakId == req.KeycloakEmployeeId.Value : true) &&
 				(s.Start >= start && s.Start < end)))
 			.ThenInclude(s => s.Type)
-			.AsNoTracking()
 			.AsSingleQuery()
 			.FirstAsync(l => l.Id == req.Id!.Value, cancellationToken: ct);
 		List<GetShiftResponse> ret = new();
-		foreach (var container in location.Containers)
+		foreach (var shift in location.Containers
+			         .SelectMany(c => c.Shifts)
+			         .OrderBy(s => s.Start)
+			         .ThenBy(s => s.EmployeeKeycloakId))
 		{
-			foreach (var shift in container.Shifts)
-			{
-				var response = await MapToShiftResponse(shift);
-				ret.Add(response);
-			}
+			var response = await MapToShiftResponse(shift);
+			ret.Add(response);
 		}
 
 		return ret;

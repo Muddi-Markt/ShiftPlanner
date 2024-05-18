@@ -16,13 +16,13 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetContainerRequest, GetContain
 		Get("/containers");
 	}
 
-	public override async Task<List<GetContainerResponse>> CrudExecuteAsync(GetContainerRequest req, CancellationToken ct)
+	public override async Task<List<GetContainerResponse>?> CrudExecuteAsync(GetContainerRequest req, CancellationToken ct)
 	{
 		return await Database.ShiftLocations
 			.Include(t => t.Type)
 			.Where(q => q.Season.Id == req.SeasonId)
+			.OrderBy(sl => sl.Containers.Min(c => c.Start))
 			.Select(t => t.Adapt<GetContainerResponse>())
-			.AsNoTracking()
 			.ToListAsync(cancellationToken: ct);
 	}
 }

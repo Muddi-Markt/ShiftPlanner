@@ -20,8 +20,8 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetSeasonResponse
 	public override async Task<List<GetSeasonResponse>?> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
 	{
 		return await Database.Seasons
+			.OrderBy(s => s.StartDate)
 			.Select(t => t.Adapt<GetSeasonResponse>())
-			.AsNoTracking()
 			.ToListAsync(cancellationToken: ct);
 	}
 }

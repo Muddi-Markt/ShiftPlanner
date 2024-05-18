@@ -18,7 +18,7 @@ services:
       Database__HOST: postgres
       Database__PORT: 5432
       MuddiConnect__AdminPassword: admin #todo this will be a service account in future
-  
+      Cors__Origins__0: https://your-client-url.com
   shift-planner-client:
     restart: unless-stopped
     image: ghcr.io/muddi-markt/shiftplanner/client:v1.2

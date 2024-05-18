@@ -5,7 +5,7 @@ using Muddi.ShiftPlanner.Server.Database.Contexts;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Frameworks;
 
-public class GetAllEndpoint : CrudGetAllEndpoint<GetFrameworkRequest,GetFrameworkResponse>
+public class GetAllEndpoint : CrudGetAllEndpoint<GetFrameworkRequest, GetFrameworkResponse>
 {
 	public GetAllEndpoint(ShiftPlannerContext database) : base(database)
 	{
@@ -16,14 +16,15 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetFrameworkRequest,GetFramewor
 		Get("/frameworks");
 	}
 
-	public override async Task<List<GetFrameworkResponse>> CrudExecuteAsync(GetFrameworkRequest req, CancellationToken ct)
+	public override async Task<List<GetFrameworkResponse>?> CrudExecuteAsync(GetFrameworkRequest req,
+		CancellationToken ct)
 	{
 		return await Database.ShiftFrameworks
 			.Include(t => t.ShiftTypeCounts)
 			.ThenInclude(c => c.ShiftType)
 			.Where(sf => sf.Season.Id == req.SeasonId)
+			.OrderBy(sf => sf.Name)
 			.Select(t => t.Adapt<GetFrameworkResponse>())
-			.AsNoTracking()
 			.ToListAsync(cancellationToken: ct);
 	}
 }

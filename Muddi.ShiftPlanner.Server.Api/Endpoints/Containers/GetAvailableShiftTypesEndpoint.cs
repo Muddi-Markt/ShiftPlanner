@@ -27,7 +27,6 @@ public class GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShi
 			.ThenInclude(stc => stc.ShiftType)
 			.Include(c => c.Shifts)
 			.ThenInclude(s => s.Type)
-			.AsNoTracking()
 			.AsSingleQuery()
 			.FirstOrDefaultAsync(c => c.Id == request.ContainerId, cancellationToken: ct);
 		if (container is null)
