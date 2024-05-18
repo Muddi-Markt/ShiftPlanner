@@ -82,7 +82,7 @@ public class KeycloakService : IKeycloakService
 					Email = string.Empty,
 					Id = reqId,
 					UserName = "Unknown User",
-					FirstName = "Unknown",
+					FirstName = reqId.ToString()[..8],
 					LastName = "Unknown"
 				};
 			_cache.Set(reqId, response, TimeSpan.FromHours(1));
@@ -106,7 +106,7 @@ public class KeycloakService : IKeycloakService
 					Email = string.Empty,
 					Id = reqId,
 					UserName = "Unknown User",
-					FirstName = "Unknown",
+					FirstName = reqId.ToString()[..8],
 					LastName = "Unknown"
 				};
 			_cache.Set(reqId, response, TimeSpan.FromHours(1));
