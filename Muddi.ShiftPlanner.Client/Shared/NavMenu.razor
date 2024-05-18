@@ -2,44 +2,70 @@
 @using Muddi.ShiftPlanner.Shared.BlazorWASM
 @using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
 @inject ShiftService ShiftService;
+@inject NavigationManager NavigationManager;
 <RadzenSidebar Expanded="Expanded" ExpandedChanged="ExpandedChanged" class="demos-sidebar">
-	<ChildContent>
-		<RadzenPanelMenu Match="NavLinkMatch.Prefix">
-			<RadzenPanelMenuItem Text="Start" Path="/"></RadzenPanelMenuItem>
-			<AuthorizeView>
-				<Authorized>
-					@foreach (var location in ShiftService.GetAllShiftLocations())
-					{
-						<RadzenPanelMenuItem Text="@($"{location.Name} ({location.PercentageAlreadyAssignedShifts}%)")" Path="@location.Path"/>
-					}
-				</Authorized>
-			</AuthorizeView>
-			<AuthorizeView Policy="@Policies.IsAdmin">
-				<RadzenPanelMenuItem Text="Admin">
-					<RadzenPanelMenuItem Text="Seasons" Path="/admin/seasons"></RadzenPanelMenuItem>
-					<RadzenPanelMenuItem Text="ShiftTypes" Path="/admin/shift-types"></RadzenPanelMenuItem>
-					<RadzenPanelMenuItem Text="Frameworks" Path="/admin/frameworks"></RadzenPanelMenuItem>
-					<RadzenPanelMenuItem Text="Locations" Path="/admin/locations"></RadzenPanelMenuItem>
-				</RadzenPanelMenuItem>
-				<RadzenPanelMenuItem Text="Statikstiken für Admins" Path="/statistics/employees"></RadzenPanelMenuItem>
-				<RadzenPanelMenuItem Text="Export" Path="/admin/export"></RadzenPanelMenuItem>
-			</AuthorizeView>
-		</RadzenPanelMenu>
+    <ChildContent>
+        <div class="position-relative h-100">
+            <RadzenPanelMenu Match="NavLinkMatch.Prefix">
+                <RadzenPanelMenuItem Text="Start" Path="/"></RadzenPanelMenuItem>
+                <AuthorizeView>
+                    <Authorized>
+                        @foreach (var location in ShiftService.GetAllShiftLocations())
+                        {
+                            <RadzenPanelMenuItem Text="@($"{location.Name} ({location.PercentageAlreadyAssignedShifts}%)")" Path="@location.Path"/>
+                        }
+                    </Authorized>
+                </AuthorizeView>
+                <AuthorizeView Policy="@Policies.IsAdmin">
+                    <RadzenPanelMenuItem Text="Admin">
+                        <RadzenPanelMenuItem Text="Seasons" Path="/admin/seasons"></RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Text="ShiftTypes" Path="/admin/shift-types"></RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Text="Frameworks" Path="/admin/frameworks"></RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Text="Locations" Path="/admin/locations"></RadzenPanelMenuItem>
+                    </RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Text="Statikstiken für Admins" Path="/statistics/employees"></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Text="Export" Path="/admin/export"></RadzenPanelMenuItem>
+                </AuthorizeView>
+            </RadzenPanelMenu>
+            <div class="position-absolute w-100" style="bottom: 0">
+                <AuthorizeView Policy="@Policies.IsAdmin">
+                    <Authorized>
+                        <RadzenDropDown TValue="Season"
+                                        Style="width: 100%; background: #333333; border: 0; text-align: center; color: #fff"
+                                        Value="ShiftService.CurrentSeason"
+                                        Data="ShiftService.Seasons"
+                                        TextProperty="@nameof(Season.Name)"
+                                        ValueChanged="Callback">
+                        </RadzenDropDown>
 
-	</ChildContent>
+                    </Authorized>
+                    <NotAuthorized>
+                        <RadzenTextBox 
+                            Style="width: 100%; background: #333333; border: 0; text-align: center;"
+                            Value="@ShiftService.CurrentSeason.Name" 
+                            Disabled="true"></RadzenTextBox>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </ChildContent>
 </RadzenSidebar>
 
 @code {
 
-	[Parameter]
-	public bool Expanded { get; set; } = true;
+    [Parameter] public bool Expanded { get; set; } = true;
 
-	[Parameter]
-	public EventCallback<bool> ExpandedChanged { get; set; }
-	[CascadingParameter]
-	public MainLayout MainLayout { get; set; }
-	
-	private bool _sidebarExpanded = true;
+    [Parameter] public EventCallback<bool> ExpandedChanged { get; set; }
+    [CascadingParameter] public MainLayout MainLayout { get; set; }
 
+    private bool _sidebarExpanded = true;
+
+
+    private async Task Callback(Season s)
+    {
+        await ShiftService.ChangeSeason(s);
+        //We navigate to home as we are too lazy to implement OnSeasonChange event on every page ~~	 
+        NavigationManager.NavigateTo("/");
+    }
 
 }
