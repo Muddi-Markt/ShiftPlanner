@@ -18,12 +18,13 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetLocationRequest, GetLocation
 		Get("/locations");
 	}
 
-	public override async Task<List<GetLocationResponse>> CrudExecuteAsync(GetLocationRequest req, CancellationToken ct) =>
+	public override async Task<List<GetLocationResponse>?> CrudExecuteAsync(GetLocationRequest req,
+		CancellationToken ct) =>
 		await Database.ShiftLocations
 			.Include(l => l.Type)
 			.Where(l => l.Season.Id == req.SeasonId)
+			.OrderBy(l => l.Containers.Min(x => x.Start)) //First order by starting time
+			.ThenBy(l => l.Name) //Then by name
 			.Select(t => t.Adapt<GetLocationResponse>())
-			.AsNoTracking()
 			.ToListAsync(cancellationToken: ct);
 }
-

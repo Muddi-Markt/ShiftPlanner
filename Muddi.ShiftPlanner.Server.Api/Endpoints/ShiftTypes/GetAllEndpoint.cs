@@ -16,10 +16,11 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetShiftTypesRequest, GetShiftT
 		Get("shift-types");
 	}
 
-	public override async Task<List<GetShiftTypesResponse>> CrudExecuteAsync(GetShiftTypesRequest req, CancellationToken ct)
+	public override async Task<List<GetShiftTypesResponse>?> CrudExecuteAsync(GetShiftTypesRequest req, CancellationToken ct)
 	{
 		return await Database.ShiftTypes
 			.Where(x => x.Season.Id == req.SeasonId)
+			.OrderBy(st => st.Name)
 			.Select(t => t.Adapt<GetShiftTypesResponse>())
 			.ToListAsync(ct);
 	}

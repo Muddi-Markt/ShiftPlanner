@@ -22,6 +22,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetEmployeeRespon
 
 	public override async Task<List<GetEmployeeResponse>?> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
 	{
-		return (await _keycloakService.GetUsers()).ToList();
+		var getEmployeeResponses = await _keycloakService.GetUsers();
+		return getEmployeeResponses.OrderBy(x => x.FirstName).ToList();
 	}
 }

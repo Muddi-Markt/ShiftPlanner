@@ -12,9 +12,11 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetLocationTypesR
 		Get("/location-types");
 	}
 
-	public override async Task<List<GetLocationTypesResponse>> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
+	public override async Task<List<GetLocationTypesResponse>?> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
 	{
-		var res = await Database.ShiftLocationTypes.Select(t => t.Adapt<GetLocationTypesResponse>()).ToListAsync(ct);
+		var res = await Database.ShiftLocationTypes
+			.OrderBy(slt => slt.Name)
+			.Select(t => t.Adapt<GetLocationTypesResponse>()).ToListAsync(ct);
 		return res;
 	}
 
