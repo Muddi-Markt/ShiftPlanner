@@ -30,12 +30,10 @@ var assembly = Assembly.GetEntryAssembly()!.GetName();
 app.Logger.LogInformation("Start {AssemblyName} v{AssemblyVersion}", assembly.Name, assembly.Version);
 
 var corsOrigins = builder.Configuration.GetSection("Cors").GetSection("Origins").Get<string[]>();
+if (corsOrigins is null || corsOrigins.Length == 0)
+	throw new ArgumentException("You have to set Cors__Origins array in settings");
 
-#if DEBUG
 app.UseCors(b => b.WithOrigins(corsOrigins).AllowAnyMethod().AllowAnyHeader());
-#else
-app.UseCors(b => b.WithOrigins(corsOrigins).AllowAnyMethod().AllowAnyHeader());
-#endif
 
 app.UseAuthentication();
 app.UseAuthorization();
