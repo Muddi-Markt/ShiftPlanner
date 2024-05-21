@@ -10,7 +10,7 @@ services:
     networks:
       - shiftplanner
     ports:
-      - "5280:80"
+      - "5280:8080"
     environment:
       Database__USER: ${MUDDI_POSTGRES_USER}
       Database__PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
@@ -34,7 +34,9 @@ services:
   keycloak:
     restart: unless-stopped
     image: quay.io/keycloak/keycloak:18.0
-    command: start #see https://www.keycloak.org/server/configuration-production
+    #warning! Dont use in production, use command: start instead
+    #see https://www.keycloak.org/server/configuration-production
+    command: start-dev
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
