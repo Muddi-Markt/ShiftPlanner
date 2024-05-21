@@ -1,6 +1,5 @@
 ﻿FROM  mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.18 AS base
 WORKDIR /app
-EXPOSE 80
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG TARGETARCH
