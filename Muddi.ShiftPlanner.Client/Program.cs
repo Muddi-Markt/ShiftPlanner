@@ -39,8 +39,8 @@ static async Task LoadCustomizationConfigurationAsync(WebAssemblyHostBuilder bui
 
 public class AppCustomization
 {
-	public string Title { get; init; }
-	public string Subtitle { get; init; }
-	public string Contact { get; init; }
+	public string Title { get; init; } = "Schichtplanner";
+	public string Subtitle { get; init; } = string.Empty;
+	public string Contact { get; init; } = "add@me.de";
 	public string ContactHref => (Contact.Contains('@') ? "mailto:" + Contact : "#");
 }
