@@ -1,6 +1,9 @@
 ﻿{
   "App": {
     "Title": "Techno TÜV Nord - Schichtplanner",
-    "Subtitle": "Bass. Liebe. Schichten."
+    "Subtitle": "Bass. Liebe. Schichten.",
+    "Contact": "add@me.com",
+    "StartTime": "08:00:00",
+    "EndTime": "26:00:00"
   }
 }
