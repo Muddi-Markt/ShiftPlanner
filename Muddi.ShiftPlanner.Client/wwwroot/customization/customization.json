@@ -2,6 +2,8 @@
   "App": {
     "Title": "MUDDIs Schicht Planner",
     "Subtitle": "Auf eine HAMMER-mäßige Kieler Woche 2023!",
-    "Contact": "gastro@muddimarkt.org"
+    "Contact": "gastro@muddimarkt.org",
+    "StartTime": "08:00:00",
+    "EndTime": "26:00:00"
   }
 }
