@@ -1,0 +1,2 @@
+﻿GET {{api-uri}}/seasons
+Authorization: Bearer {{$auth.token("auth-id")}}

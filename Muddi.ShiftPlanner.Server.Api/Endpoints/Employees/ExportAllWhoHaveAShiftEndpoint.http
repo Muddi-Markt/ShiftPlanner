@@ -1,0 +1,3 @@
+﻿GET {{api-uri}}/employees/at-least-one-shift?SeasonId=96129c7b-c651-4215-ae53-7a133857066d
+Authorization: Bearer {{$auth.token("auth-id")}}
+
