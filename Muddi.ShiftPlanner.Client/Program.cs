@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Muddi.ShiftPlanner.Client;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.BlazorWASM;
@@ -28,7 +29,9 @@ static async Task LoadCustomizationConfigurationAsync(WebAssemblyHostBuilder bui
 {
 	// read JSON file as a stream for configuration
 	var client = new HttpClient() { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
-	using var response = await client.GetAsync("customization/customization.json");
+	var requestMessage = new HttpRequestMessage(HttpMethod.Get, "customization/customization.json");
+	requestMessage.SetBrowserRequestCache(BrowserRequestCache.NoCache);
+	using var response = await client.SendAsync(requestMessage);
 	if (response.StatusCode == HttpStatusCode.NotFound)
 		throw new ArgumentException("You need to specify a 'customization.json' in the customization directory");
 	response.EnsureSuccessStatusCode();
