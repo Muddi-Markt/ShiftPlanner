@@ -42,8 +42,11 @@ a:hover {
 }
 
 .rz-event-content {
-    white-space: pre-line;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: center;
+    white-space: pre-line; /* preserve line breaks */
 }
 
 .rz-event-content:hover {

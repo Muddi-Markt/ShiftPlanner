@@ -22,14 +22,22 @@ public class DayAppointment : Appointment
 	public DayAppointment(Shift shift) : base(shift.StartTime, shift.EndTime)
 	{
 		Shift = shift;
-		Title = StartTimeWithTimeShift.ToString("HH:mm") + " - " + EndTimeWithTimeShift.ToString("HH:mm") + "\n"
-		        + shift.User.Name
-		        + "\n" + shift.Type.Name;
-		
+		if (shift.Duration < TimeSpan.FromMinutes(60))
+			Title = shift.Type.Name;
+		else if (shift.Duration < TimeSpan.FromMinutes(90))
+			Title = shift.Type.Name + "\n"
+			                        + shift.User.Name + "\n";
+		else
+			Title = shift.Type.Name + "\n"
+			                        + shift.User.Name + "\n"
+			                        + TimeString;
 	}
 
+	private string TimeString
+		=> StartTimeWithTimeShift.ToString("HH:mm") + " - " + EndTimeWithTimeShift.ToString("HH:mm");
+
 	public DateTime StartTimeWithTimeShift => LocalStartTime + Shift.Type.StartingTimeShift;
-	public  DateTime EndTimeWithTimeShift => LocalEndTime + Shift.Type.StartingTimeShift;
+	public DateTime EndTimeWithTimeShift => LocalEndTime + Shift.Type.StartingTimeShift;
 }
 
 public abstract class Appointment
