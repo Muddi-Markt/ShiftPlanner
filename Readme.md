@@ -2,7 +2,7 @@
 
 ## How to contribute
 
-First install dotnet 7.0.201 sdk and the newest version of docker (which inclues docker compose) then:
+First install dotnet 8 sdk and the newest version of docker (which inclues docker compose) then:
 
 ```shell
 cd Docker/muddi-shiftplanner-compose/
