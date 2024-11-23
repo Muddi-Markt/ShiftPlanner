@@ -31,6 +31,7 @@ public class Shift : IEquatable<Shift>
 	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }
 	public DateTime EndTime { get; }
+	public TimeSpan Duration => EndTime - StartTime;
 	public ShiftType Type { get; }
 	public Guid ContainerId { get; }
 	public Guid LocationId { get; }
