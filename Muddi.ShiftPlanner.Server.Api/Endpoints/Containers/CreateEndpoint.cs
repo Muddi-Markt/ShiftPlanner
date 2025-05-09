@@ -21,6 +21,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 	{
 		var framework = await Database.ShiftFrameworks
 			.Include(t => t.ShiftTypeCounts)
+			.ThenInclude(st => st.ShiftType)
 			.FirstOrDefaultAsync(t => t.Id == req.FrameworkId, cancellationToken: ct);
 		if (framework is null)
 		{

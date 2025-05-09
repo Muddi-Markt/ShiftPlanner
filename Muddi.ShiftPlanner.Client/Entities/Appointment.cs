@@ -22,6 +22,8 @@ public class DayAppointment : Appointment
 	public DayAppointment(Shift shift) : base(shift.StartTime, shift.EndTime)
 	{
 		Shift = shift;
+		LocalStartTime = shift.StartTime.ToLocalTime() + shift.Type.StartingTimeShift;
+		LocalEndTime = shift.EndTime.ToLocalTime() + shift.Type.StartingTimeShift;
 		if (shift.Duration < TimeSpan.FromMinutes(60))
 			Title = shift.Type.Name;
 		else if (shift.Duration < TimeSpan.FromMinutes(90))
@@ -34,10 +36,7 @@ public class DayAppointment : Appointment
 	}
 
 	private string TimeString
-		=> StartTimeWithTimeShift.ToString("HH:mm") + " - " + EndTimeWithTimeShift.ToString("HH:mm");
-
-	public DateTime StartTimeWithTimeShift => LocalStartTime + Shift.Type.StartingTimeShift;
-	public DateTime EndTimeWithTimeShift => LocalEndTime + Shift.Type.StartingTimeShift;
+		=> LocalStartTime.ToString("HH:mm") + " - " + LocalEndTime.ToString("HH:mm");
 }
 
 public abstract class Appointment
