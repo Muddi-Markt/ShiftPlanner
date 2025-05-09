@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using Muddi.ShiftPlanner.Client.Components;
+using Muddi.ShiftPlanner.Client.Configuration;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Client.Shared;
@@ -28,9 +29,9 @@ public partial class LocationPage
 
 	private string CaclculateHeight()
 	{
-		var hours = (AppCustomization.Value.EndTime - AppCustomization.Value.StartTime).TotalHours;
-		Console.WriteLine("end: " + AppCustomization.Value.EndTime);
-		Console.WriteLine("start: " + AppCustomization.Value.StartTime);
+		var hours = (AppCustomization.Value.EndTimeSpan - AppCustomization.Value.StartTimeSpan).TotalHours;
+		Console.WriteLine("end: " + AppCustomization.Value.EndTimeSpan);
+		Console.WriteLine("start: " + AppCustomization.Value.StartTimeSpan);
 		Console.WriteLine("hours: " + hours);
 		return (48.125 * hours + 88.75).ToInvariantString();
 	}

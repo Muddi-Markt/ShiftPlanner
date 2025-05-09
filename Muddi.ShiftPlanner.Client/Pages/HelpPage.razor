@@ -1,12 +1,17 @@
 ﻿@attribute [AllowAnonymous]
 @page "/help"
 @using System.Reflection
+@using System.Text.Json
 @inject IOptions<AppCustomization> AppCustomization;
 <h3>Hilfe</h3>
 
 <p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
 <p>Version: @AssemblyVersion?.ToString()</p>
 <p>Programmiert mit ❤️ von Max :)</p>
+<h6>Configuration: </h6>
+<div>
+    @JsonSerializer.Serialize(AppCustomization.Value)
+</div>
 
 @code {
     private static readonly Version? AssemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
