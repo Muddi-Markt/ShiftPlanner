@@ -1,5 +1,5 @@
 # build app
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 COPY ["Muddi.ShiftPlanner.Client/Muddi.ShiftPlanner.Client.csproj", "Muddi.ShiftPlanner.Client/"]
