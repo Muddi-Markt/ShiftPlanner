@@ -55,18 +55,18 @@ else
                 SlotSelect=@OnSlotSelect
                 AppointmentSelect=@OnShiftSelect>
 
-                <RadzenDayViewFix
+                <RadzenDayView
                     @ref="_dayView"
                     TimeFormat="HH:mm"
                     Text="Tag"
-                    StartTime="@AppCustomization.Value.StartTime"
-                    EndTime="@AppCustomization.Value.EndTime"
+                    StartTime="@AppCustomization.Value.StartTimeSpan"
+                    EndTime="@AppCustomization.Value.EndTimeSpan"
                     MinutesPerSlot="30"/>
                 <RadzenWeekView
                     @ref="_weekView"
                     Text="Woche"
-                    StartTime="@AppCustomization.Value.StartTime"
-                    EndTime="@AppCustomization.Value.EndTime"
+                    StartTime="@AppCustomization.Value.StartTimeSpan"
+                    EndTime="@AppCustomization.Value.EndTimeSpan"
                     MinutesPerSlot="30"
                     TimeFormat="HH:mm"/>
             </RadzenScheduler>

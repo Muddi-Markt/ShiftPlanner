@@ -21,5 +21,4 @@ public class ExtensionTests
 		var localNow = DateTime.Now.ToLocalTime();
 		localNow.Invoking(l => l.ThrowIfNotUtc()).Should().Throw<DateTimeNotUtcException>();
 	}
-
 }

@@ -44,9 +44,9 @@ public class KeycloakService : IKeycloakService
 	private static DateTime _currentTokenExpiresAt;
 	private readonly GetTokenRequest _tokenRequest;
 
-	private async Task<string> GetAdminToken()
+	private async Task<string> GetAdminToken(HttpRequestMessage message, CancellationToken ct)
 	{
-		await TokenSemaphore.WaitAsync();
+		await TokenSemaphore.WaitAsync(ct);
 		try
 		{
 			if (_currentToken is not null && _currentTokenExpiresAt > DateTime.UtcNow) return _currentToken;

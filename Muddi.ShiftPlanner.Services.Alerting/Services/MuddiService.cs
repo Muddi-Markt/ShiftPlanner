@@ -24,7 +24,7 @@ public class MuddiService
 	}
 
 
-	private async Task<string> GetToken()
+	private async Task<string> GetToken(HttpRequestMessage message, CancellationToken token)
 	{
 		if (_token is null || DateTime.UtcNow > _token.ExpiresAt)
 			_token = await ShiftApi.Login(_loginRequest);
