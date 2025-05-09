@@ -80,14 +80,14 @@ public class AutomaticShiftCheckingService : IHostedService
 			if (!allShiftsTomorrow.Any())
 			{
 				_logger.LogInformation("No shifts for {Tomorrow}", tomorrow);
-				await _telegramClient.SendTextMessageAsync(_muddiGroupId, $"Alle Schichten für {ToDateStringMarkup(tomorrow)} besetzt :\\)",
+				await _telegramClient.SendMessage(_muddiGroupId, $"Alle Schichten für {ToDateStringMarkup(tomorrow)} besetzt :\\)",
 					ParseMode.MarkdownV2);
 			}
 			else
 			{
 				_logger.LogInformation("Found {N} free shifts for tomorrow", allShiftsTomorrow.Count);
 				var text = await CreateTextForBot(allShiftsTomorrow, tomorrow);
-				await _telegramClient.SendTextMessageAsync(_muddiGroupId, text, ParseMode.MarkdownV2);
+				await _telegramClient.SendMessage(_muddiGroupId, text, ParseMode.MarkdownV2);
 			}
 		}
 		catch (Exception ex)
