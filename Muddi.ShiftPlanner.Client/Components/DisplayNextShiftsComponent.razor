@@ -19,9 +19,9 @@ else
 							<br/>
 							@shift.Type.Name
 							<br/>
-							@appointment.StartTimeWithTimeShift.ToString("ddd dd.MM.")
+							@appointment.LocalStartTime.ToString("ddd dd.MM.")
 							<br/>
-							@appointment.StartTimeWithTimeShift.ToString("HH:mm") - @appointment.EndTimeWithTimeShift.ToString("HH:mm")
+							@appointment.LocalStartTime.ToString("HH:mm") - @appointment.LocalEndTime.ToString("HH:mm")
 						</div>
 					</a>
 				}
@@ -44,9 +44,9 @@ else
 							<br/>
 							@shift.Type.Name
 							<br/>
-							@appointment.StartTimeWithTimeShift.ToString("ddd dd.MM.")
+							@appointment.LocalStartTime.ToString("ddd dd.MM.")
 							<br/>
-							@appointment.StartTimeWithTimeShift.ToString("HH:mm") - @appointment.EndTimeWithTimeShift.ToString("HH:mm")
+							@appointment.LocalStartTime.ToString("HH:mm") - @appointment.LocalEndTime.ToString("HH:mm")
 						</div>
 					</a>
 				}

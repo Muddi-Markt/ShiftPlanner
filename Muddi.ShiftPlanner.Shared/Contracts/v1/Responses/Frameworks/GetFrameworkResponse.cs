@@ -2,8 +2,14 @@
 
 public class GetFrameworkResponse : IMuddiResponse
 {
+	private IEnumerable<ShiftFrameworkTypeCountResponse> _shiftTypeCounts = [];
 	public Guid Id { get; set; }
 	public string Name { get; set; }
 	public int SecondsPerShift { get; set; }
-	public IEnumerable<ShiftFrameworkTypeCountResponse> ShiftTypeCounts { get; set; } = Enumerable.Empty<ShiftFrameworkTypeCountResponse>();
+
+	public IEnumerable<ShiftFrameworkTypeCountResponse> ShiftTypeCounts
+	{
+		get => _shiftTypeCounts;
+		set => _shiftTypeCounts = value.OrderBy(x => x.ShiftType.Name);
+	}
 }

@@ -27,7 +27,9 @@ public static class RenderExtensions
 				foreach (var container in containers)
 				{
 					var c = container.BackgroundColor;
-					if (args.Start >= container.StartTime.ToLocalTime() && args.Start < container.EndTime.ToLocalTime())
+					var maxTimeShift = container.Framework.RolesCount.Select(x => x.Key.StartingTimeShift).Max();
+					
+					if (args.Start >= container.StartTime.ToLocalTime() && args.Start < container.EndTime.Add(maxTimeShift).ToLocalTime())
 						args.Attributes["style"] = $"background: {c};";
 				}
 
