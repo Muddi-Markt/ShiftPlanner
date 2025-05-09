@@ -29,6 +29,9 @@ public partial class LocationPage
 	private string CaclculateHeight()
 	{
 		var hours = (AppCustomization.Value.EndTime - AppCustomization.Value.StartTime).TotalHours;
+		Console.WriteLine("end: " + AppCustomization.Value.EndTime);
+		Console.WriteLine("start: " + AppCustomization.Value.StartTime);
+		Console.WriteLine("hours: " + hours);
 		return (48.125 * hours + 88.75).ToInvariantString();
 	}
 
@@ -286,7 +289,7 @@ public partial class LocationPage
 
 	private bool _isAdmin;
 	private DateTime _startDate;
-	private RadzenDayViewFix _dayView;
+	private RadzenDayView _dayView;
 	private RadzenWeekView _weekView;
 	[Inject] private NavigationManager NavigationManager { get; set; }
 
