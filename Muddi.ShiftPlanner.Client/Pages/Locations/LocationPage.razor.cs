@@ -252,7 +252,10 @@ public partial class LocationPage
 					//day view
 					var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, start, end)).ToList();
 					ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, start, end);
-					_shifts = shifts.OrderBy(q => q.Type.Id).Select(s => (Appointment)s.ToAppointment()).ToList();
+					_shifts = shifts
+						.OrderBy(q => q.Type.Name)
+						.Select(Appointment (s) => s.ToAppointment())
+						.ToList();
 					SelectedViewIndex = 0;
 					UpdateQueryUri();
 					break;
