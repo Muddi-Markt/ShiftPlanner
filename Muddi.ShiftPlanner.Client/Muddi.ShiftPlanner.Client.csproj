@@ -13,13 +13,6 @@
 	<ItemGroup>
 		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
 	</ItemGroup>
-
-	<ItemGroup>
-		<!-- TODO This is a workaround as there is a bug in dotnet blazor, when fixed remove this 
-		see https://github.com/dotnet/aspnetcore/issues/49956#issuecomment-1992857288
-		-->
-		<TrimmerRootAssembly Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication"/>
-	</ItemGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="BlazorDownloadFileFast" Version="1.0.0" />
