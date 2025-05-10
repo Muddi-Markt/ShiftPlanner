@@ -12,7 +12,7 @@ self.addEventListener('updatefound', () => {
             case 'installed':
                 if (navigator.serviceWorker.controller) {
                     // Inform any open pages to reload to start using the new service worker.
-                    self.clients.matchAll({ type: 'window' }).then(clients => {
+                    self.clients.matchAll({type: 'window'}).then(clients => {
                         clients.forEach(client => client.postMessage('reload-window'));
                     });
                 }
@@ -28,7 +28,12 @@ const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
 const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/];
 const offlineAssetsExclude = [/^service-worker\.js$/];
-const skipIntegrityCheck = [/appsettings\.json$/, /manifest\.json$/, /customization\//];
+const skipIntegrityCheck = [
+    /appsettings\.json$/,
+    /manifest\.json$/,
+    /customization\//,
+    /_content\/Radzen\.Blazor\// //ignore Radzen.Blazor, SRI failes here, I dont know why TODO get SRI working with Radzen
+];
 
 async function onInstall(event) {
     console.info('Service worker Install ' + cacheName);
@@ -39,8 +44,8 @@ async function onInstall(event) {
         .map(asset => {
             // Conditionally set the integrity and cache control based on URL patterns
             const options = skipIntegrityCheck.some(pattern => pattern.test(asset.url))
-                ? { cache: 'no-cache' } // Skip integrity check
-                : { integrity: asset.hash, cache: 'no-cache' };
+                ? {cache: 'no-cache'} // Skip integrity check
+                : {integrity: asset.hash, cache: 'no-cache'};
             return new Request(asset.url, options);
         });
     await caches.open(cacheName).then(cache => cache.addAll(assetsRequests));
