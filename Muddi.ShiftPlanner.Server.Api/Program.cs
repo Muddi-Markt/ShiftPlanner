@@ -1,12 +1,10 @@
 using System.Data.Common;
 using System.Reflection;
 using FastEndpoints;
-using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Extensions;
-using Npgsql;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,13 +12,16 @@ builder.Host.UseSerilog((context, configuration) => configuration
 	.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddCors();
-builder.Services.AddFastEndpoints();
+builder.Services.AddFastEndpoints().SwaggerDocument();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerDocument();
+
 builder.Services.AddAuthenticationMuddiConnect(builder.Configuration);
 builder.Services.AddMuddiShiftPlannerContext(builder.Configuration);
 builder.Services.AddDatabaseMigrations();
 builder.Services.AddMemoryCache();
+
+builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
+
 
 builder.Services.AddTransient<ExcelService>();
 
@@ -38,10 +39,10 @@ app.UseCors(b => b.WithOrigins(corsOrigins).AllowAnyMethod().AllowAnyHeader());
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseResponseCompression();
+app.UseFastEndpoints()
+	.UseSwaggerGen();
 
-app.UseFastEndpoints();
-app.UseOpenApi();
-app.UseSwaggerUi(s => s.ConfigureDefaults());
 
 try
 {
