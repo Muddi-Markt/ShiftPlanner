@@ -11,8 +11,6 @@ public static class EntityMappers
 		var shiftResponse = shift.Adapt<GetShiftResponse>();
 		shiftResponse.ContainerId = shift.ShiftContainer.Id;
 		shiftResponse.LocationId = shift.ShiftContainer.Location.Id;
-		user.Email = string.Empty; //For privacy, delete when deleting the line below
-		shiftResponse.Employee = user; //TODO For backwards compatibility, delete this in future!! 
 		shiftResponse.EmployeeId = user.Id;
 		shiftResponse.EmployeeFullName = user.FullName;
 

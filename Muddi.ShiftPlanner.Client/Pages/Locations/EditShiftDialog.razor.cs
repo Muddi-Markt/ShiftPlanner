@@ -90,7 +90,6 @@ public partial class EditShiftDialog
 		{
 			if (apiException.StatusCode != HttpStatusCode.Conflict) throw;
 			//TODO Find the shift Guid and catch it and show which location the shift is
-			Console.WriteLine(apiException.Content);
 			await DialogService.Error("Du hast schon ne Schicht um die Zeit!");
 		}
 	}
