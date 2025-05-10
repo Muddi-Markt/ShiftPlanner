@@ -30,9 +30,6 @@ public partial class LocationPage
 	private string CaclculateHeight()
 	{
 		var hours = (AppCustomization.Value.EndTimeSpan - AppCustomization.Value.StartTimeSpan).TotalHours;
-		Console.WriteLine("end: " + AppCustomization.Value.EndTimeSpan);
-		Console.WriteLine("start: " + AppCustomization.Value.StartTimeSpan);
-		Console.WriteLine("hours: " + hours);
 		return (48.125 * hours + 88.75).ToInvariantString();
 	}
 
@@ -320,7 +317,6 @@ public partial class LocationPage
 
 	private async Task Swipe(SwipeEvent obj)
 	{
-		Console.WriteLine("<>");
 		if (_scheduler is null)
 			return;
 		ISchedulerView? view = GetSelectedViewIndex() switch
