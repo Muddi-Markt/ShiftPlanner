@@ -8,6 +8,11 @@
 .shift-container > * {
     flex: 1 1 150px;
 }
+
+.shift-container a {
+    text-decoration: none;
+}
+
 .shift-box{
     text-align: center;
     border-radius: 4px;
@@ -17,4 +22,8 @@
 }
 .shift-box:hover{
     outline: 2px dashed #852121;
+}
+
+.shift-box a {
+    text-decoration: none;
 }
