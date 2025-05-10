@@ -53,6 +53,9 @@ a:hover {
     outline: 2px dashed #852121;
 }
 
+.rz-slot-hours{
+    flex: 0 0 3rem !important;/* make hours width smaller, default is 5rem */
+}
 
 .rz-view-content {
     overflow: hidden !important;
