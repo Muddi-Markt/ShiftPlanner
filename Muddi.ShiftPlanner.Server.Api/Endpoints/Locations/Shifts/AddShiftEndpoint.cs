@@ -24,6 +24,7 @@ public class AddShiftEndpoint : CrudEndpoint<CreateShiftRequest, DefaultCreateRe
 	public override async Task HandleAsync(CreateShiftRequest req, CancellationToken ct)
 	{
 		var location = await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Include(l => l.Containers.Where(t => req.Start >= t.Start && req.Start < t.End))
 			.ThenInclude(c => c.Framework)
 			.Include(l => l.Containers.Where(t => req.Start >= t.Start && req.Start < t.End))

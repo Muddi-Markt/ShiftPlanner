@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Math;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
@@ -23,6 +24,7 @@ public class GetAllAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailable
 		var start = request.StartTime?.ToUniversalTime() ?? DateTime.UnixEpoch;
 		var end = request.EndTime?.ToUniversalTime() ?? DateTime.MaxValue;
 		var location = await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Include(l => l.Containers.Where(c => c.Start >= start && c.Start < end))
 			.ThenInclude(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)

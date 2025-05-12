@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
 
@@ -30,6 +31,7 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateContainerRequest, GetCont
 		}
 		
 		var location = await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Include(t => t.Containers)
 			.FirstOrDefaultAsync(t => t.Id == req.LocationId, cancellationToken: ct);
 		if (location is null)

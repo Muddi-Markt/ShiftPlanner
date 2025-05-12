@@ -1,6 +1,7 @@
 ﻿using System.Web;
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
@@ -26,6 +27,7 @@ public class ExportToExcelEndpoint : Endpoint<ExportToExcelRequest>
 	public override async Task HandleAsync(ExportToExcelRequest req, CancellationToken ct)
 	{
 		var location = await _database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Include(l => l.Containers)
 			.ThenInclude(c => c.Framework)
 			.ThenInclude(f => f.ShiftTypeCounts)

@@ -1,5 +1,6 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
@@ -19,6 +20,7 @@ public class GetEndpoint : CrudGetEndpoint<GetLocationResponse>
 
 	public override async Task<GetLocationResponse?> CrudExecuteAsync(Guid id, CancellationToken ct) =>
 		(await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Include(t => t.Type)
 			.Include(t => t.Containers)
 			.ThenInclude(c => c.Framework)

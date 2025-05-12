@@ -31,6 +31,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 		var start = req.Start.ToUniversalTime();
 		var end = req.End.ToUniversalTime();
 		var location = await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Include(l => l.Containers)
 			.ThenInclude(c => c.Shifts.Where(s =>
 				// ReSharper disable once SimplifyConditionalTernaryExpression

@@ -20,7 +20,8 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateLocationTypeRequest, GetL
 		var type = new ShiftLocationTypeEntity
 		{
 			Id = Guid.NewGuid(),
-			Name = req.Name
+			Name = req.Name,
+			AdminOnly = req.AdminOnly
 		};
 		Database.Add(type);
 		await Database.SaveChangesAsync(ct);
