@@ -18,7 +18,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateSeasonRequest>
 
 	public override async Task CrudExecuteAsync(UpdateSeasonRequest request, CancellationToken ct)
 	{
-		var entity = await Database.Seasons.FindAsync(request.Id);
+		var entity = await Database.Seasons.FindAsync([request.Id], ct);
 		if (entity is null)
 		{
 			await SendNotFoundAsync("season");
@@ -36,6 +36,9 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateSeasonRequest>
 					return;
 				}
 			}
+
+			entity.StartDate = request.StartDate;
+			entity.EndDate = request.EndDate;
 		}
 
 		entity.Name = request.Name;
