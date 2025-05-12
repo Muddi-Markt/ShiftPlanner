@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
@@ -21,6 +22,7 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetLocationRequest, GetLocation
 	public override async Task<List<GetLocationResponse>?> CrudExecuteAsync(GetLocationRequest req,
 		CancellationToken ct) =>
 		await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Include(l => l.Type)
 			.Where(l => l.Season.Id == req.SeasonId)
 			.OrderBy(l => l.Containers.Min(x => x.Start)) //First order by starting time

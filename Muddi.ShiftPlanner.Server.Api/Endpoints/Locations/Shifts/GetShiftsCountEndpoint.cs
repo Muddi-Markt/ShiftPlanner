@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
@@ -19,6 +20,7 @@ public class GetShiftsCountEndpoint : CrudGetEndpoint<GetShiftsCountResponse>
 	public override async Task<GetShiftsCountResponse?> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
 		var total = await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Where(l => l.Id == id)
 			.SumAsync(l => l.Containers
 				.Sum(c => c.TotalShifts * c.Framework.ShiftTypeCounts

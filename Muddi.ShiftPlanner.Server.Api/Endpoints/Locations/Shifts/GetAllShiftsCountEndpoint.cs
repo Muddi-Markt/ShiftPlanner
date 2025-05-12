@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Namotion.Reflection;
@@ -21,6 +22,7 @@ public class GetAllShiftsCountEndpoint : CrudGetAllEndpoint<GetShiftsCountReques
 	public override async Task<List<GetShiftsCountResponse>?> CrudExecuteAsync(GetShiftsCountRequest request, CancellationToken ct)
 	{
 		var total = await Database.ShiftLocations
+			.CheckAdminOnly(User)
 			.Where(l => l.Season.Id == request.SeasonId)
 			.GroupBy(s => s.Id)
 			.Select(l =>
