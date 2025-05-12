@@ -35,6 +35,8 @@ if (corsOrigins is null || corsOrigins.Length == 0)
 
 app.UseCors(b => b.WithOrigins(corsOrigins).AllowAnyMethod().AllowAnyHeader());
 
+app.MapGet("/", () => Results.Redirect("/swagger"));
+
 app.UseAuthentication();
 app.UseAuthorization();
 
