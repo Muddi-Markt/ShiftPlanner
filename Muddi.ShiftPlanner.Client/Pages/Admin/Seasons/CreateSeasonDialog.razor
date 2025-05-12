@@ -13,7 +13,7 @@
 		<RadzenLabel Text="Start from"/>
 	</div>
 	<div class="col-md-8">
-		<RadzenDatePicker @bind-Value="EntityToEdit.StartDate"></RadzenDatePicker>
+		<RadzenDatePicker Kind="DateTimeKind.Utc" @bind-Value="EntityToEdit.StartDate"></RadzenDatePicker>
 	</div>
 </div>
 <div class="row">
@@ -21,7 +21,7 @@
 		<RadzenLabel Text="End at"/>
 	</div>
 	<div class="col-md-8">
-		<RadzenDatePicker @bind-Value="EntityToEdit.EndDate"></RadzenDatePicker>
+		<RadzenDatePicker Kind="DateTimeKind.Utc" @bind-Value="EntityToEdit.EndDate"></RadzenDatePicker>
 	</div>
 </div>
 <div class="row mb-3 mt-4">
