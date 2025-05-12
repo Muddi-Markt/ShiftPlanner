@@ -7,6 +7,12 @@
 	<div class="col-md-8">
 		<RadzenTextBox @bind-Value="EntityToEdit.Name" Placeholder="Name"></RadzenTextBox>
 	</div>
+	<div class="col-md-4 align-items-center d-flex">
+		<RadzenLabel Text="Admin Only"/>
+	</div>
+	<div class="col-md-8">
+		<RadzenCheckBox @bind-Value="EntityToEdit.AdminOnly" />
+	</div>
 </div>
 <div class="row mb-3 mt-4">
 	<div class="col-md-12 text-right">
@@ -17,8 +23,12 @@
 
 @code {
 
-	protected override Task Create() 
-		=> ShiftApi.CreateLocationType(new() { Name = EntityToEdit.Name });
+	protected override Task Create()
+		=> ShiftApi.CreateLocationType(new()
+		{
+			Name = EntityToEdit.Name,
+			AdminOnly = EntityToEdit.AdminOnly
+		});
 
 	protected override Task Update()
 	{
