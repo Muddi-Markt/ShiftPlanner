@@ -1,12 +1,11 @@
 using System.Data.Common;
+using System.Net;
 using System.Reflection;
 using FastEndpoints;
-using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Extensions;
-using Npgsql;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,9 +13,11 @@ builder.Host.UseSerilog((context, configuration) => configuration
 	.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddCors();
-builder.Services.AddFastEndpoints();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerDocument();
+builder.Services.AddFastEndpoints()
+	.SwaggerDocument(o => o.DocumentSettings = ds
+		=> ds.Description = "Use '/login' endpoint to generate bearer token," +
+		                    "then click 'Authorize 🔒' and paste the generated bearer token in the value endpoint");
+
 builder.Services.AddAuthenticationMuddiConnect(builder.Configuration);
 builder.Services.AddMuddiShiftPlannerContext(builder.Configuration);
 builder.Services.AddDatabaseMigrations();
@@ -27,7 +28,7 @@ builder.Services.AddTransient<ExcelService>();
 var app = builder.Build();
 
 var assembly = Assembly.GetEntryAssembly()!.GetName();
-app.Logger.LogInformation("Start {AssemblyName} v{AssemblyVersion}", assembly.Name, assembly.Version);
+app.Logger.LogInformation("Start {AssemblyName} v{AssemblyVersion}", assembly.Name, assembly.Version?.ToString(2));
 
 var corsOrigins = builder.Configuration.GetSection("Cors").GetSection("Origins").Get<string[]>();
 if (corsOrigins is null || corsOrigins.Length == 0)
@@ -41,9 +42,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 
-app.UseFastEndpoints();
-app.UseOpenApi();
-app.UseSwaggerUi(s => s.ConfigureDefaults());
+app.UseFastEndpoints()
+	.UseSwaggerGen();
 
 try
 {
