@@ -11,14 +11,10 @@ public class AppCustomization
 	public string StartTime { get; init; } = "08:00:00";
 	public string EndTime { get; init; } = "26:00:00";
 
-	public TimeSpan StartTimeSpan { get; }
-	public TimeSpan EndTimeSpan { get; }
-
-	public AppCustomization()
-	{
-		StartTimeSpan = ParseTimeSpan(StartTime);
-		EndTimeSpan = ParseTimeSpan(EndTime);
-	}
+	//We have to Parse the time span every time because the configuration mapping uses some kind of reflection
+	//that will not call the official init; or set; properties of StartTime/EndTime property
+	public TimeSpan StartTimeSpan => ParseTimeSpan(StartTime);
+	public TimeSpan EndTimeSpan => ParseTimeSpan(EndTime);
 
 	private static TimeSpan ParseTimeSpan(string timeString)
 	{
