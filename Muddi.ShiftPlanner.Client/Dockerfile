@@ -10,7 +10,8 @@ RUN dotnet clean "Muddi.ShiftPlanner.Client.csproj"
 RUN dotnet build "Muddi.ShiftPlanner.Client.csproj" -c Release -o /app/build  -a $TARGETARCH
 
 FROM build AS publish
-RUN dotnet publish "Muddi.ShiftPlanner.Client.csproj" -c Release -o /app/publish  -a $TARGETARCH --no-restore
+ARG TARGETARCH
+RUN dotnet publish "Muddi.ShiftPlanner.Client.csproj" -c Release -o /app/publish  -a $TARGETARCH
 
 # build runtime image
 FROM nginx:alpine AS final
