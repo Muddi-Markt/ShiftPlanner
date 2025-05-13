@@ -1,14 +1,37 @@
 ﻿@attribute [AllowAnonymous]
 @page "/help"
 @using System.Reflection
+@using System.Text.Encodings.Web
 @using System.Text.Json
+@using Muddi.ShiftPlanner.Shared.Contracts.v1
 @inject IOptions<AppCustomization> AppCustomization;
 <h3>Hilfe</h3>
 
-<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
+<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a
+        href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
 <p>Version: @AssemblyVersion?.ToString()</p>
 <p>Programmiert mit ❤️ von Max :)</p>
+<AuthorizeView Roles="@ApiRoles.Admin">
+
+    <Authorized>
+        <h5>customization.json</h5>
+        <code>
+            <pre>
+                @JsonSerializer.Serialize(AppCustomization.Value, JsonSerializerOptions)
+            </pre>
+        </code>
+    </Authorized>
+</AuthorizeView>
+
 
 @code {
+
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private static readonly Version? AssemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
 }
