@@ -1,5 +1,4 @@
 using System.Data.Common;
-using System.Net;
 using System.Reflection;
 using FastEndpoints;
 using FastEndpoints.Swagger;
@@ -15,8 +14,7 @@ builder.Host.UseSerilog((context, configuration) => configuration
 builder.Services.AddCors();
 builder.Services.AddFastEndpoints()
 	.SwaggerDocument(o => o.DocumentSettings = ds
-		=> ds.Description = "Use '/login' endpoint to generate bearer token," +
-		                    "then click 'Authorize 🔒' and paste the generated bearer token in the value endpoint");
+		=> ds.Description = "Click 'Authorize 🔒' and provide your bearer token to access protected endpoints");
 
 builder.Services.AddAuthenticationMuddiConnect(builder.Configuration);
 builder.Services.AddMuddiShiftPlannerContext(builder.Configuration);
@@ -40,7 +38,6 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.UseFastEndpoints()
 	.UseSwaggerGen();

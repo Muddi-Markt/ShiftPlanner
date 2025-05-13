@@ -9,9 +9,6 @@ namespace Muddi.ShiftPlanner.Shared.Api;
 
 public interface IMuddiShiftApi
 {
-	[Post("/login")]
-	Task<LoginResponse> Login(LoginRequest request);
-
 	#region Locations
 
 	[Get("/locations/{Id}")]
@@ -173,7 +170,7 @@ public interface IMuddiShiftApi
 	[Put("/seasons/{EntityToEdit.Id}")]
 	[Headers("Authorization: Bearer")]
 	Task UpdateSeason(GetSeasonResponse entityToEdit);
-	
+
 	[Put("/seasons/current/{EntityToEdit.Id}")]
 	[Headers("Authorization: Bearer")]
 	Task SetCurrentSeason(DefaultGetRequest entityToEdit);

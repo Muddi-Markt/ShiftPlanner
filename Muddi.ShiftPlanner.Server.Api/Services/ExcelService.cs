@@ -3,16 +3,27 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Muddi.ShiftPlanner.Server.Database.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace Muddi.ShiftPlanner.Server.Api.Services;
 
 public class ExcelService
 {
 	private readonly IKeycloakService _keycloakService;
+	private readonly TimeZoneInfo _timeZone;
 
-	public ExcelService(IKeycloakService keycloakService)
+	public ExcelService(IKeycloakService keycloakService, IConfiguration configuration)
 	{
 		_keycloakService = keycloakService;
+		var timeZoneId = configuration["TimeZone"] ?? "Europe/Berlin";
+		try
+		{
+			_timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+		}
+		catch
+		{
+			_timeZone = TimeZoneInfo.Local;
+		}
 	}
 
 
@@ -59,15 +70,14 @@ public class ExcelService
 					}
 
 
-#warning Timezone warning, AddHours(2) is plain stupid!
-					//TODO Set the timezone of the docker container, and then remove AddHours(2) and
-					//replace it with .ToLocalTime()
-					worksheet.Cell(row, 1).Value = typesGroup.Key.AddHours(2).ToString("HH:mm");
+					// Convert UTC time to local time using the configured timezone
+					var localTime = TimeZoneInfo.ConvertTimeFromUtc(typesGroup.Key, _timeZone);
+					worksheet.Cell(row, 1).Value = localTime.ToString("HH:mm");
 
 					if (!anonymous)
 					{
 						foreach (var shift in shifts.Where(s => s.Type.Id == types.Type.Id
-						                                        && s.Start == typesGroup.Key))
+																&& s.Start == typesGroup.Key))
 						{
 							var user = _keycloakService.GetUserById(shift.EmployeeKeycloakId);
 							worksheet.Cell(row, cell).GetRichText().AddText($"{user.FirstName} {user.LastName?[0]}.").AddNewLine();

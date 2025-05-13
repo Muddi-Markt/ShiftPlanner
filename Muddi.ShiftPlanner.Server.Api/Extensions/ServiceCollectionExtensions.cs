@@ -13,56 +13,61 @@ public static class ServiceCollectionExtensions
 	/*	To make this work you need to configure Keycloak first:
 
 		*** Create muddi Realm ***
-		Create Muddi Realm
-		Clients -> Create
-		shift-planner
-		Go to Mappers -> Create
-			Name: role-mapper
-			Mapper Type: User Client Role
-			Client ID: shift-planner
-			Token Claim Name: roles
-			Claim JSON Type: String
-			Add to ID: Off
-			Add to access token: On
-			Add to userinfo: On
-		Mappers:
-			Create new
-			Select Audience
-			Included Custom Audience: shift-planner
+		1. Create Muddi Realm
+		2. Create Client 'shift-planner-backend'
+		   - Set client authentication to ON (confidential)
+		   - Generate a client secret (this is the client secret that is used to authenticate the client)
+		   - Configure valid redirect URIs and web origins as needed
+		3. Create Client 'shift-planner-frontend'
+		   - Set client authentication to OFF (public)
+		   - Configure valid redirect URIs and web origins as needed
+		
+		*** Add Protocol Mappers ***
+		1. Go to Clients > shift-planner-frontend > Client Scopes > Dedicated Scopes > shift-planner-frontend-dedicated
+		2. Go to Mappers tab
+		3. Add mappers:
+		   - Add "Subject (sub)" mapper to include user ID in token
+		   - Add "User Property" mapper for email, firstName, lastName
+		   - Add "User's full name" mapper for name claim
+		
+		*** Add Role Mappings ***
+		1. Go to Clients > shift-planner-frontend > Client Scopes > Dedicated Scopes > shift-planner-frontend-dedicated > Mappers
+		2. Add new mapper:
+		   - Name: "client roles"
+		   - Mapper Type: "User Client Role"
+		   - Client ID: shift-planner-backend
+		   - Client Role prefix: (leave empty)
+		   - Multivalued: ON
+		   - Token Claim Name: roles
+		   - Claim JSON Type: String
+		   - Add to ID token: ON
+		   - Add to access token: ON
+		   - Add to userinfo: ON
+		
+		*** Configure Client Roles ***
+		1. Go to Clients > shift-planner-backend > Roles
+		2. Add roles:
+		   - super-admin: full access including deletions
+		   - admin: create/update access, can only delete shifts
+		   - editor: create and edit own shifts
+		   - viewer: read-only access
+		
+		3. Go to Roles > default-roles-muddi > Client Roles
+		4. Add 'editor' and 'viewer' as default roles
 
-
-	    *** Add Roles Mapper ***
-		Go to your Keycloak Admin Console > Client Scopes > roles > Mappers > client roles
-		Add to userinfo: True
-
-
-		*** Add default roles for shift-planner ***
-		Go to shift-planner client > Roles
-		Add four roles: super-admin, admin, editor, viewer
-			viewer: only viewing allowed
-			editor: allowed to create and edit own shifts
-			admin: allowed to create or update mostly anything, only allowed to delete shifts
-			super-admin: allowed to delete everything
-
-		Go to Roles > default-roles-muddi > Client Roles: shift-planner
-		Add 'editor' and 'viewer' to Client Default Roles
-
-
-		*** Add User with view-users roles ***
-		btw: This is sooo stupid... I dont know why, but since Version 17 or so of fckn Keycloak
-		it is not possible anymore to login with the admin user... nvm, here is how to solve it:
-		Create User
-		Edit User and set password
-		Go to Role Mapping
-		Client Roles: realm-managment
-		Add view-users
-		This will be the AdminUser and AdminPassword
-
-		*** Add User Registration ***
-	    Realm Settings -> Login
-	    Set the things you want (e.g. user registration)
-	    Realm Settings -> Email
-	    Set SMTP Host, Enable SSL and Enable Authentication
+		*** Configure Service Account ***
+		1. Enable service account in shift-planner-backend client settings
+		2. Go to Service Account Roles tab
+		3. Add realm-management roles:
+		   - view-users: required for user lookup
+		   - view-clients: required for client info
+		   - view-realm: required for realm settings
+		   - query-users: required for user search
+		   - query-groups: required for group operations
+		   - query-clients: required for client queries
+		
+		Note: The service account needs these roles to perform administrative tasks
+		through the Keycloak Admin API. Adjust the roles based on your security requirements.
 	*/
 	public static void AddAuthenticationMuddiConnect(this IServiceCollection services, IConfiguration configuration)
 	{
@@ -80,9 +85,6 @@ public static class ServiceCollectionExtensions
 				o.TokenValidationParameters = new TokenValidationParameters
 				{
 					ValidateIssuer = true,
-					// NOTE: Usually you don't need to set the issuer since the middleware will extract it 
-					// from the .well-known endpoint provided above. but since I am using the container name in
-					// the above URL which is not what is published issueer by the well-known, I'm setting it here.
 					ValidIssuer = authority,
 					RoleClaimType = "roles",
 					NameClaimType = "preferred_username",
@@ -102,11 +104,6 @@ public static class ServiceCollectionExtensions
 					},
 					OnAuthenticationFailed = c =>
 					{
-						// if (Environment.IsDevelopment())
-						// {
-						// 	return c.Response.WriteAsync(c.Exception.ToString());
-						// }
-
 						return Task.CompletedTask;
 					}
 				};

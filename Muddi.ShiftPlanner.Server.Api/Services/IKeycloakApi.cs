@@ -13,9 +13,26 @@ public interface IKeycloakApi
 	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<ICollection<KeycloakUserRepresentation>>> GetUsers(string realm, int max = -1);
 
+	[Post("/realms/muddi/protocol/openid-connect/token")]
+	Task<ApiResponse<GetTokenResponse>> GetToken([Body(BodySerializationMethod.UrlEncoded)] ClientCredentialsTokenRequest request);
+}
 
-	[Post("/realms/{realm}/protocol/openid-connect/token")]
-	Task<ApiResponse<GetTokenResponse>> GetToken(string realm, [Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);
+public record ClientCredentialsTokenRequest(
+	[property: JsonPropertyName("client_id")] string ClientId,
+	[property: JsonPropertyName("client_secret")] string ClientSecret,
+	[property: JsonPropertyName("grant_type")] string GrantType = "client_credentials"
+);
+
+public record GetTokenResponse
+{
+	[JsonPropertyName("access_token")]
+	public string AccessToken { get; init; } = string.Empty;
+
+	[JsonPropertyName("expires_in")]
+	public int ExpiresIn { get; init; }
+
+	[JsonPropertyName("token_type")]
+	public string TokenType { get; init; } = "Bearer";
 }
 
 public class KeycloakUserRepresentation
@@ -26,27 +43,4 @@ public class KeycloakUserRepresentation
 	[JsonPropertyName("lastName")] public string? LastName { get; set; }
 	[JsonPropertyName("enabled")] public bool Enabled { get; set; }
 	[JsonPropertyName("id")] public string? Id { get; set; }
-}
-
-public class GetTokenResponse
-{
-	[JsonPropertyName("access_token")] public string AccessToken { get; set; }
-
-	[JsonPropertyName("expires_in")] public int ExpiresIn { get; set; }
-}
-
-public class GetTokenRequest
-{
-	public GetTokenRequest(string username, string password, string clientId)
-	{
-		Username = username;
-		Password = password;
-		ClientId = clientId;
-	}
-
-	[AliasAs("username")] public string Username { get; init; }
-	[AliasAs("password")] public string Password { get; init; }
-	[AliasAs("client_id")] public string ClientId { get; }
-
-	[AliasAs("grant_type")] public string GrantType => "password";
 }
