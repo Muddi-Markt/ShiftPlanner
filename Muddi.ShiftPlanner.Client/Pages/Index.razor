@@ -3,7 +3,7 @@
 @inject IOptions<AppCustomization> AppCustomization;
 <AuthorizeView>
 	<Authorized>
-		<h2>Moin @(context.User.Identity?.Name)!</h2>
+		<h2>Buongiorno @(context.User.Identity?.Name)!</h2>
 		<br/>
 		<DisplayNextShiftsComponent/>
 		<br/>
