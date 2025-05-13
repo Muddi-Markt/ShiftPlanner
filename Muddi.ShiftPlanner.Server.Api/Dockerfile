@@ -1,7 +1,4 @@
-﻿FROM  mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
-WORKDIR /app
-
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+﻿FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 COPY ["Muddi.ShiftPlanner.Server.Api/Muddi.ShiftPlanner.Server.Api.csproj", "Muddi.ShiftPlanner.Server.Api/"]
@@ -13,10 +10,9 @@ WORKDIR "/src/Muddi.ShiftPlanner.Server.Api"
 RUN dotnet build "Muddi.ShiftPlanner.Server.Api.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish
-ARG TARGETARCH=amd64
-RUN dotnet publish "Muddi.ShiftPlanner.Server.Api.csproj" -c Release -o /app/publish -a $TARGETARCH
+RUN dotnet publish "Muddi.ShiftPlanner.Server.Api.csproj" -c Release -o /app/publish -a $TARGETARCH --no-restore
 
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Muddi.ShiftPlanner.Server.Api.dll"]
