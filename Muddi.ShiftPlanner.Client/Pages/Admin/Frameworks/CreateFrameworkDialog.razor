@@ -39,6 +39,7 @@
 			{
 				selectedItem = _shiftTypes.FirstOrDefault(q => q.Id == type.ShiftTypeId);
 			}
+
 			<div class="d-flex">
 				<RadzenDropDown AllowClear="true"
 				                LoadData="@LoadShiftTypesAsync"
@@ -46,7 +47,11 @@
 				                TValue="Guid"
 				                Data=@_shiftTypes
 				                Value="selectedItem?.Id"
-				                Change="@(o => { type.ShiftTypeId = (Guid)o; _shiftTypes = _shiftTypesRaw;})"
+				                Change="@(o =>
+				                        {
+					                        type.ShiftTypeId = (Guid)o;
+					                        _shiftTypes = _shiftTypesRaw;
+				                        })"
 				                TextProperty="@nameof(GetShiftTypesResponse.Name)"
 				                ValueProperty="@nameof(GetShiftTypesResponse.Id)" Class="w-50"/>
 				<RadzenNumeric @bind-Value="@type.Count" class="w-25"/>
@@ -72,7 +77,7 @@
 		{
 			SeasonId = ShiftService.CurrentSeason.Id,
 			Name = EntityToEdit.Name,
-			SecondsPerShift = Convert.ToInt32(_timePerShift.TimeOfDay.TotalSeconds),
+			SecondsPerShift = Convert.ToInt32(_timePerShift.ToTimeSpan().TotalSeconds),
 			TypeCounts = _shiftTypeCount
 		});
 
@@ -82,11 +87,11 @@
 			SeasonId = ShiftService.CurrentSeason.Id,
 			Id = EntityToEdit.Id,
 			Name = EntityToEdit.Name,
-			SecondsPerShift = Convert.ToInt32(_timePerShift.TimeOfDay.TotalSeconds),
+			SecondsPerShift = Convert.ToInt32(_timePerShift.ToTimeSpan().TotalSeconds),
 			TypeCounts = _shiftTypeCount
 		});
 
-	private DateTime _timePerShift = DateTime.Now.Date + TimeSpan.FromMinutes(90);
+	private TimeOnly _timePerShift = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(90));
 
 	readonly List<ShiftFrameworkTypeCountDto> _shiftTypeCount = new();
 
@@ -94,6 +99,7 @@
 	protected override async Task OnParametersSetAsync()
 	{
 		_shiftTypeCount.Clear();
+		_timePerShift = TimeOnly.FromTimeSpan(TimeSpan.FromSeconds(EntityToEdit.SecondsPerShift));
 		if (EntityToEdit.ShiftTypeCounts.Any())
 		{
 			var dtos = EntityToEdit.ShiftTypeCounts
@@ -104,6 +110,7 @@
 		{
 			_shiftTypeCount.Add(new());
 		}
+
 		_shiftTypesRaw = await ShiftApi.GetAllShiftTypes(new() { SeasonId = ShiftService.CurrentSeason.Id });
 		_shiftTypes = _shiftTypesRaw;
 	}
