@@ -9,3 +9,4 @@ riderModule.iml
 .vscode/
 *.tar
 .secrets
+*.DotSettings.user
