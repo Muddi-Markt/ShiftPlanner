@@ -24,7 +24,8 @@ public static class ShiftService
 		}
 	}
 
-	public static GetShiftTypesCountResponse ToResponse(this ShiftFrameworkTypeCountEntity sft, DateTime startTime, DateTime endTime,
+	public static GetShiftTypesCountResponse ToResponse(this ShiftFrameworkTypeCountEntity sft, DateTime startTime,
+		DateTime endTime,
 		Guid locationId)
 	{
 		return new GetShiftTypesCountResponse
@@ -38,7 +39,8 @@ public static class ShiftService
 		};
 	}
 
-	public static IEnumerable<GetShiftTypesCountResponse> GetAvailableShiftTypes(this ShiftContainerEntity container, DateTime startTime)
+	public static IEnumerable<GetShiftTypesCountResponse> GetAvailableShiftTypes(this ShiftContainerEntity container,
+		DateTime startTime)
 	{
 		startTime = startTime.ToUniversalTime();
 		var endTime = startTime + container.Framework.TimePerShift;
@@ -60,17 +62,42 @@ public static class ShiftService
 		ClaimsPrincipal user,
 		Guid ignoreUserHasShiftAtGivenTimeWhenShiftType = default)
 	{
-		var shiftAtGivenTime = await db.Shifts
-			.Include(s => s.ShiftContainer)
-			.ThenInclude(c => c.Location)
+		// First, fetch existing shifts with necessary data
+		var existingShifts = await db.Shifts
+			.Include(s => s.Type)
+			.Include(s => s.ShiftContainer).ThenInclude(c => c.Framework)
+			.Include(s => s.ShiftContainer).ThenInclude(sc => sc.Location)
+			.Where(entity => entity.EmployeeKeycloakId == req.EmployeeKeycloakId &&
+			                 entity.Type.Id != ignoreUserHasShiftAtGivenTimeWhenShiftType)
 			.AsNoTracking()
-			.FirstOrDefaultAsync(s => s.EmployeeKeycloakId == req.EmployeeKeycloakId && s.Start == req.Start
-			                                                                         && s.Type.Id !=
-			                                                                         ignoreUserHasShiftAtGivenTimeWhenShiftType);
+			.ToListAsync();
 
-		if (shiftAtGivenTime is not null)
+		// Calculate the end time of the requested shift
+		var requestedShiftEnd = req.Start.Add(container.Framework.TimePerShift);
+
+		// Now perform the overlap check in memory (after fetching data)
+		var overlappingShift = existingShifts.FirstOrDefault(entity =>
 		{
-			return new AlreadyShiftAtGivenTimeFailure(shiftAtGivenTime);
+			var existingShiftEnd = entity.Start.Add(entity.ShiftContainer.Framework.TimePerShift);
+
+			// Case 1: New shift starts during an existing shift
+			// e.g., Existing: 19:00-21:30, New: 20:00-21:00
+			var case1 = req.Start >= entity.Start && req.Start < existingShiftEnd;
+
+			// Case 2: New shift ends during an existing shift
+			// e.g., Existing: 20:00-21:00, New: 19:00-20:30
+			var case2 = requestedShiftEnd > entity.Start && requestedShiftEnd <= existingShiftEnd;
+
+			// Case 3: New shift completely contains an existing shift
+			// e.g., Existing: 20:00-21:00, New: 19:00-22:00
+			var case3 = req.Start <= entity.Start && requestedShiftEnd >= existingShiftEnd;
+
+			return case1 || case2 || case3;
+		});
+
+		if (overlappingShift is not null)
+		{
+			return new AlreadyShiftAtGivenTimeFailure(overlappingShift);
 		}
 
 		var availableShiftTypes = container.GetAvailableShiftTypes(req.Start);
@@ -82,5 +109,4 @@ public static class ShiftService
 
 		return null;
 	}
-	
 }

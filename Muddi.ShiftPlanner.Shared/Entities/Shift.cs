@@ -2,7 +2,7 @@ namespace Muddi.ShiftPlanner.Shared.Entities;
 
 public class Shift : IEquatable<Shift>
 {
-	internal Shift(Guid id, 
+	public Shift(Guid id, 
 		EmployeeBase user, 
 		DateTime startTime, 
 		DateTime endTime, 
@@ -19,7 +19,7 @@ public class Shift : IEquatable<Shift>
 		Id = id;
 	}
 	
-	public Shift(EmployeeBase user, DateTime startTime, DateTime endTime, ShiftType type, Guid locationId = default)
+	public Shift(EmployeeBase user, DateTime startTime, DateTime endTime, ShiftType type, Guid locationId = default, Guid containerId = default)
 	{
 		User = user;
 		StartTime = startTime;
@@ -27,6 +27,7 @@ public class Shift : IEquatable<Shift>
 		Type = type;
 		Id = Guid.NewGuid();
 		LocationId = locationId;
+		ContainerId = containerId;
 	}
 	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }

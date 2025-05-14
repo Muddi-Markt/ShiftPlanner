@@ -82,22 +82,26 @@ public class ShiftService
 	/// <param name="end"></param>
 	/// <param name="limit"></param>
 	/// <returns></returns>
-	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id, DateTime? start = null,
+	public async Task<IEnumerable<GetShiftTypesCountResponse>> GetAllAvailableShiftTypesFromLocationAsync(Guid id,
+		DateTime? start = null,
 		DateTime? end = null, int limit = -1)
 	{
-		var dtos = await _shiftApi.GetAllAvailableShiftTypesFromLocationAsync(id, new GetAvailableShiftsForLocationRequest
-		{
-			LocationId = id,
-			StartTime = start,
-			EndTime = end,
-			Limit = limit
-		});
+		var dtos = await _shiftApi.GetAllAvailableShiftTypesFromLocationAsync(id,
+			new GetAvailableShiftsForLocationRequest
+			{
+				LocationId = id,
+				StartTime = start,
+				EndTime = end,
+				Limit = limit
+			});
 		return dtos;
 	}
 
-	public async Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id, DateTime start, DateTime end, Guid? forEmployeeId = null)
+	public async Task<IEnumerable<Shift>> GetAllShiftsFromLocationAsync(Guid id, DateTime start, DateTime end,
+		Guid? forEmployeeId = null)
 	{
-		var dtos = await _shiftApi.GetAllShiftsForLocation(id, new() { Start = start, End = end, KeycloakEmployeeId = forEmployeeId });
+		var dtos = await _shiftApi.GetAllShiftsForLocation(id,
+			new() { Start = start, End = end, KeycloakEmployeeId = forEmployeeId });
 		return dtos.Select(t => t.MapToShift());
 	}
 
@@ -140,14 +144,19 @@ public class ShiftService
 		return types.Select(t => t.MapToShift());
 	}
 
-	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1, DateTime? startingFrom = null)
+	public async Task<IEnumerable<Shift>> GetAllShiftsFromUser(ClaimsPrincipal user, int count = -1,
+		DateTime? startingFrom = null)
 	{
-		var shifts = await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count, startingFrom, CurrentSeason.Id);
+		var shifts =
+			await _shiftApi.GetAllShiftsFromEmployee(user.GetKeycloakId(), count, startingFrom, CurrentSeason.Id);
 		return shifts.Select(s => s.MapToShift());
 	}
 
-	public static void FillShiftsWithUnassignedShifts(ref List<Shift> shifts, IEnumerable<ShiftContainer> containers, DateTime startTime,
-		DateTime endTime)
+	public static void FillShiftsWithUnassignedShifts(List<Shift> shifts,
+		IEnumerable<ShiftContainer> containers,
+		DateTime startTime,
+		DateTime endTime,
+		Guid locationId)
 	{
 		startTime = startTime.ToUniversalTime();
 		endTime = endTime.ToUniversalTime();
@@ -170,7 +179,7 @@ public class ShiftService
 						{
 							shifts.Add(new Shift(Mappers.NotAssignedEmployee, containerStart,
 								containerStart + container.Framework.TimePerShift,
-								type));
+								type, locationId, container.Id));
 						}
 					}
 				}

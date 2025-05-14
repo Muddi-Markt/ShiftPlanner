@@ -121,24 +121,18 @@ public partial class LocationPage
 		return _scheduler?.Reload() ?? Task.CompletedTask;
 	}
 
-
-	private Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
-	{
-		return OnSlotSelect(args.Start);
-	}
-
-	private async Task OnSlotSelect(DateTime startTime, ShiftType? type = null)
+	private async Task OnSlotSelect(DateTime startTime, Shift shift = null)
 	{
 		if (_location is null || _user is null)
 			return;
-		if (type is { OnlyAssignableByAdmin: true } && !_isAdmin)
+		if (shift.Type is { OnlyAssignableByAdmin: true } && !_isAdmin)
 		{
-			await DialogService.Confirm($"Leider dürfen nur Admins '{type.Name}' Nutzer*Innen auswählen.");
+			await DialogService.Confirm($"Leider dürfen nur Admins '{shift.Type.Name}' Nutzer:innen auswählen.");
 			return;
 		}
 
 		startTime = startTime.ToUniversalTime();
-		var container = _location.GetShiftContainerByTime(startTime);
+		var container = _location.Containers.FirstOrDefault(x => x.Id == shift.ContainerId);
 		if (container is null)
 		{
 			Logger.LogWarning("No container within this start time {Start}", startTime);
@@ -153,7 +147,7 @@ public partial class LocationPage
 			EmployeeFullName = _user.GetFullName(),
 			Start = startTime,
 			End = startTime + container.Framework.TimePerShift,
-			Type = type?.MapToShiftTypeResponse()
+			Type = shift.Type.MapToShiftTypeResponse()
 		};
 		var param = new Dictionary<string, object>
 		{
@@ -190,7 +184,7 @@ public partial class LocationPage
 		//If the user is not assigned, create a new shift
 		if (dayAppointment.Shift.User == Mappers.NotAssignedEmployee)
 		{
-			await OnSlotSelect(args.Start, dayAppointment.Shift?.Type);
+			await OnSlotSelect(args.Start, dayAppointment.Shift);
 			return;
 		}
 
@@ -248,7 +242,8 @@ public partial class LocationPage
 				{
 					//day view
 					var shifts = (await ShiftService.GetAllShiftsFromLocationAsync(Id, start, end)).ToList();
-					ShiftService.FillShiftsWithUnassignedShifts(ref shifts, _location!.Containers, start, end);
+					ShiftService.FillShiftsWithUnassignedShifts(shifts, _location!.Containers, start, end,
+						_location.Id);
 					_shifts = shifts
 						.OrderBy(q => q.Type.Name)
 						.Select(Appointment (s) => s.ToAppointment())
