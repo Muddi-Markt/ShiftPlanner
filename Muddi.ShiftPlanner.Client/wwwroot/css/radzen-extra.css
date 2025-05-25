@@ -7,12 +7,28 @@
         font-size: 0.8rem !important;
         line-height: 0.8rem !important;
     }
+
+    .rz-slot-hours {
+        flex: 0 0 2rem !important; /* make hours width smaller, default is 5rem */
+    }
+
+    .rz-body {
+        padding: 1rem !important;
+    }
+
+    .rz-events {
+        width: 111.1% !important;
+    }
 }
 
 @media (min-width: 769px) {
     .rz-event-content {
         font-size: 1rem !important;
         line-height: 1rem !important;
+    }
+
+    .rz-slot-hours {
+        flex: 0 0 3rem !important; /* make hours width smaller, default is 5rem */
     }
 }
 
@@ -51,10 +67,6 @@ a:hover {
 
 .rz-event-content:hover {
     outline: 2px dashed #852121;
-}
-
-.rz-slot-hours{
-    flex: 0 0 3rem !important;/* make hours width smaller, default is 5rem */
 }
 
 .rz-view-content {
