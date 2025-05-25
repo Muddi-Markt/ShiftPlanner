@@ -27,7 +27,10 @@ self.addEventListener('message', event => {
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
 const offlineAssetsInclude = [/\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/, /\.blat$/, /\.dat$/];
-const offlineAssetsExclude = [/^service-worker\.js$/];
+const offlineAssetsExclude = [
+    /^service-worker\.js$/,
+    /^customization\//  // so customization will not be cached by service worker. TODO implement stale-while-revalidate for offline access in future
+];
 const skipIntegrityCheck = [
     /appsettings\.json$/,
     /manifest\.json$/,
