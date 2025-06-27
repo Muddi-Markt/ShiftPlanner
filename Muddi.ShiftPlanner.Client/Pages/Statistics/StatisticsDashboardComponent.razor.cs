@@ -34,7 +34,10 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 	}
 
 	private void ShowTooltip(ElementReference elementReference, string text, TooltipOptions? options = null)
-		=> TooltipService.Open(elementReference, text, options);
+		=> TooltipService.Open(elementReference, text, options ?? new TooltipOptions
+		{
+			Position = TooltipPosition.Bottom, Style = "text-wrap: wrap; max-width:150px" , Duration = 60000
+		});
 
 	private void Randomize()
 	{
