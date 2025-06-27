@@ -8,7 +8,7 @@ using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Shifts;
 
-public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, GetShiftTypesCountResponse>
+public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetShiftTypesCountRequest, GetShiftTypesCountResponse>
 {
 	protected override void CrudConfigure()
 	{
@@ -16,7 +16,7 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, G
 		Get("/shifts/available-types");
 	}
 
-	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetAllShiftsRequest request, CancellationToken ct)
+	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetShiftTypesCountRequest request, CancellationToken ct)
 	{
 		var locations = await Database.ShiftLocations
 			.Where(l => l.Season.Id == request.SeasonId)
@@ -43,7 +43,7 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, G
 			locations.SelectMany(l => l.Containers
 					.SelectMany(container => container.GetStartTimes()
 						.SelectMany(container.GetAvailableShiftTypes)))
-				.Where(s => s.AvailableCount > 0 && (s.Type.OnlyAssignableByAdmin == false || isAdmin))
+				.Where(s => (request.IncludeNonAvailable || s.AvailableCount > 0) && (s.Type.OnlyAssignableByAdmin == false || isAdmin))
 				.OrderBy(st => st.Start);
 
 		if (startingFrom is not null)
