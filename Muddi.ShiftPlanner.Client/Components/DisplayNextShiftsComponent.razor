@@ -6,12 +6,15 @@ else
 {
 	@if (_myShifts.Any())
 	{
-		<h3>Deine nächsten Schichten:</h3>
-		<h4>Herunterladen für deinen Kalender als <a onclick="@Download_iCal" href="?download">iCal Datei</a></h4>
+		<div class="d-flex justify-content-between py-2">
+			<h3>Deine nächsten Schichten</h3>
+			<RadzenButton  Icon="get_app" Click="Download_iCal" Text="Kalenderdatei (iCal) Herunterladen"></RadzenButton>
+		</div>
+		@* <h4>Herunterladen für deinen Kalender als <a onclick="@Download_iCal" href="?download">iCal Datei</a></h4> *@
 		<div class="shift-container">
 			@foreach (var appointment in _myShifts)
 			{
-				@if (appointment.Shift is {} shift)
+				@if (appointment.Shift is { } shift)
 				{
 					<a style="color: #fff;" href="@MakeLocationUri(appointment)">
 						<div class="shift-box" style="background: @shift.Type.Color;">
@@ -28,15 +31,16 @@ else
 			}
 		</div>
 	}
+
 	<br/>
 	@if (_freeShifts.Any())
 	{
-		<h3>Die nächsten freien Schichten:</h3>
+		<h3>Die nächsten freien Schichten</h3>
 
 		<div class="shift-container">
 			@foreach (var appointment in _freeShifts)
 			{
-				@if (appointment.Shift is {} shift)
+				@if (appointment.Shift is { } shift)
 				{
 					<a href="@MakeLocationUri(appointment, false)">
 						<div class="shift-box" style="background: #fff; color: @shift.Type.Color">
