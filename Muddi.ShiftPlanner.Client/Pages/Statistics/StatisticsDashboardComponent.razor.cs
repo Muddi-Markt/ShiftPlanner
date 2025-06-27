@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.Api;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Radzen;
 
@@ -9,7 +8,6 @@ namespace Muddi.ShiftPlanner.Client.Pages.Statistics;
 
 public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 {
-	private Timer? _timer;
 	private string TotalUsers { get; set; } = "-";
 	private string TotalShifts { get; set; } = "-";
 	private string TotalDays { get; set; } = "-";
@@ -17,39 +15,35 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 	private int TotalShiftsCount { get; set; }
 	private int AvailableCount { get; set; }
 	private TimeSpan TotalTimeSpan { get; set; }
-	[Inject] private TooltipService TooltipService { get; set; }
+	private string MetricValueClass => _loading ? "metric-value skeleton" : "metric-value";
+	private bool _loading = true;
 
-	// Inject your data service here
-	[Inject] protected IMuddiShiftApi ShiftApi { get; set; }
-	[Inject] protected ShiftService ShiftService { get; set; }
+	[Inject] public required TooltipService TooltipService { get; set; }
+	[Inject] public required IMuddiShiftApi ShiftApi { get; set; }
+	[Inject] public required ShiftService ShiftService { get; set; }
 
 	protected override void OnInitialized()
 	{
 		ShiftService.OnSeasonChanged += RefreshData;
-	}
-
-	protected override void OnParametersSet()
-	{
 		_ = RefreshData();
 	}
 
 	private void ShowTooltip(ElementReference elementReference, string text, TooltipOptions? options = null)
 		=> TooltipService.Open(elementReference, text, options ?? new TooltipOptions
 		{
-			Position = TooltipPosition.Bottom, Style = "text-wrap: wrap; max-width:150px" , Duration = 60000
+			Position = TooltipPosition.Bottom, Style = "text-wrap: wrap; max-width:150px", Duration = 60000
 		});
 
-	private void Randomize()
-	{
-		TotalUsers = Random.Shared.Next(100, 500).ToString();
-		TotalShifts = Random.Shared.Next(1000, 5000).ToString();
-		TotalDays = Random.Shared.Next(10, 99).ToString("N1");
-		TotalPercentage = Random.Shared.Next(10, 99).ToString();
-		InvokeAsync(StateHasChanged);
-	}
+
+	protected override bool ShouldRender() => !_loading;
 
 	private async Task LoadDashboardData()
 	{
+		
+		_loading = true;
+		if (ShiftService.CurrentSeason.Id == Guid.Empty)
+			return;
+
 		try
 		{
 			var request = new GetShiftTypesCountRequest
@@ -59,12 +53,8 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 			};
 			var users = await ShiftApi.GetAllEmployees();
 			var allAvailableShifts = await ShiftApi.GetAvailableShiftTypes(request);
-			
+
 			var totalShiftHours = CalculateTotalTime(allAvailableShifts);
-			
-			if (_timer is not null)
-				await _timer.DisposeAsync();
-			_timer = null;
 
 			AvailableCount = 0;
 			TotalShiftsCount = 0;
@@ -74,7 +64,7 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 				TotalShiftsCount += resp.TotalCount;
 			}
 
-
+			await Task.Delay(2000);
 			TotalUsers = users.Count().ToString();
 			TotalShifts = (TotalShiftsCount - AvailableCount).ToString();
 			TotalDays = totalShiftHours.TotalDays.ToString("N1");
@@ -82,11 +72,14 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 			if (TotalShiftsCount > 0)
 				TotalPercentage = (100 * (TotalShiftsCount - AvailableCount) / TotalShiftsCount).ToString("N0");
 		}
+
 		catch (Exception ex)
 		{
 			// Handle error appropriately
 			Console.WriteLine($"Error loading dashboard data: {ex.Message}");
 		}
+
+		_loading = false;
 
 		await InvokeAsync(StateHasChanged);
 	}
@@ -104,16 +97,10 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 	}
 
 
-	private async Task RefreshData()
-	{
-		_timer?.Dispose();
-		_timer = new Timer(_ => Randomize(), null, TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(50));
-		await LoadDashboardData();
-	}
+	private Task RefreshData() => LoadDashboardData();
 
 	public void Dispose()
 	{
-		_timer?.Dispose();
 		ShiftService.OnSeasonChanged -= RefreshData;
 	}
 }
