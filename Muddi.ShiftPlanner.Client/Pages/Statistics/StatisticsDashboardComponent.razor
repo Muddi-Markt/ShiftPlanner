@@ -6,43 +6,47 @@
                     <RadzenIcon Icon="group"/>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@TotalUsers</div>
+
+                    <div class="@MetricValueClass">@TotalUsers</div>
                     <div class="metric-label">MUDDIs</div>
                 </div>
             </div>
         </RadzenCard>
 
-        <RadzenCard MouseEnter="@(args => ShowTooltip(args, $"{TotalShifts}/{TotalShiftsCount} Schichten sind schon belegt!"))">
+        <RadzenCard
+            MouseEnter="@(args => ShowTooltip(args, $"{TotalShifts}/{TotalShiftsCount} Schichten sind schon belegt!"))">
             <div class="metric-card">
                 <div class="metric-icon">
                     <RadzenIcon Icon="event_available"/>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@TotalShifts</div>
+                    <div class="@MetricValueClass">@TotalShifts</div>
                     <div class="metric-label">Schichten</div>
                 </div>
             </div>
         </RadzenCard>
 
-        <RadzenCard MouseEnter="@(args => ShowTooltip(args, $"{TotalTimeSpan.Days} Tage und {TotalTimeSpan.Hours} Stunden an Schichten sind vergeben!"))">
+        <RadzenCard
+            MouseEnter="@(args => ShowTooltip(args, $"{TotalTimeSpan.Days} Tage und {TotalTimeSpan.Hours} Stunden an Schichten sind vergeben!"))">
             <div class="metric-card">
                 <div class="metric-icon">
                     <RadzenIcon Icon="schedule"/>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@TotalDays</div>
+                    <div class="@MetricValueClass">@TotalDays</div>
                     <div class="metric-label">Tage</div>
                 </div>
             </div>
         </RadzenCard>
 
-        <RadzenCard MouseEnter="@(args => ShowTooltip(args, $"{AvailableCount}/{TotalShiftsCount} Schichten sind noch frei!"))">
+        <RadzenCard
+            MouseEnter="@(args => ShowTooltip(args, $"{AvailableCount}/{TotalShiftsCount} Schichten sind noch frei!"))">
             <div class="metric-card">
                 <div class="metric-icon">
                     <RadzenIcon Icon="incomplete_circle"/>
                 </div>
                 <div class="metric-content">
-                    <div class="metric-value">@TotalPercentage</div>
+                    <div class="@MetricValueClass">@TotalPercentage</div>
                     <div class="metric-label">%</div>
                 </div>
             </div>
