@@ -118,7 +118,7 @@ public interface IMuddiShiftApi
 
 	[Get("/shifts/available-types")]
 	[Headers("Authorization: Bearer")]
-	Task<ICollection<GetShiftTypesCountResponse>> GetAvailableShiftTypes(GetAllShiftsRequest request);
+	Task<ICollection<GetShiftTypesCountResponse>> GetAvailableShiftTypes(GetShiftTypesCountRequest request);
 
 
 	[Put("/shifts/{id}")]

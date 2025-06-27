@@ -1,10 +1,12 @@
 ﻿@page "/"
+@using Muddi.ShiftPlanner.Client.Pages.Statistics
 @attribute [Authorize]
 @inject IOptions<AppCustomization> AppCustomization;
 <AuthorizeView>
 	<Authorized>
 		<h2>Buongiorno @(context.User.Identity?.Name)!</h2>
 		<br/>
+		<StatisticsDashboardComponent/>
 		<DisplayNextShiftsComponent/>
 		<br/>
 		<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
