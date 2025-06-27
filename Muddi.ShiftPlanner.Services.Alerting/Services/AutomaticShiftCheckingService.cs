@@ -71,7 +71,7 @@ public class AutomaticShiftCheckingService : IHostedService
 	{
 		try
 		{
-			var allAvailableShifts = await _muddi.ShiftApi.GetAvailableShiftTypes(new GetAllShiftsRequest());
+			var allAvailableShifts = await _muddi.ShiftApi.GetAvailableShiftTypes(new ());
 			// var tomorrow = new DateTime(2022, 06, 17).Date;
 			var tomorrow = DateTime.UtcNow.AddDays(1).Date;
 			if (tomorrow < _startDate)
