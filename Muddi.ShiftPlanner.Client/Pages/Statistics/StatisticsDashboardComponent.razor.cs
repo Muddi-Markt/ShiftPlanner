@@ -63,8 +63,7 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 				AvailableCount += resp.AvailableCount;
 				TotalShiftsCount += resp.TotalCount;
 			}
-
-			await Task.Delay(2000);
+			
 			TotalUsers = users.Count().ToString();
 			TotalShifts = (TotalShiftsCount - AvailableCount).ToString();
 			TotalDays = totalShiftHours.TotalDays.ToString("N1");
