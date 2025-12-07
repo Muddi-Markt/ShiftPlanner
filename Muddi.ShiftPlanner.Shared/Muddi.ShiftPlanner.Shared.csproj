@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -12,6 +12,6 @@
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="MappingGenerator" Version="2023.7.64" />
-      <PackageReference Include="Refit" Version="8.0.0" />
+      <PackageReference Include="Refit" Version="9.0.2" />
     </ItemGroup>
 </Project>
