@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Server.Database.Entities;
+﻿using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Seasons;
@@ -21,7 +19,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateSeasonRequest>
 		var entity = await Database.Seasons.FindAsync([request.Id], ct);
 		if (entity is null)
 		{
-			await SendNotFoundAsync("season");
+			await Send.NotFoundAsync("season", ct);
 			return;
 		}
 
@@ -32,7 +30,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateSeasonRequest>
 			{
 				if (entity.StartDate != request.StartDate || entity.EndDate != request.EndDate)
 				{
-					await SendForbiddenAsync("Only super admins are allowed to edit start/end date of seasons");
+					await Send.ForbiddenAsync("Only super admins are allowed to edit start/end date of seasons", ct);
 					return;
 				}
 			}

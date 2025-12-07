@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Math;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
@@ -7,7 +6,9 @@ using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations.Shifts;
 
-public class GetAllAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShiftsForLocationRequest, GetShiftTypesCountResponse>
+public class
+	GetAllAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShiftsForLocationRequest,
+	GetShiftTypesCountResponse>
 {
 	public GetAllAvailableShiftTypesEndpoint(ShiftPlannerContext database) : base(database)
 	{
@@ -19,7 +20,8 @@ public class GetAllAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailable
 		Get("/locations/{LocationId}/get-all-available-shifts-types");
 	}
 
-	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetAvailableShiftsForLocationRequest request, CancellationToken ct)
+	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(
+		GetAvailableShiftsForLocationRequest request, CancellationToken ct)
 	{
 		var start = request.StartTime?.ToUniversalTime() ?? DateTime.UnixEpoch;
 		var end = request.EndTime?.ToUniversalTime() ?? DateTime.MaxValue;
@@ -37,7 +39,7 @@ public class GetAllAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailable
 			.FirstOrDefaultAsync(l => l.Id == request.LocationId, cancellationToken: ct);
 		if (location is null)
 		{
-			await SendNotFoundAsync("location");
+			await Send.NotFoundAsync("location", ct);
 			return null;
 		}
 
@@ -45,12 +47,12 @@ public class GetAllAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailable
 		var shifts = location.Containers
 			.SelectMany(container => container.GetStartTimes()
 				.SelectMany(container.GetAvailableShiftTypes));
-		
+
 		shifts = shifts.OrderBy(x => x.Start).ThenByDescending(x => x.AvailableCount);
-		
+
 		if (request.Limit > 0)
 			shifts = shifts.Take(request.Limit);
-		
+
 		return shifts.ToList();
 	}
 }

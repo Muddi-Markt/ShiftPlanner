@@ -39,14 +39,7 @@ public class GetShiftsAsIcsEndpoint : Endpoint<GetShiftsFromEmployeeRequest>
 		var id = request.Id ?? User.GetKeycloakId();
 		if (count == 0)
 		{
-			await SendStringAsync("count is 0", 400, cancellation: ct);
-			return;
-		}
-
-		bool isRequestUserOrAdmin = id == User.GetKeycloakId() || User.IsInRole(ApiRoles.Admin);
-		if (!isRequestUserOrAdmin)
-		{
-			await SendForbiddenAsync(ct);
+			await Send.ForbiddenAsync(ct);
 			return;
 		}
 
@@ -63,13 +56,13 @@ public class GetShiftsAsIcsEndpoint : Endpoint<GetShiftsFromEmployeeRequest>
 		var shifts = await b.ToListAsync(cancellationToken: ct);
 		if (!shifts.Any())
 		{
-			await SendNoContentAsync(ct);
+			await Send.NoContentWith200Async(ct);
 			return;
 		}
 
 		var calendar = shifts.ToICalCalendar();
 		var bytes = calendar.ToByteArray();
 
-		await SendBytesAsync(bytes, fileName: "muddi-calendar.ics", contentType: "text/calendar", cancellation: ct);
+		await Send.BytesAsync(bytes, fileName: "muddi-calendar.ics", contentType: "text/calendar", cancellation: ct);
 	}
 }

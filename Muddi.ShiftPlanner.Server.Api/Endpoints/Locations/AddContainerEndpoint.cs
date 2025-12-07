@@ -21,7 +21,7 @@ public class AddContainerEndpoint : CrudEndpoint<AddLocationsContainerRequest, E
 		var location = await Database.ShiftLocations.Include(t => t.Containers).FirstOrDefaultAsync(t => t.Id == req.LocationId, ct);
 		if (location == null)
 		{
-			await SendNotFoundAsync(ct);
+			await Send.NotFoundAsync(ct);
 			return;
 		}
 

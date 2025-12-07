@@ -13,6 +13,6 @@ public class AdminEndpoint : EndpointWithoutRequest
 
 	public override Task HandleAsync(CancellationToken ct)
 	{
-		return SendAsync("Hi admin!", cancellation: ct);
+		return Send.OkAsync("Hi admin!", cancellation: ct);
 	}
 }

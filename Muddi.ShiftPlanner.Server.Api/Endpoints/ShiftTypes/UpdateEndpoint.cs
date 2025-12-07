@@ -20,7 +20,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateShiftTypeRequest>
 			.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: ct);
 		if (entity is null)
 		{
-			await SendNotFoundAsync("shift-type");
+			await Send.NotFoundAsync("shift-type", ct);
 			return;
 		}
 
@@ -28,7 +28,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateShiftTypeRequest>
 		entity.Name = request.Name;
 		entity.StartingTimeShift = request.StartingTimeShift;
 		entity.OnlyAssignableByAdmin = request.OnlyAssignableByAdmin;
-		entity.Description =  string.IsNullOrWhiteSpace(request.Description) ? null : request.Description;
+		entity.Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description;
 		await Database.SaveChangesAsync(ct);
 	}
 }

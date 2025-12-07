@@ -34,7 +34,7 @@ public class GetShiftsEndpoint : CrudGetAllEndpoint<GetShiftsFromEmployeeRequest
 		bool isRequestUserOrAdmin = id == User.GetKeycloakId() || User.IsInRole(ApiRoles.Admin);
 		if (!isRequestUserOrAdmin)
 		{
-			await SendForbiddenAsync(ct);
+			await Send.ForbiddenAsync(ct);
 			return null;
 		}
 

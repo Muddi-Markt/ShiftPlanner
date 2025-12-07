@@ -32,23 +32,25 @@ public class AddShiftEndpoint : CrudEndpoint<CreateShiftRequest, DefaultCreateRe
 			.ThenInclude(f => f.ShiftTypeCounts)
 			.ThenInclude(stc => stc.ShiftType)
 			.AsSingleQuery()
-			.FirstOrDefaultAsync(t => t.Id == req.Id && req.Start >= t.Start && req.Start < t.End, cancellationToken: ct);
+			.FirstOrDefaultAsync(t => t.Id == req.Id && req.Start >= t.Start && req.Start < t.End,
+				cancellationToken: ct);
 
 
 		if (container is null)
 		{
-			await SendNotFoundAsync("Container");
+			await Send.NotFoundAsync("Container", ct);
 			return;
 		}
 
-		var failure = await Database.PreAddShiftSanityCheck(container,req, User);
-		
+		var failure = await Database.PreAddShiftSanityCheck(container, req, User);
+
 		if (await SendErrorIfValidationFailure(failure))
 			return;
 
 		var shift = Database.AddShiftToContainer(req, container);
 
 		await Database.SaveChangesAsync(ct);
-		await SendCreatedAtAsync<Endpoints.Shifts.GetEndpoint>(new { shift.Id }, new() { Id = shift.Id }, cancellation: ct);
+		await Send.CreatedAtAsync<Endpoints.Shifts.GetEndpoint>(new { shift.Id }, new() { Id = shift.Id },
+			cancellation: ct);
 	}
 }

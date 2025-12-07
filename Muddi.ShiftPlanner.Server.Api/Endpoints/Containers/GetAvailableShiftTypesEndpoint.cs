@@ -6,7 +6,8 @@ using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
 
-public class GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShiftTypesRequest, GetShiftTypesCountResponse>
+public class
+	GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShiftTypesRequest, GetShiftTypesCountResponse>
 {
 	public GetAvailableShiftTypesEndpoint(ShiftPlannerContext database) : base(database)
 	{
@@ -18,7 +19,8 @@ public class GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShi
 		Get("/containers/{ContainerId}/get-available-shift-types");
 	}
 
-	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetAvailableShiftTypesRequest request, CancellationToken ct)
+	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(
+		GetAvailableShiftTypesRequest request, CancellationToken ct)
 	{
 		var container = await Database.Containers
 			.Include(c => c.Location)
@@ -31,7 +33,7 @@ public class GetAvailableShiftTypesEndpoint : CrudGetAllEndpoint<GetAvailableShi
 			.FirstOrDefaultAsync(c => c.Id == request.ContainerId, cancellationToken: ct);
 		if (container is null)
 		{
-			await SendNotFoundAsync("container");
+			await Send.NotFoundAsync("container", ct);
 			return null;
 		}
 

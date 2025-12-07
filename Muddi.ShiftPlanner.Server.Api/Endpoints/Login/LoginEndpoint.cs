@@ -26,7 +26,7 @@ public class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
 		if (!apiResp.IsSuccessStatusCode || apiResp.Content is null)
 		{
 			ValidationFailures.Add(new ValidationFailure("Api", apiResp.Error?.Content ?? apiResp.ReasonPhrase));
-			await SendErrorsAsync((int)apiResp.StatusCode, ct);
+			await Send.ErrorsAsync((int)apiResp.StatusCode, ct);
 			return;
 		}
 

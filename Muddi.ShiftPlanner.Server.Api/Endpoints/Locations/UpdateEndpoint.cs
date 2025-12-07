@@ -24,7 +24,7 @@ namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations
 				.FirstOrDefaultAsync(l => l.Id == request.Id, cancellationToken: ct);
 			if (entity is null)
 			{
-				await SendNotFoundAsync("location");
+				await Send.NotFoundAsync("location", ct);
 				return;
 			}
 

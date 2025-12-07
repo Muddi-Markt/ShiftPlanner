@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
+using FastEndpoints;
 using FluentValidation.Results;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Muddi.ShiftPlanner.Server.Api.Exceptions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
+using Void = FastEndpoints.Void;
 
 namespace Muddi.ShiftPlanner.Server.Api.Services;
 

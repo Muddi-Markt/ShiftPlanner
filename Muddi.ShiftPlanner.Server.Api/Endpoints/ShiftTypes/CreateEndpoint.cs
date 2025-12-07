@@ -15,12 +15,13 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateShiftTypeRequest, GetShif
 		Post("/shift-types");
 	}
 
-	public override async Task<GetShiftTypesResponse?> CrudExecuteAsync(CreateShiftTypeRequest req, CancellationToken ct)
+	public override async Task<GetShiftTypesResponse?> CrudExecuteAsync(CreateShiftTypeRequest req,
+		CancellationToken ct)
 	{
-		var season = await Database.Seasons.FindAsync(req.SeasonId);
+		var season = await Database.Seasons.FindAsync(req.SeasonId, ct);
 		if (season is null)
 		{
-			await SendNotFoundAsync(nameof(req.SeasonId));
+			await Send.NotFoundAsync(nameof(req.SeasonId), ct);
 			return null;
 		}
 

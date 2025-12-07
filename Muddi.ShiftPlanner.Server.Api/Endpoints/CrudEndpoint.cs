@@ -38,43 +38,6 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 		Throttle(500, 60);
 #endif
 	}
-
-	private static TResponse Empty = new();
-
-	protected Task SendNoContent()
-	{
-		//I would prefer this but as Refit has an issue so we have to return 200: https://github.com/reactiveui/refit/issues/1128
-		// return SendAsync(Empty, StatusCodes.Status204NoContent);
-		return SendAsync(Empty);
-	}
-
-
-	//We don't need to pass the CancellationToken as the methods itself have it already
-	protected Task SendNotFoundAsync(string idName)
-	{
-		return SendStringAsync($"{idName} does not exist", StatusCodes.Status404NotFound);
-	}
-
-	protected Task SendConflictAsync(string reason)
-	{
-		return SendStringAsync(reason, StatusCodes.Status409Conflict);
-	}
-
-	protected Task SendLockedAsync(string reason)
-	{
-		return SendStringAsync(reason, StatusCodes.Status423Locked);
-	}
-
-	protected Task SendBadRequest(string reason)
-	{
-		return SendStringAsync(reason, 400);
-	}
-
-	protected Task SendForbiddenAsync(string reason)
-	{
-		return SendStringAsync(reason, StatusCodes.Status403Forbidden);
-	}
-
 	protected async Task<bool> SendErrorIfValidationFailure(ValidationFailure? validationFailure)
 	{
 		if (validationFailure is null) return false;
@@ -85,7 +48,7 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 		};
 
 		ValidationFailures.Add(validationFailure);
-		await SendErrorsAsync(statusCode);
+		await Send.ErrorsAsync(statusCode);
 		return true;
 	}
 }

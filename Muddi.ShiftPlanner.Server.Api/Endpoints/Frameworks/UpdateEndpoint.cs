@@ -25,7 +25,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateFrameworkRequest>
 			.FirstOrDefaultAsync(f => f.Id == request.Id, cancellationToken: ct);
 		if (entity is null)
 		{
-			await SendNotFoundAsync("framework");
+			await Send.NotFoundAsync("framework", ct);
 			return;
 		}
 
@@ -34,13 +34,13 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateFrameworkRequest>
 		{
 			if (entity.SecondsPerShift != request.SecondsPerShift)
 			{
-				await SendForbiddenAsync("Only super admins are allowed to change time per shift");
+				await Send.ForbiddenAsync("Only super admins are allowed to change time per shift", ct);
 				return;
 			}
 
 			if (entity.ShiftTypeCounts.Count > request.TypeCounts.Count)
 			{
-				await SendForbiddenAsync("Only super admins are allowed to remove shift types");
+				await Send.ForbiddenAsync("Only super admins are allowed to remove shift types", ct);
 				return;
 			}
 
@@ -49,20 +49,20 @@ public class UpdateEndpoint : CrudUpdateEndpoint<UpdateFrameworkRequest>
 				var tc = request.TypeCounts.FirstOrDefault(t => t.ShiftTypeId == stc.ShiftType.Id);
 				if (tc is null)
 				{
-					await SendForbiddenAsync("Only super admins are allowed to remove single shift type");
+					await Send.ForbiddenAsync("Only super admins are allowed to remove single shift type", ct);
 					return;
 				}
 
 				if (stc.Count > tc.Count)
 				{
-					await SendForbiddenAsync("Only super admins are allowed to decrease shift type counts");
+					await Send.ForbiddenAsync("Only super admins are allowed to decrease shift type counts", ct);
 					return;
 				}
 			}
 		}
 
 		entity.Name = request.Name;
-		
+
 		var typesToAdd = request.TypeCounts.ToList();
 		entity.ShiftTypeCounts.RemoveAll(q => request.TypeCounts.All(tc => tc.ShiftTypeId != q.ShiftType.Id));
 		foreach (var stc in entity.ShiftTypeCounts)
