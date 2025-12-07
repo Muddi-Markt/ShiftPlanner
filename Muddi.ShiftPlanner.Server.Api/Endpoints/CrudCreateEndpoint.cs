@@ -22,7 +22,7 @@ public abstract class CrudCreateEndpoint<TRequest, TResponse, TGetEndpoint> : Cr
 		if (resp is null)
 			return;
 
-		await SendCreatedAtAsync<TGetEndpoint>(new { resp.Id }, resp, cancellation: ct);
+		await Send.CreatedAtAsync<TGetEndpoint>(new { resp.Id }, resp, cancellation: ct);
 	}
 
 	protected CrudCreateEndpoint(ShiftPlannerContext database) : base(database)

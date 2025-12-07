@@ -1,6 +1,4 @@
-﻿@using System.Collections
-@using Muddi.ShiftPlanner.Client.Services
-@inherits UpdateDialogBase<GetFrameworkResponse>
+﻿@inherits UpdateDialogBase<GetFrameworkResponse>
 @inject ShiftService ShiftService;
 <div class="row">
 	<div class="col-md-4 align-items-center d-flex">
@@ -44,7 +42,7 @@
 				<RadzenDropDown AllowClear="true"
 				                LoadData="@LoadShiftTypesAsync"
 				                AllowFiltering="true"
-				                TValue="Guid"
+				                TValue="Guid?"
 				                Data=@_shiftTypes
 				                Value="selectedItem?.Id"
 				                Change="@(o =>

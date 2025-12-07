@@ -45,7 +45,7 @@ public class ExportToExcelEndpoint : Endpoint<ExportToExcelRequest>
 		var fileName = $"{location.Name.Replace(' ', '_').ToLower()}.xlsx";
 		fileName = HttpUtility.UrlEncode(fileName);
 
-		await SendBytesAsync(bytes,
+		await Send.BytesAsync(bytes,
 			fileName: fileName,
 			contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 			cancellation: ct);

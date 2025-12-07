@@ -1,10 +1,8 @@
-﻿@using Toolbelt.Blazor.PWA.Updater.Service
-@inject IPWAUpdaterService PWAUpdaterService
-@inject DialogService DialogService
+﻿@using Muddi.ShiftPlanner.Client.Pages
 @implements IDisposable
 
 
-<Router AppAssembly="@typeof(App).Assembly">
+<Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(NotFoundPage)">
 	<Found Context="routeData">
 		@if (ShowContent)
 		{
@@ -32,27 +30,24 @@
 				<p>Eine neue Version wurde gefunden. Sie wird aktualisiert...</p>
 			</div>
 		}
-		@* <FocusOnNavigate RouteData="@routeData" Selector="h1"/> *@
 	</Found>
-	<NotFound>
-		<PageTitle>Not found</PageTitle>
-		<LayoutView Layout="@typeof(MainLayout)">
-			<h1>Vier-Null-Vier</h1>
-			<p role="alert">Sorry, hier ist nichts. Hast du dich vielleicht verschrieben?</p>
-		</LayoutView>
-	</NotFound>
 </Router>
 
 @code {
+
 	// ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
 	// We need it for release mode
 	private bool ShowContent { get; set; } = true;
+
 #if RELEASE
+	[Inject] public required Toolbelt.Blazor.PWA.Updater.Service.IPWAUpdaterService PwaUpdaterService { get; set; }
+	[Inject] public required DialogService DialogService { get; set; }
+
 	protected override void OnAfterRender(bool firstRender)
 	{
 		if (firstRender)
 		{
-			PWAUpdaterService.NextVersionIsWaiting += PWAUpdaterService_NextVersionIsWaiting;
+			PwaUpdaterService.NextVersionIsWaiting += PWAUpdaterService_NextVersionIsWaiting;
 		}
 	}
 
@@ -61,19 +56,19 @@
 		ShowContent = false;
 		_ = InvokeAsync(StateHasChanged);
 		await Task.Delay(1000);
-		await PWAUpdaterService.SkipWaitingAsync();
+		await PwaUpdaterService.SkipWaitingAsync();
 	}
 
 	public void Dispose()
 	{
-		PWAUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
+		PwaUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
 	}
 
 #else
 
 	public void Dispose()
 	{
-	//Empty
+		//Empty
 	}
 
 #endif

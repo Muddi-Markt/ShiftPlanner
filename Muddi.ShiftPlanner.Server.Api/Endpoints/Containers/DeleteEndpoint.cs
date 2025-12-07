@@ -18,7 +18,8 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 
 	protected override async Task<DeleteResponse> CrudExecuteAsync(Guid id, CancellationToken ct)
 	{
-		var entity = await Database.Containers.Include(c => c.Shifts).FirstOrDefaultAsync(c => c.Id == id, cancellationToken: ct);
+		var entity = await Database.Containers.Include(c => c.Shifts)
+			.FirstOrDefaultAsync(c => c.Id == id, cancellationToken: ct);
 		if (entity is null)
 			return DeleteResponse.NotFound;
 		if (!User.IsInRole(ApiRoles.SuperAdmin))
@@ -26,10 +27,12 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 			var shiftsCount = entity.Shifts.Count;
 			if (shiftsCount > 0)
 			{
-				await SendForbiddenAsync("There are shifts attached to this container. Only a super-admin is allowed to delete this");
+				await Send.ForbiddenAsync(
+					"There are shifts attached to this container. Only a super-admin is allowed to delete this", ct);
 				return DeleteResponse.Other;
 			}
 		}
+
 		Database.RemoveRange(entity.Shifts);
 		Database.Remove(entity);
 		await Database.SaveChangesAsync(ct);

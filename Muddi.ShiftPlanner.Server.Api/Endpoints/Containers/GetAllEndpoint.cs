@@ -1,7 +1,5 @@
-﻿using FastEndpoints;
-using Mapster;
+﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Containers;
@@ -17,13 +15,15 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetContainerRequest, GetContain
 		Get("/containers");
 	}
 
-	public override async Task<List<GetContainerResponse>?> CrudExecuteAsync(GetContainerRequest req, CancellationToken ct)
+	public override async Task<List<GetContainerResponse>?> CrudExecuteAsync(GetContainerRequest req,
+		CancellationToken ct)
 	{
-		return await Database.ShiftLocations
-			.CheckAdminOnly(User)
-			.Include(t => t.Type)
-			.Where(q => q.Season.Id == req.SeasonId)
-			.OrderBy(sl => sl.Containers.Min(c => c.Start))
+		return await Database.Containers
+			.Include(x => x.Framework)
+			.ThenInclude(f => f.ShiftTypeCounts)
+			.ThenInclude(stc => stc.ShiftType)
+			.Where(q => q.Framework.Season.Id == req.SeasonId)
+			.OrderBy(sl => sl.Start)
 			.Select(t => t.Adapt<GetContainerResponse>())
 			.ToListAsync(cancellationToken: ct);
 	}

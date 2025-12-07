@@ -16,7 +16,8 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetShiftTypesCountRequ
 		Get("/shifts/available-types");
 	}
 
-	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetShiftTypesCountRequest request, CancellationToken ct)
+	public override async Task<List<GetShiftTypesCountResponse>?> CrudExecuteAsync(GetShiftTypesCountRequest request,
+		CancellationToken ct)
 	{
 		var locations = await Database.ShiftLocations
 			.Where(l => l.Season.Id == request.SeasonId)
@@ -32,7 +33,7 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetShiftTypesCountRequ
 			.ToListAsync(cancellationToken: ct);
 		if (locations.Count == 0)
 		{
-			await SendNoContent();
+			await Send.NoContentWith200Async(ct);
 			return null;
 		}
 
@@ -43,7 +44,8 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetShiftTypesCountRequ
 			locations.SelectMany(l => l.Containers
 					.SelectMany(container => container.GetStartTimes()
 						.SelectMany(container.GetAvailableShiftTypes)))
-				.Where(s => (request.IncludeNonAvailable || s.AvailableCount > 0) && (s.Type.OnlyAssignableByAdmin == false || isAdmin))
+				.Where(s => (request.IncludeNonAvailable || s.AvailableCount > 0) &&
+				            (s.Type.OnlyAssignableByAdmin == false || isAdmin))
 				.OrderBy(st => st.Start);
 
 		if (startingFrom is not null)

@@ -23,16 +23,16 @@ public class DeleteEndpoint : CrudDeleteEndpoint
 			return DeleteResponse.NotFound;
 
 		var isAdmin = User.IsInRole(ApiRoles.Admin);
-		
+
 		switch (isAdmin)
 		{
 			case false when User.GetKeycloakId() != entity.EmployeeKeycloakId:
-				await SendForbiddenAsync(ct);
+				await Send.ForbiddenAsync(ct);
 				return DeleteResponse.Other;
 			//Don't allow user to remove shifts after a certain time
 			//TODO This needs to be set via Api by an admin in the future
 			case false when DateTime.UtcNow >= entity.Start.Date.AddDays(-1).AddHours(16):
-				await SendLockedAsync("You are not allowed to remove the shift anymore. Ask an admin.");
+				await Send.LockedAsync("You are not allowed to remove the shift anymore. Ask an admin.", ct);
 				return DeleteResponse.Other;
 		}
 

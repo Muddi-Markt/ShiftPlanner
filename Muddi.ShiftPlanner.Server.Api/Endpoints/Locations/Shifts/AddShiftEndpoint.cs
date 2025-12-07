@@ -33,23 +33,25 @@ public class AddShiftEndpoint : CrudEndpoint<CreateShiftRequest, DefaultCreateRe
 			.FirstOrDefaultAsync(l => l.Id == req.Id, cancellationToken: ct);
 		if (location is null)
 		{
-			await SendNotFoundAsync("Location");
+			await Send.NotFoundAsync("Location", ct);
 			return;
 		}
 
 		var container = location.Containers.SingleOrDefault();
 		if (container is null)
 		{
-			await SendNotFoundAsync("Container within time range");
+			await Send.NotFoundAsync("Container within time range", ct);
 			return;
 		}
 
-		var failure = await Database.PreAddShiftSanityCheck(container,req, User);
+		var failure = await Database.PreAddShiftSanityCheck(container, req, User);
 
 		if (await SendErrorIfValidationFailure(failure))
 			return;
 
 		var shift = Database.AddShiftToContainer(req, container);
-		await SendCreatedAtAsync<Endpoints.Shifts.GetEndpoint>(new { shift.Id }, new() { Id = shift.Id }, cancellation: ct);
+		await Send.CreatedAtAsync<Endpoints.Shifts.GetEndpoint>(new { shift.Id },
+			new() { Id = shift.Id },
+			cancellation: ct);
 	}
 }

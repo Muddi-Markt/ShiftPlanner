@@ -17,12 +17,13 @@ public class CreateEndpoint : CrudCreateEndpoint<CreateFrameworkRequest, GetFram
 
 	public override async Task<GetFrameworkResponse?> CrudExecuteAsync(CreateFrameworkRequest req, CancellationToken ct)
 	{
-		var season = await Database.Seasons.FindAsync(req.SeasonId);
+		var season = await Database.Seasons.FindAsync(req.SeasonId, ct);
 		if (season is null)
 		{
-			await SendNotFoundAsync(nameof(req.SeasonId));
+			await Send.NotFoundAsync(nameof(req.SeasonId), ct);
 			return null;
 		}
+
 		var framework = new ShiftFrameworkEntity
 		{
 			Id = Guid.NewGuid(),

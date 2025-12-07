@@ -22,7 +22,7 @@ public abstract class CrudGetEndpoint<TResponse> : CrudEndpoint<DefaultGetReques
 		var val = await CrudExecuteAsync(req.Id, ct);
 		if (val is null)
 		{
-			await SendNotFoundAsync(ct);
+			await Send.NotFoundAsync(ct);
 			return;
 		}
 

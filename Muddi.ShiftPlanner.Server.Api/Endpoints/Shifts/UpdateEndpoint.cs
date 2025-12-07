@@ -32,7 +32,7 @@ public class UpdateEndpoint : CrudUpdateEndpoint<CreateShiftRequest>
 			.FirstOrDefaultAsync(c => c.Shifts.Any(s => s.Id == request.Id), cancellationToken: ct);
 		if (container is null)
 		{
-			await SendNotFoundAsync("Shift");
+			await Send.NotFoundAsync("Shift", ct);
 			return;
 		}
 

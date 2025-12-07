@@ -23,10 +23,10 @@ public abstract class CrudDeleteEndpoint : CrudEndpoint<DefaultGetRequest, Empty
 		switch (res)
 		{
 			case DeleteResponse.NotFound:
-				await SendNotFoundAsync(ct);
+				await Send.NotFoundAsync(ct);
 				return;
 			case DeleteResponse.OK:
-				await SendNoContentAsync(ct);
+				await Send.NoContentWith200Async(ct);
 				return;
 			//On other only return as the CrudExecuteAsync method already sent an response
 			case DeleteResponse.Other:
@@ -41,9 +41,9 @@ public abstract class CrudDeleteEndpoint : CrudEndpoint<DefaultGetRequest, Empty
 
 	protected enum DeleteResponse
 	{
-		
 		OK,
 		NotFound,
+
 		/// <summary>
 		/// When this is used you have to call SendAsync or similar
 		/// </summary>
