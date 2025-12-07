@@ -38,26 +38,30 @@
 	// ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
 	// We need it for release mode
 	private bool ShowContent { get; set; } = true;
+
 #if RELEASE
+	[Inject] public required Toolbelt.Blazor.PWA.Updater.Service.IPWAUpdaterService PwaUpdaterService { get; set; }
+	[Inject] public required DialogService DialogService { get; set; }
+
 	protected override void OnAfterRender(bool firstRender)
 	{
-	if (firstRender)
-	{
-	PWAUpdaterService.NextVersionIsWaiting += PWAUpdaterService_NextVersionIsWaiting;
-	}
+		if (firstRender)
+		{
+			PwaUpdaterService.NextVersionIsWaiting += PWAUpdaterService_NextVersionIsWaiting;
+		}
 	}
 
 	private async void PWAUpdaterService_NextVersionIsWaiting(object? sender, EventArgs e)
 	{
-	ShowContent = false;
-	_ = InvokeAsync(StateHasChanged);
-	await Task.Delay(1000);
-	await PWAUpdaterService.SkipWaitingAsync();
+		ShowContent = false;
+		_ = InvokeAsync(StateHasChanged);
+		await Task.Delay(1000);
+		await PwaUpdaterService.SkipWaitingAsync();
 	}
 
 	public void Dispose()
 	{
-	PWAUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
+		PwaUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
 	}
 
 #else
