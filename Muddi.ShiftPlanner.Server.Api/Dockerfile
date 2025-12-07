@@ -1,7 +1,7 @@
-﻿FROM  mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
+﻿FROM  mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 COPY ["Muddi.ShiftPlanner.Server.Api/Muddi.ShiftPlanner.Server.Api.csproj", "Muddi.ShiftPlanner.Server.Api/"]
