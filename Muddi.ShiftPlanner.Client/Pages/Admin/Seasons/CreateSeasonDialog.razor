@@ -1,5 +1,7 @@
-﻿@inherits UpdateDialogBase<Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons.GetSeasonResponse>
+﻿@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons
+@inherits UpdateDialogBase<GetSeasonResponse>
 @inject ShiftService ShiftService;
+
 <div class="row">
 	<div class="col-md-4 align-items-center d-flex">
 		<RadzenLabel Text="Name"/>
@@ -24,6 +26,26 @@
 		<RadzenDatePicker Kind="DateTimeKind.Utc" @bind-Value="EntityToEdit.EndDate"></RadzenDatePicker>
 	</div>
 </div>
+@if (IsCreating)
+{
+	<div class="row mt-3">
+		<div class="col-md-4 align-items-center d-flex">
+			<RadzenLabel Text="Copy from"/>
+		</div>
+		<div class="col-md-8">
+			<RadzenDropDown TValue="Guid?" @bind-Value="CopyFromSeasonId" Data="@AvailableSeasons"
+			                TextProperty="Name" ValueProperty="Id" AllowClear="true"
+			                Placeholder="Don't copy - start empty" Style="width: 100%"/>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<RadzenText TextStyle="TextStyle.Caption" class="text-muted">
+				Copies Shift Types, Frameworks, Locations and Containers. Container dates will be adjusted to the new season.
+			</RadzenText>
+		</div>
+	</div>
+}
 <div class="row mb-3 mt-4">
 	<div class="col-md-12 text-right">
 		<RadzenButton Click="UpdateAndClose" ButtonStyle="ButtonStyle.Success" Text="OK"/>
@@ -32,6 +54,18 @@
 </div>
 
 @code {
+	private Guid? CopyFromSeasonId { get; set; }
+	private IReadOnlyCollection<GetSeasonResponse> AvailableSeasons { get; set; } = [];
+	private bool IsCreating => EntityToEdit.Id == Guid.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (IsCreating)
+		{
+			AvailableSeasons = await ShiftApi.GetAllSeasons();
+		}
+		await base.OnInitializedAsync();
+	}
 
 	protected override void OnParametersSet()
 	{
@@ -47,7 +81,8 @@
 		{
 			Name = EntityToEdit.Name,
 			StartDate = new DateTime(EntityToEdit.StartDate.Ticks, DateTimeKind.Utc),
-			EndDate = new DateTime(EntityToEdit.EndDate.Ticks, DateTimeKind.Utc)
+			EndDate = new DateTime(EntityToEdit.EndDate.Ticks, DateTimeKind.Utc),
+			CopyFromSeasonId = CopyFromSeasonId
 		});
 
 	protected override Task Update()
