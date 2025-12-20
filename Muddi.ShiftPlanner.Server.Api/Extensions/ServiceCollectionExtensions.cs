@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Duende.AccessTokenManagement;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Muddi.ShiftPlanner.Server.Api.Filters;
@@ -48,15 +49,14 @@ public static class ServiceCollectionExtensions
 		Add 'editor' and 'viewer' to Client Default Roles
 
 
-		*** Add User with view-users roles ***
-		btw: This is sooo stupid... I dont know why, but since Version 17 or so of fckn Keycloak
-		it is not possible anymore to login with the admin user... nvm, here is how to solve it:
-		Create User
-		Edit User and set password
-		Go to Role Mapping
-		Client Roles: realm-managment
-		Add view-users
-		This will be the AdminUser and AdminPassword
+		*** Create Service Account Client for API access ***
+		Clients -> Create Client
+			Client ID: shift-planner-server-api
+			Client authentication: ON (confidential)
+			Service accounts roles: ON
+		After creation, go to Credentials tab to get the Client Secret
+		Go to Service Account Roles tab
+		Assign 'view-users' role from 'realm-management' client
 
 		*** Add User Registration ***
 	    Realm Settings -> Login
@@ -68,8 +68,29 @@ public static class ServiceCollectionExtensions
 	{
 		var muddiConfig = configuration.GetSection("MuddiConnect");
 		var authority = muddiConfig["Authority"];
+		var authorityUri = new Uri(authority!);
+		var baseUrl = authorityUri.GetLeftPart(UriPartial.Authority);
+
+		var serviceClientId = muddiConfig["ClientId"];
+		var serviceClientSecret = muddiConfig["ClientSecret"];
+		if (string.IsNullOrEmpty(serviceClientId) || string.IsNullOrEmpty(serviceClientSecret))
+			throw new InvalidOperationException("You need to specify ClientId and ClientSecret in MuddiConnect");
+
 		JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-		services.AddSingleton<IKeycloakService, KeycloakService>();
+
+		services.AddClientCredentialsTokenManagement()
+			.AddClient(ClientCredentialsClientName.Parse("keycloak"), client =>
+			{
+				client.TokenEndpoint = new Uri($"{authority}/protocol/openid-connect/token");
+				client.ClientId = ClientId.Parse(serviceClientId);
+				client.ClientSecret = ClientSecret.Parse(serviceClientSecret);
+			});
+
+		services.AddRefitClient<IKeycloakApi>()
+			.ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl))
+			.AddClientCredentialsTokenHandler(ClientCredentialsClientName.Parse("keycloak"));
+
+		services.AddScoped<IKeycloakService, KeycloakService>();
 		services.AddAuthorization();
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(o =>

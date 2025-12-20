@@ -2,19 +2,17 @@ version: '3.6'
 
 services:
   keycloak:
-    restart: unless-stopped
-    image: quay.io/keycloak/keycloak:18.0
-    command: start-dev #see https://www.keycloak.org/server/configuration-production
+    image: quay.io/keycloak/keycloak:26.4
+    command: start-dev --import-realm
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: superDuperSecret
-      KEYCLOAK_LOGLEVEL: INFO
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: superDuperSecret
+    volumes:
+      # Map the rescued JSON file into the import folder
+      - ./config/keycloak/realm-export.json:/opt/keycloak/data/import/import.json
     ports:
       - "28080:8080"
     depends_on:

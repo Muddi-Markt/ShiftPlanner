@@ -6,16 +6,14 @@ namespace Muddi.ShiftPlanner.Server.Api.Services;
 public interface IKeycloakApi
 {
 	[Get("/admin/realms/{realm}/users/{userId}")]
-	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<KeycloakUserRepresentation>> GetUserByIdAsync(string realm, Guid userId);
 
 	[Get("/admin/realms/{realm}/users")]
-	[Headers("Authorization: Bearer")]
 	Task<ApiResponse<ICollection<KeycloakUserRepresentation>>> GetUsers(string realm, int max = -1);
 
-
 	[Post("/realms/{realm}/protocol/openid-connect/token")]
-	Task<ApiResponse<GetTokenResponse>> GetToken(string realm, [Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);
+	Task<ApiResponse<GetTokenResponse>> GetToken(string realm,
+		[Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);
 }
 
 public class KeycloakUserRepresentation

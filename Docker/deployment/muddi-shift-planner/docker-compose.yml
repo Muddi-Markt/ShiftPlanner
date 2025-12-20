@@ -3,7 +3,7 @@ version: '3.7'
 services:
   shift-planner-api:
     restart: unless-stopped
-    image: ghcr.io/muddi-markt/shiftplanner/api:v1.2
+    image: ghcr.io/muddi-markt/shiftplanner/api:v1.3
     depends_on:
       - keycloak
       - postgres
@@ -17,11 +17,12 @@ services:
       Database__Name: ${MUDDI_POSTGRES_DB}
       Database__HOST: postgres
       Database__PORT: 5432
-      MuddiConnect__AdminPassword: admin #todo this will be a service account in future
+      MuddiConnect__ClientId: ${MUDDI_CLIENT_ID}
+      MuddiConnect__ClientSecret: ${MUDDI_CLIENT_SECRET}
       Cors__Origins__0: https://your-client-url.com
   shift-planner-client:
     restart: unless-stopped
-    image: ghcr.io/muddi-markt/shiftplanner/client:v1.2
+    image: ghcr.io/muddi-markt/shiftplanner/client:v1.3
     volumes:
       - ./config/muddi/customization:/usr/share/nginx/html/customization
       - ./config/muddi/appsettings.json:/usr/share/nginx/html/appsettings.json
@@ -33,30 +34,26 @@ services:
 
   keycloak:
     restart: unless-stopped
-    image: quay.io/keycloak/keycloak:18.0
-    #warning! Dont use in production, use command: start instead
-    #see https://www.keycloak.org/server/configuration-production
-    command: start-dev
+    image: quay.io/keycloak/keycloak:26.4
+    command: start --optimized
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
-      KEYCLOAK_LOGLEVEL: INFO
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KC_HTTP_ENABLED: "true"
+      # Database
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgresql
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
+      
       KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME_STRICT_HTTP: "false"
-      KC_PROXY: edge
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded 
+      
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     depends_on:
       - postgres
     ports:
-      - "28080:8080"
-    volumes:
-      - ./config/keycloak/realm-export.json:/opt/keycloak/data/import
+      - "28080:8080" # only for local testing
     networks:
       - shiftplanner
       

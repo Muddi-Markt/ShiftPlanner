@@ -15,51 +15,13 @@ public interface IKeycloakService
 public class KeycloakService : IKeycloakService
 {
 	private readonly IMemoryCache _cache;
-	private const string Realm = "muddi";
 	private readonly IKeycloakApi _keycloakApi;
+	private const string Realm = "muddi";
 
-
-	public KeycloakService(IConfiguration configuration, IMemoryCache cache)
+	public KeycloakService(IKeycloakApi keycloakApi, IMemoryCache cache)
 	{
+		_keycloakApi = keycloakApi;
 		_cache = cache;
-		var authority = configuration["MuddiConnect:Authority"];
-
-
-		var c = configuration.GetSection("MuddiConnect");
-		var keycloakUser = c["AdminUser"];
-		var keycloakPass = c["AdminPassword"];
-
-		if (string.IsNullOrEmpty(keycloakUser) || string.IsNullOrEmpty(keycloakPass))
-			throw new InvalidOperationException("You need to specify AdminUser and AdminPassword in MuddiConnect");
-		_tokenRequest = new GetTokenRequest(keycloakUser, keycloakPass, "admin-cli");
-		_keycloakApi = RestService.For<IKeycloakApi>(new Uri(authority).GetLeftPart(UriPartial.Authority),
-			new RefitSettings
-			{
-				AuthorizationHeaderValueGetter = GetAdminToken
-			});
-	}
-
-	private static readonly SemaphoreSlim TokenSemaphore = new(1, 1);
-	private static string? _currentToken;
-	private static DateTime _currentTokenExpiresAt;
-	private readonly GetTokenRequest _tokenRequest;
-
-	private async Task<string> GetAdminToken(HttpRequestMessage message, CancellationToken ct)
-	{
-		await TokenSemaphore.WaitAsync(ct);
-		try
-		{
-			if (_currentToken is not null && _currentTokenExpiresAt > DateTime.UtcNow) return _currentToken;
-			var apiRes = await GetToken(_tokenRequest);
-			if (apiRes.Content is not { } res) throw apiRes.Error!;
-			_currentToken = res.AccessToken;
-			_currentTokenExpiresAt = DateTime.UtcNow.AddSeconds(res.ExpiresIn);
-			return _currentToken;
-		}
-		finally
-		{
-			TokenSemaphore.Release();
-		}
 	}
 
 	public Task<ApiResponse<GetTokenResponse>> GetToken(GetTokenRequest tokenRequest)
