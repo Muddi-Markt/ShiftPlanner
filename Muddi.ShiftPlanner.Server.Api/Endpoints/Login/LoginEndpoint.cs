@@ -17,6 +17,11 @@ public class LoginEndpoint : Endpoint<LoginRequest, LoginResponse>
 	{
 		Post("/login");
 		AllowAnonymous();
+		Summary(ep => ep.ExampleRequest = new LoginRequest
+		{
+			Email = "dev@muddimarkt.org",
+			Password = "test"
+		});
 	}
 
 
