@@ -70,7 +70,8 @@ public class ExcelService
 						                                        && s.Start == typesGroup.Key))
 						{
 							var user = _keycloakService.GetUserById(shift.EmployeeKeycloakId);
-							worksheet.Cell(row, cell).GetRichText().AddText($"{user.FirstName} {user.LastName?[0]}.").AddNewLine();
+							worksheet.Cell(row, cell).GetRichText().AddText($"{user.FirstName} {user.LastName?[0]}.")
+								.AddNewLine();
 						}
 					}
 
@@ -97,7 +98,8 @@ public class ExcelService
 		}
 
 		//Delete template
-		book.Worksheets.First().Delete();
+		if (book.Worksheets.Count > 1)
+			book.Worksheets.First().Delete();
 
 		using var ms = new MemoryStream();
 		book.SaveAs(ms);
