@@ -33,7 +33,7 @@ public class GetAllAvailableEndpoint : CrudGetAllEndpoint<GetShiftTypesCountRequ
 			.ToListAsync(cancellationToken: ct);
 		if (locations.Count == 0)
 		{
-			await Send.NoContentWith200Async(ct);
+			await Send.OkAsync([], ct);
 			return null;
 		}
 

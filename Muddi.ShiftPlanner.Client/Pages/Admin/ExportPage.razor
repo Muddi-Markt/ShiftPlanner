@@ -1,18 +1,19 @@
 ﻿@page "/admin/export"
 @using Muddi.ShiftPlanner.Shared.Api
 @using Blazor.DownloadFileFast.Interfaces
-@using System.Xml.Xsl
 @using System.Web
-@using Muddi.ShiftPlanner.Client.Services
+@implements IDisposable
 @inject IMuddiShiftApi ShiftApi;
 @inject ShiftService ShiftService;
 @inject IBlazorDownloadFileService BlazorDownloadFileService;
+@inject ILogger<ExportPage> Logger
 <h3>Export</h3>
 
 <div class="d-flex flex-column" style="gap: .5rem">
 	<div>
 		<RadzenCheckBox @bind-Value="_request.Anonymous" Name="CheckBox1" TValue="bool"/>
-		<RadzenLabel Text="Anonymisiert (Namen werden entfernt)" Component="CheckBox1" Style="margin-left: 8px; vertical-align: middle;"/>
+		<RadzenLabel Text="Anonymisiert (Namen werden entfernt)" Component="CheckBox1"
+		             Style="margin-left: 8px; vertical-align: middle;"/>
 	</div>
 	<div class="d-flex mb-3" style="gap: 1rem">
 		<h4>Location</h4>
@@ -22,22 +23,38 @@
 
 		</RadzenDropDown>
 	</div>
-	<RadzenButton Text="Download Excel Datei (XLSX)" Click="Download"></RadzenButton>
+	<RadzenButton Text="Download Excel Datei (XLSX)" Click="Download" Disabled="@(_location is null)"></RadzenButton>
 </div>
 
 @code {
 	readonly ExportToExcelRequest _request = new();
-	GetLocationResponse _location = new();
+	GetLocationResponse? _location = new();
 	private IEnumerable<GetLocationResponse> _locations = Enumerable.Empty<GetLocationResponse>();
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		_locations = await ShiftApi.GetAllLocations(new GetLocationRequest { SeasonId = ShiftService.CurrentSeason.Id });
-		_location = _locations.First();
+		ShiftService.OnSeasonChanged += OnSeasonChange;
+		OnSeasonChange(this, ShiftService.CurrentSeason);
+	}
+
+	private async void OnSeasonChange(object? sender, Season season)
+	{
+		try
+		{
+			_locations = await ShiftApi.GetAllLocations(new GetLocationRequest { SeasonId = season.Id });
+			_location = _locations.FirstOrDefault();
+			await InvokeAsync(StateHasChanged);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Failed to get all locations for season {SeasonId}", season.Id);
+		}
 	}
 
 	private async Task Download()
 	{
+		if (_location is null)
+			return;
 		_request.LocationId = _location.Id;
 		var xlsx = await ShiftApi.LocationExportToExcel(_location.Id, _request);
 		var bytes = await xlsx.ReadAsByteArrayAsync();
@@ -46,6 +63,11 @@
 			fileName = "anonymous-" + fileName;
 		fileName = HttpUtility.UrlEncode(fileName);
 		await BlazorDownloadFileService.DownloadFileAsync(fileName, bytes);
+	}
+
+	public void Dispose()
+	{
+		ShiftService.OnSeasonChanged -= OnSeasonChange;
 	}
 
 }

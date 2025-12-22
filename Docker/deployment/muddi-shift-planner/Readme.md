@@ -7,9 +7,11 @@
 
 ---
 
-## Step 1: Update Image Versions
+## Step 1: Update docker-compose.yml
 
 In `docker-compose.yml`, update the image tags to the desired release version.
+
+Replace `Cors__Origins__0: https://your-client-url.com` with your client url, so where the frontend will be reached 
 
 ---
 
@@ -71,7 +73,7 @@ After first deployment, configure Keycloak at `http://localhost:28080`
 2. Client ID: `shift-planner`
 3. Client authentication: OFF (public client)
 4. Standard Flow & Direct access grants: ON 
-5. After creation, go to Client Scopes tab
+5. After creation, go to Client Scopes **tab**
 6. Add Mappers:
    - Click `shift-planner-dedicated` -> Add mapper -> By configuration
    - Select `User Client Role`
@@ -94,10 +96,11 @@ After first deployment, configure Keycloak at `http://localhost:28080`
 
 1. Go to Clients -> `shift-planner` -> Roles
 2. Create roles:
-   - `super-admin` (allowed to delete everything)
-   - `admin` (allowed to create/update, delete shifts only)
-   - `editor` (allowed to create/edit own shifts)
    - `viewer` (view only)
+   - `editor` (allowed to create/edit own shifts)
+   - `admin` (allowed to create/update, delete shifts only)
+   - `super-admin` (allowed to delete everything)
+     - You may add `admin` in "Associated roles" tab via `Assign role -> Clent roles`, so super-admins are also automatically admins
 3. Go to Realm roles -> `default-roles-muddi`
 4. Assign default roles -> Filter by `shift-planner`
 5. Add `editor` and `viewer` as defaults

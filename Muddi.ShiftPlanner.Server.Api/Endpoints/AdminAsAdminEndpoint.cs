@@ -3,11 +3,11 @@ using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
-public class AdminEndpoint : EndpointWithoutRequest
+public class AdminAsAdminEndpoint : EndpointWithoutRequest
 {
 	public override void Configure()
 	{
-		Get("/admin");
+		Get("/admin/as-admin");
 		Roles(ApiRoles.Admin);
 	}
 

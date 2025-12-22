@@ -2,6 +2,7 @@
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
+using Muddi.ShiftPlanner.Shared.Entities;
 using Radzen;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Statistics;
@@ -18,14 +19,15 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 	private string MetricValueClass => _loading ? "metric-value skeleton" : "metric-value";
 	private bool _loading = true;
 
+	[Inject] public required ILogger<StatisticsDashboardComponent> Logger { get; set; }
 	[Inject] public required TooltipService TooltipService { get; set; }
 	[Inject] public required IMuddiShiftApi ShiftApi { get; set; }
 	[Inject] public required ShiftService ShiftService { get; set; }
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		ShiftService.OnSeasonChanged += RefreshData;
-		_ = RefreshData();
+		await LoadDashboardData(ShiftService.CurrentSeason);
 	}
 
 	private void ShowTooltip(ElementReference elementReference, string text, TooltipOptions? options = null)
@@ -37,18 +39,17 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 
 	protected override bool ShouldRender() => !_loading;
 
-	private async Task LoadDashboardData()
+	private async Task LoadDashboardData(Season season)
 	{
-		
 		_loading = true;
-		if (ShiftService.CurrentSeason.Id == Guid.Empty)
+		if (season.Id == Guid.Empty)
 			return;
 
 		try
 		{
 			var request = new GetShiftTypesCountRequest
 			{
-				SeasonId = ShiftService.CurrentSeason.Id,
+				SeasonId = season.Id,
 				IncludeNonAvailable = true
 			};
 			var users = await ShiftApi.GetAllEmployees();
@@ -63,7 +64,7 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 				AvailableCount += resp.AvailableCount;
 				TotalShiftsCount += resp.TotalCount;
 			}
-			
+
 			TotalUsers = users.Count().ToString();
 			TotalShifts = (TotalShiftsCount - AvailableCount).ToString();
 			TotalDays = totalShiftHours.TotalDays.ToString("N1");
@@ -96,7 +97,17 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 	}
 
 
-	private Task RefreshData() => LoadDashboardData();
+	private async void RefreshData(object? caller, Season season)
+	{
+		try
+		{
+			await LoadDashboardData(season);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Error loading dashboard data for season {SeasonId}", season.Id);
+		}
+	}
 
 	public void Dispose()
 	{
