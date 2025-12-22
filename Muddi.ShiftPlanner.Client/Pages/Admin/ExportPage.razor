@@ -1,12 +1,12 @@
 ﻿@page "/admin/export"
 @using Muddi.ShiftPlanner.Shared.Api
 @using Blazor.DownloadFileFast.Interfaces
-@using System.Xml.Xsl
 @using System.Web
-@using Muddi.ShiftPlanner.Client.Services
+@implements IDisposable
 @inject IMuddiShiftApi ShiftApi;
 @inject ShiftService ShiftService;
 @inject IBlazorDownloadFileService BlazorDownloadFileService;
+@inject ILogger<ExportPage> Logger
 <h3>Export</h3>
 
 <div class="d-flex flex-column" style="gap: .5rem">
@@ -31,10 +31,24 @@
 	GetLocationResponse? _location = new();
 	private IEnumerable<GetLocationResponse> _locations = Enumerable.Empty<GetLocationResponse>();
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		_locations = await ShiftApi.GetAllLocations(new GetLocationRequest { SeasonId = ShiftService.CurrentSeason.Id });
-		_location = _locations.FirstOrDefault();
+		ShiftService.OnSeasonChanged += OnSeasonChange;
+		OnSeasonChange(this, ShiftService.CurrentSeason);
+	}
+
+	private async void OnSeasonChange(object? sender, Season season)
+	{
+		try
+		{
+			_locations = await ShiftApi.GetAllLocations(new GetLocationRequest { SeasonId = season.Id });
+			_location = _locations.FirstOrDefault();
+			await InvokeAsync(StateHasChanged);
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Failed to get all locations for season {SeasonId}", season.Id);
+		}
 	}
 
 	private async Task Download()
@@ -49,6 +63,11 @@
 			fileName = "anonymous-" + fileName;
 		fileName = HttpUtility.UrlEncode(fileName);
 		await BlazorDownloadFileService.DownloadFileAsync(fileName, bytes);
+	}
+
+	public void Dispose()
+	{
+		ShiftService.OnSeasonChanged -= OnSeasonChange;
 	}
 
 }

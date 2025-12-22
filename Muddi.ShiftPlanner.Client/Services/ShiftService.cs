@@ -1,12 +1,10 @@
 ﻿using System.Collections.Immutable;
 using System.Net;
 using System.Security.Claims;
-using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
-using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons;
 using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Services;
@@ -24,10 +22,10 @@ public class ShiftService
 	private readonly IMuddiShiftApi _shiftApi;
 	public Task InitializedTask => _initializedTsc.Task;
 	private readonly TaskCompletionSource _initializedTsc = new();
-	private SemaphoreSlim _initalizeLock = new(1, 1);
+	private readonly SemaphoreSlim _initalizeLock = new(1, 1);
 
 	public Season CurrentSeason { get; private set; }
-	public event Func<Task>? OnSeasonChanged;
+	public event EventHandler<Season>? OnSeasonChanged;
 
 	public ShiftService(IMuddiShiftApi shiftApi)
 	{
@@ -36,7 +34,7 @@ public class ShiftService
 	}
 
 	private IEnumerable<ShiftLocation>? _shiftLocations;
-	public IReadOnlyCollection<Season> Seasons;
+	public IReadOnlyCollection<Season>? Seasons;
 
 	public async Task Initialize()
 	{
@@ -61,12 +59,12 @@ public class ShiftService
 		var dtos = await _shiftApi.GetAllLocations(new GetLocationRequest { SeasonId = season.Id });
 		var counts = await _shiftApi.GetAllLocationShiftsCount(new() { SeasonId = season.Id });
 		_shiftLocations = dtos.Join(counts, d => d.Id, c => c.Id, (d, c) => d.MapToShiftLocation(c));
-		OnSeasonChanged?.Invoke();
+		OnSeasonChanged?.Invoke(this, season);
 	}
 
 	public IEnumerable<ShiftLocation> GetAllShiftLocations()
 	{
-		return _shiftLocations ?? Enumerable.Empty<ShiftLocation>();
+		return _shiftLocations ?? [];
 	}
 
 	public ShiftLocation? FindLocationById(Guid id)
@@ -103,11 +101,6 @@ public class ShiftService
 		var dtos = await _shiftApi.GetAllShiftsForLocation(id,
 			new() { Start = start, End = end, KeycloakEmployeeId = forEmployeeId });
 		return dtos.Select(t => t.MapToShift());
-	}
-
-	public async Task AddShiftToLocation(ShiftLocation location, CreateShiftRequest req)
-	{
-		var res = await _shiftApi.CreateShiftForLocation(location.Id, req);
 	}
 
 	public async Task<Guid> AddShiftToContainer(Guid containerId, CreateShiftRequest req)
