@@ -1,9 +1,7 @@
-version: '3.7'
-
 services:
   shift-planner-api:
     restart: unless-stopped
-    image: ghcr.io/muddi-markt/shiftplanner/api:v1.3
+    image: ghcr.io/muddi-markt/shiftplanner/api:v1.4
     depends_on:
       - keycloak
       - postgres
@@ -22,7 +20,7 @@ services:
       Cors__Origins__0: https://your-client-url.com
   shift-planner-client:
     restart: unless-stopped
-    image: ghcr.io/muddi-markt/shiftplanner/client:v1.3
+    image: ghcr.io/muddi-markt/shiftplanner/client:v1.4
     volumes:
       - ./config/muddi/customization:/usr/share/nginx/html/customization
       - ./config/muddi/appsettings.json:/usr/share/nginx/html/appsettings.json
@@ -77,7 +75,7 @@ services:
 
   #shift-planner-alerting:
   #  restart: unless-stopped
-  #  image: ghcr.io/muddi-markt/shiftplanner/alerting:v1.2
+  #  image: ghcr.io/muddi-markt/shiftplanner/alerting:v1.4
   #  build:
   #    context: ../Muddi.ShiftPlanner.Services.Alerting
   #    dockerfile: Dockerfile

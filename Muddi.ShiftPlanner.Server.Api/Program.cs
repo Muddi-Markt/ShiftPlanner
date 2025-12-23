@@ -1,11 +1,12 @@
 using System.Data.Common;
-using System.Net;
 using System.Reflection;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Extensions;
+using NSwag;
+using NSwag.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,11 +14,30 @@ builder.Host.UseSerilog((context, configuration) => configuration
 	.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddCors();
-builder.Services.AddFastEndpoints()
-	.SwaggerDocument(o => o.DocumentSettings = ds
-		=> ds.Description = "Use '/login' endpoint to generate bearer token," +
-		                    "then click 'Authorize 🔒' and paste the generated bearer token in the value endpoint");
 
+var muddiConfig = builder.Configuration.GetRequiredSection("MuddiConnect");
+var authBaseUrl = muddiConfig["Authority"]?.TrimEnd('/');
+var clientId = muddiConfig["Audience"];
+builder.Services.AddFastEndpoints()
+	.SwaggerDocument(o =>
+	{
+		o.EnableJWTBearerAuth = false;
+		o.ExcludeNonFastEndpoints = true;
+		o.DocumentSettings = ds
+			=> ds.AddAuth("muddi-connect", new OpenApiSecurityScheme
+			{
+				Type = OpenApiSecuritySchemeType.OAuth2,
+				Name = "muddi-connect",
+				Flows = new OpenApiOAuthFlows()
+				{
+					AuthorizationCode = new OpenApiOAuthFlow
+					{
+						AuthorizationUrl = authBaseUrl + "/protocol/openid-connect/auth",
+						TokenUrl = authBaseUrl + "/protocol/openid-connect/token"
+					}
+				}
+			});
+	});
 builder.Services.AddAuthenticationMuddiConnect(builder.Configuration);
 builder.Services.AddMuddiShiftPlannerContext(builder.Configuration);
 builder.Services.AddDatabaseMigrations();
@@ -43,7 +63,11 @@ app.UseAuthorization();
 
 
 app.UseFastEndpoints()
-	.UseSwaggerGen();
+	.UseSwaggerGen(uiConfig: c => c.OAuth2Client = new OAuth2ClientSettings
+	{
+		ClientId = clientId,
+		ClientSecret = string.Empty
+	});
 
 try
 {

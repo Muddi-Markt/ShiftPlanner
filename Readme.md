@@ -7,13 +7,20 @@
 The shift planner organizes work shifts using the following hierarchy:
 
 ### Season
-A **Season** represents a time-bounded event period (e.g., "Summer Festival 2024"). All configuration and shift data belongs to exactly one season. Seasons have a name, start date, and end date.
+
+A **Season** represents a time-bounded event period (e.g., "Summer Festival 2024"). All configuration and shift data
+belongs to exactly one season. Seasons have a name, start date, and end date.
 
 ### Shift Locations
-**Locations** represent physical places where shifts occur (e.g., "Main Bar", "Entry Gate", "Backstage"). Each location has a type (e.g., "Bar", "Security Post").
+
+**Locations** represent physical places where shifts occur (e.g., "Main Bar", "Entry Gate", "Backstage"). Each location
+has a type (e.g., "Bar", "Security Post").
 
 ### Shift Types
-**Shift Types** define the categories of work that can be assigned (e.g., "Bar Staff", "Security", "Setup Crew"). Each type has:
+
+**Shift Types** define the categories of work that can be assigned (e.g., "Bar Staff", "Security", "Setup Crew"). Each
+type has:
+
 - **Name** - Display name
 - **Color** - For visual identification in the UI
 - **StartingTimeShift** - Time offset for when this type of shift typically starts
@@ -21,13 +28,18 @@ A **Season** represents a time-bounded event period (e.g., "Summer Festival 2024
 - **Description** - Optional details about the role
 
 ### Shift Frameworks
+
 **Frameworks** are templates that define a shift pattern. They specify:
+
 - **Name** - e.g., "Morning Bar Shift", "Night Security"
 - **SecondsPerShift** - Duration of each shift slot
 - **ShiftTypeCounts** - How many workers of each ShiftType are needed (e.g., "3x Bar Staff, 2x Security")
 
 ### Containers
-**Containers** are the concrete, scheduled instances that combine a Framework with a Location at a specific time. For example:
+
+**Containers** are the concrete, scheduled instances that combine a Framework with a Location at a specific time. For
+example:
+
 - Location: "Main Bar"
 - Framework: "Evening Bar Shift" (4 hours, needs 3 Bar Staff)
 - Start: June 15, 2024 at 18:00
@@ -36,6 +48,7 @@ A **Season** represents a time-bounded event period (e.g., "Summer Festival 2024
 This creates the actual shift slots that employees can sign up for.
 
 ### Shifts
+
 **Shifts** are individual assignments of an employee to a specific time slot within a Container.
 
 ```
@@ -48,6 +61,7 @@ Season
 ```
 
 ## Deploy
+
 See [deploy readme](./Docker/deployment/muddi-shift-planner/Readme.md)
 
 ## How to contribute
@@ -66,9 +80,11 @@ this will start up the services you need for development.
 In [keycloak admin console](http://localhost:28080/admin/) login with user `admin` and pass `admin`
 
 You can set user roles via Client Roles for shift-planner (e.g. admin, editor, super-admin or viewer)
+
 ### Dotnet secrets
 
-You have to init [dotnet secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-7.0&tabs=windows)
+You have to
+init [dotnet secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-7.0&tabs=windows)
 if you want to use the alerting service:
 
 ##### secrets.json:
@@ -93,4 +109,5 @@ In your IDE run those three projects:
 * Muddi.ShiftPlanner.Server.Api
 * Muddi.ShiftPlanner.Services.Alerting
 
-Then you can login at http://localhost:5254 with default user `dev@muddimarkt.org` with password `test`
+Then you can login at http://localhost:5254 with default admin `dev@muddimarkt.org` and password `test` or default user
+`user@muddimarkt.org` and password `test`
