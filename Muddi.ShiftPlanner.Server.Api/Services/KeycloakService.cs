@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Refit;
 
 namespace Muddi.ShiftPlanner.Server.Api.Services;
@@ -7,9 +6,8 @@ namespace Muddi.ShiftPlanner.Server.Api.Services;
 public interface IKeycloakService
 {
 	Task<ApiResponse<GetTokenResponse>> GetToken(GetTokenRequest tokenRequest);
-	GetEmployeeResponse GetUserById(Guid reqId);
-	ValueTask<GetEmployeeResponse> GetUserByIdAsync(Guid reqId);
-	Task<IEnumerable<GetEmployeeResponse>> GetUsers();
+	Task<KeycloakUserRepresentation> GetUserByIdAsync(Guid reqId);
+	Task<IEnumerable<KeycloakUserRepresentation>> GetUsers();
 }
 
 public class KeycloakService : IKeycloakService
@@ -29,63 +27,31 @@ public class KeycloakService : IKeycloakService
 		return _keycloakApi.GetToken(Realm, tokenRequest);
 	}
 
-	public GetEmployeeResponse GetUserById(Guid reqId)
+	public Task<KeycloakUserRepresentation> GetUserByIdAsync(Guid reqId)
 	{
-		if (!_cache.TryGetValue(reqId, out GetEmployeeResponse response))
-		{
-			var apiResponse = _keycloakApi.GetUserByIdAsync(Realm, reqId).GetAwaiter().GetResult();
-			var keycloakUser = apiResponse.Content;
-
-			if (apiResponse.IsSuccessStatusCode && keycloakUser is not null)
-				response = keycloakUser.MapToEmployeeResponse();
-			else
-				response = new()
-				{
-					Email = string.Empty,
-					Id = reqId,
-					UserName = "Unknown User",
-					FirstName = reqId.ToString()[..8],
-					LastName = "Unknown"
-				};
-			_cache.Set(reqId, response, TimeSpan.FromHours(1));
-		}
-
-		return response;
-	}
-
-	public async ValueTask<GetEmployeeResponse> GetUserByIdAsync(Guid reqId)
-	{
-		if (!_cache.TryGetValue(reqId, out GetEmployeeResponse response))
+		return _cache.GetOrCreateAsync<KeycloakUserRepresentation>("users:" + reqId, async _ =>
 		{
 			var apiResponse = await _keycloakApi.GetUserByIdAsync(Realm, reqId);
-			var keycloakUser = apiResponse.Content;
+			if (apiResponse is { IsSuccessStatusCode: true, Content: not null })
+				return apiResponse.Content!;
 
-			if (apiResponse.IsSuccessStatusCode && keycloakUser is not null)
-				response = keycloakUser.MapToEmployeeResponse();
-			else
-				response = new()
-				{
-					Email = string.Empty,
-					Id = reqId,
-					UserName = "Unknown User",
-					FirstName = reqId.ToString()[..8],
-					LastName = "Unknown"
-				};
-			_cache.Set(reqId, response, TimeSpan.FromHours(1));
-		}
-
-		return response;
+			return new KeycloakUserRepresentation()
+			{
+				Email = string.Empty,
+				Id = reqId,
+				FirstName = reqId.ToString()[..8],
+				LastName = "Unknown"
+			};
+		})!;
 	}
 
-	public async Task<IEnumerable<GetEmployeeResponse>> GetUsers()
+	public async Task<IEnumerable<KeycloakUserRepresentation>> GetUsers()
 	{
 		var apiResponse = await _keycloakApi.GetUsers(Realm);
 		if (!apiResponse.IsSuccessStatusCode)
 			throw new Exception("Failed to get users: " + (apiResponse.Error?.Message ??
 			                                               apiResponse.ReasonPhrase ??
 			                                               apiResponse.StatusCode.ToString()));
-		return apiResponse.Content is null
-			? Enumerable.Empty<GetEmployeeResponse>()
-			: apiResponse.Content.Select(u => u.MapToEmployeeResponse());
+		return apiResponse.Content ?? [];
 	}
 }

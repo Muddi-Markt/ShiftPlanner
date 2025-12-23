@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using FastEndpoints;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 
@@ -38,15 +35,17 @@ public class
 
 		var joined = shiftsCountForUser
 			.Join(users, o => o.Key, u => u.Id,
-				(o, u) => new KeyValuePair<GetEmployeeResponse, int>(u, o.Value))
-			.OrderBy(x => x.Key.FullName.ToLowerInvariant())
+				(o, u) => new KeyValuePair<KeycloakUserRepresentation, int>(u, o.Value))
+			.OrderBy(x => x.Key.FirstName?.ToLowerInvariant())
+			.ThenBy(x => x.Key.LastName?.ToLowerInvariant())
 			.ToDictionary();
 
 		Response = new ExportAllWhoHaveAShiftResponse
 		{
 			TotalCount = joined.Count,
 			AllEmailAddresses = string.Join(';', joined.Select(x => x.Key.Email)),
-			NameAndCount = string.Join('\n',joined.Select(x => $"{x.Key.FullName};{x.Key.Email};{x.Value}"))
+			NameAndCount = string.Join('\n',
+				joined.Select(x => $"{x.Key.FirstName} {x.Key.LastName};{x.Key.Email};{x.Value}"))
 		};
 	}
 }

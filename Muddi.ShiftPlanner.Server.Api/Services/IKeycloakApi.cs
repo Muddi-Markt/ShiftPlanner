@@ -13,7 +13,8 @@ public interface IKeycloakApi
 
 	[Post("/realms/{realm}/protocol/openid-connect/token")]
 	Task<ApiResponse<GetTokenResponse>> GetToken(string realm,
-		[Body(BodySerializationMethod.UrlEncoded)] GetTokenRequest request);
+		[Body(BodySerializationMethod.UrlEncoded)]
+		GetTokenRequest request);
 }
 
 public class KeycloakUserRepresentation
@@ -23,7 +24,7 @@ public class KeycloakUserRepresentation
 	[JsonPropertyName("firstName")] public string? FirstName { get; set; }
 	[JsonPropertyName("lastName")] public string? LastName { get; set; }
 	[JsonPropertyName("enabled")] public bool Enabled { get; set; }
-	[JsonPropertyName("id")] public string? Id { get; set; }
+	[JsonPropertyName("id")] public Guid? Id { get; set; }
 }
 
 public class GetTokenResponse

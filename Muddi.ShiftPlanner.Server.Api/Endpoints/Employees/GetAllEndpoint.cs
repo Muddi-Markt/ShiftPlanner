@@ -1,6 +1,5 @@
 ﻿using FastEndpoints;
-using Mapster;
-using Microsoft.EntityFrameworkCore;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 
@@ -17,12 +16,17 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetEmployeeRespon
 
 	protected override void CrudConfigure()
 	{
+		// Roles(ApiRoles.Admin); default role is admin, so we dont have to set it here
 		Get("/employees");
 	}
 
 	public override async Task<List<GetEmployeeResponse>?> CrudExecuteAsync(EmptyRequest _, CancellationToken ct)
 	{
 		var getEmployeeResponses = await _keycloakService.GetUsers();
-		return getEmployeeResponses.OrderBy(x => x.FirstName).ToList();
+		var isAdmin = User.IsInRole(ApiRoles.Admin);
+		return getEmployeeResponses
+			.OrderBy(x => x.FirstName, StringComparer.InvariantCultureIgnoreCase)
+			.Select(x => x.MapToEmployeeResponse(isAdmin))
+			.ToList();
 	}
 }

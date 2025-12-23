@@ -16,7 +16,7 @@ public class ExcelService
 	}
 
 
-	public byte[] ExportLocationToXlsx(ShiftLocationEntity location, bool anonymous = false)
+	public async Task<byte[]> ExportLocationToXlsxAsync(ShiftLocationEntity location, bool anonymous = false)
 	{
 		const int startRow = 5;
 		using var book = new XLWorkbook("Templates/template.xlsx");
@@ -69,7 +69,7 @@ public class ExcelService
 						foreach (var shift in shifts.Where(s => s.Type.Id == types.Type.Id
 						                                        && s.Start == typesGroup.Key))
 						{
-							var user = _keycloakService.GetUserById(shift.EmployeeKeycloakId);
+							var user = await _keycloakService.GetUserByIdAsync(shift.EmployeeKeycloakId);
 							worksheet.Cell(row, cell).GetRichText().AddText($"{user.FirstName} {user.LastName?[0]}.")
 								.AddNewLine();
 						}

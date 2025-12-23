@@ -1,10 +1,7 @@
-﻿using Mapster;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1;
-using Refit;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Shifts;
 
@@ -12,7 +9,7 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftResponse>
 {
 	private readonly IKeycloakService _keycloakService;
 
-	public GetEndpoint(ShiftPlannerContext database ,IKeycloakService keycloakService) : base(database)
+	public GetEndpoint(ShiftPlannerContext database, IKeycloakService keycloakService) : base(database)
 	{
 		_keycloakService = keycloakService;
 	}
@@ -34,6 +31,6 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftResponse>
 			return null;
 		var employee = await _keycloakService.GetUserByIdAsync(entity.EmployeeKeycloakId);
 
-		return entity.MapToShiftResponse(employee);
+		return entity.MapToShiftResponse(employee.MapToEmployeeResponse(User));
 	}
 }

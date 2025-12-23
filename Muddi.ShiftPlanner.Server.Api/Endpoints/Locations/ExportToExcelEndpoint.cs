@@ -39,7 +39,7 @@ public class ExportToExcelEndpoint : Endpoint<ExportToExcelRequest>
 			.AsNoTracking()
 			.FirstAsync(l => l.Id == req.LocationId, cancellationToken: ct);
 
-		var bytes = _excel.ExportLocationToXlsx(location, req.Anonymous);
+		var bytes = await _excel.ExportLocationToXlsxAsync(location, req.Anonymous);
 
 
 		var fileName = $"{location.Name.Replace(' ', '_').ToLower()}.xlsx";
