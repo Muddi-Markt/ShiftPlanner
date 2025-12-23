@@ -13,6 +13,7 @@ public class GetEndpoint : CrudGetEndpoint<GetSeasonResponse>
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Viewer);
 		Get("/seasons/{Id:guid}");
 	}
 
