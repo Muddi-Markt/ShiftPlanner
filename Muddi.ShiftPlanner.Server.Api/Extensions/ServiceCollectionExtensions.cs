@@ -117,19 +117,7 @@ public static class ServiceCollectionExtensions
 
 				o.Events = new JwtBearerEvents()
 				{
-					OnForbidden = c =>
-					{
-						return c.Response.WriteAsync("You do not have the rights to access this entity");
-					},
-					OnAuthenticationFailed = c =>
-					{
-						// if (Environment.IsDevelopment())
-						// {
-						// 	return c.Response.WriteAsync(c.Exception.ToString());
-						// }
-
-						return Task.CompletedTask;
-					}
+					OnForbidden = c => c.Response.WriteAsJsonAsync("You do not have the rights to access this entity")
 				};
 			});
 	}

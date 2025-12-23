@@ -26,7 +26,7 @@ public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TRe
 	{
 		CrudConfigure();
 		//If no roles are specified, add admin role as default
-		if (Definition.AllowedRoles?.Count == 0)
+		if (Definition.AllowedRoles is null || Definition.AllowedRoles.Count == 0)
 			Roles(ApiRoles.Admin);
 // #if DEBUG
 // 		AllowAnonymous();

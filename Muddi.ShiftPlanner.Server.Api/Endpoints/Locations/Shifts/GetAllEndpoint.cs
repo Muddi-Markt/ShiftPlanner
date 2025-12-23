@@ -1,11 +1,8 @@
-﻿using System.Diagnostics;
-using Mapster;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
 using Muddi.ShiftPlanner.Server.Database.Entities;
-using Muddi.ShiftPlanner.Shared.Contracts.v1;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Locations.Shifts;
 
@@ -56,6 +53,6 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 	private async Task<GetShiftResponse> MapToShiftResponse(ShiftEntity shift)
 	{
 		var user = await _keycloakService.GetUserByIdAsync(shift.EmployeeKeycloakId);
-		return shift.MapToShiftResponse(user);
+		return shift.MapToShiftResponse(user.MapToEmployeeResponse(User));
 	}
 }

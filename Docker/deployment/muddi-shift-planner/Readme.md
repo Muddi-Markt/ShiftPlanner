@@ -72,7 +72,7 @@ After first deployment, configure Keycloak at `http://localhost:28080`
 1. Clients -> Create Client
 2. Client ID: `shift-planner`
 3. Client authentication: OFF (public client)
-4. Standard Flow & Direct access grants: ON 
+4. Standard Flow ON & Direct access grants: OFF 
 5. After creation, go to Client Scopes **tab**
 6. Add Mappers:
    - Click `shift-planner-dedicated` -> Add mapper -> By configuration

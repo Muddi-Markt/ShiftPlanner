@@ -14,6 +14,7 @@ public class GetAllEndpoint : CrudGetAllEndpointWithoutRequest<GetSeasonResponse
 
 	protected override void CrudConfigure()
 	{
+		Roles(ApiRoles.Viewer);
 		Get("/seasons");
 	}
 

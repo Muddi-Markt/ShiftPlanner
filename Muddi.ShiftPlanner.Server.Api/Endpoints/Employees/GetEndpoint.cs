@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Muddi.ShiftPlanner.Server.Api.Extensions;
 using Muddi.ShiftPlanner.Server.Api.Services;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Employees;
@@ -26,6 +27,8 @@ public class GetEndpoint : Endpoint<DefaultGetRequest, GetEmployeeResponse>
 		//and we use an wasm frontend, we don't want this (at least for now...)
 		//For further infos see: https://stackoverflow.com/questions/66452108/keycloak-get-users-returns-403-forbidden/66454728#66454728
 		// var token = await HttpContext.GetTokenAsync(JwtBearerDefaults.AuthenticationScheme, "access_token");
-		Response = await _keycloakService.GetUserByIdAsync(req.Id);
+		var isAdmin = User.IsInRole(ApiRoles.Admin);
+		var keycloakUser = await _keycloakService.GetUserByIdAsync(req.Id);
+		Response = keycloakUser.MapToEmployeeResponse(isAdmin);
 	}
 }

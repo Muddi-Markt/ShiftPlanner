@@ -24,7 +24,8 @@ public class GetShiftsEndpoint : CrudGetAllEndpoint<GetShiftsFromEmployeeRequest
 		Get("/employees/{Id}/shifts");
 	}
 
-	public override async Task<List<GetShiftResponse>?> CrudExecuteAsync(GetShiftsFromEmployeeRequest request, CancellationToken ct)
+	public override async Task<List<GetShiftResponse>?> CrudExecuteAsync(GetShiftsFromEmployeeRequest request,
+		CancellationToken ct)
 	{
 		var count = request.Count ?? -1;
 		var date = request.StartingFrom?.ToUniversalTime();
@@ -38,7 +39,10 @@ public class GetShiftsEndpoint : CrudGetAllEndpoint<GetShiftsFromEmployeeRequest
 			return null;
 		}
 
-		var user = await _keycloakService.GetUserByIdAsync(id);
+		var isAdmin = User.IsInRole(ApiRoles.Admin);
+		var keycloakUser = await _keycloakService.GetUserByIdAsync(id);
+		var user = keycloakUser.MapToEmployeeResponse(isAdmin);
+
 		IQueryable<ShiftEntity> b = Database.Shifts
 			.Where(s => s.Type.Season.Id == request.SeasonId)
 			.Include(s => s.Type)
@@ -50,6 +54,7 @@ public class GetShiftsEndpoint : CrudGetAllEndpoint<GetShiftsFromEmployeeRequest
 			b = b.Where(s => s.Start >= date);
 		if (count > 0)
 			b = b.Take(count);
+
 
 		return await
 			b.Select(s => s.MapToShiftResponse(user))
