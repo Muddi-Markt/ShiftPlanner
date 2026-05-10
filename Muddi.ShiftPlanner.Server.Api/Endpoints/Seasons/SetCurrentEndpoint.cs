@@ -43,7 +43,7 @@ public class SetCurrentEndpoint : CrudEndpoint<DefaultGetRequest, EmptyResponse>
 		}
 
 		await Database.SaveChangesAsync(ct);
-		return new EmptyResponse();
+		return EmptyResponse.Instance;
 	}
 }
 

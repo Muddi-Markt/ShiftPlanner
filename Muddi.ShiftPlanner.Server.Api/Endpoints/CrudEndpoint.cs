@@ -11,8 +11,8 @@ using Serilog.Parsing;
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
 public abstract class CrudEndpoint<TRequest, TResponse> : Endpoint<TRequest, TResponse>
-	where TRequest : notnull, new()
-	where TResponse : notnull, new()
+	where TRequest : notnull
+	where TResponse : notnull
 {
 	protected CrudEndpoint(ShiftPlannerContext database)
 	{

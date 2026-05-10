@@ -3,8 +3,8 @@
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
 public abstract class CrudGetAllEndpoint<TRequest, TResponse> : CrudEndpoint<TRequest, List<TResponse>>
-	where TRequest : notnull, new()
-	where TResponse : notnull, new()
+	where TRequest : notnull
+	where TResponse : notnull
 {
 	public abstract Task<List<TResponse>?> CrudExecuteAsync(TRequest request, CancellationToken ct);
 
