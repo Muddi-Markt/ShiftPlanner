@@ -1,0 +1,1 @@
+Die Koordination von ehrenamtlichen Schichten bei Veranstaltungen digitalisieren und vereinfachen. Es soll ein zentraler, jederzeit aktueller Schichtplan entstehen. Die Registrierung soll einfach sein und die Webapplikation soll via PC, Tablet und Smarthpone bedienbar sein.
