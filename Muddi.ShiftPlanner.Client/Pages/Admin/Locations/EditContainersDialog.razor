@@ -14,6 +14,7 @@
                  TodayText="Heute"
                  SelectedIndex="0"
                  SlotSelect="@OnSlotSelect"
+                 AppointmentSelect="RemoveContainer"
                  AppointmentRender="@OnAppointmentRender">
 	<ChildContent>
 		<RadzenWeekView Text="Woche"
@@ -29,13 +30,8 @@
 	</ChildContent>
 	<Template Context="ca">
 		<div class="appointment-host">
-			<div class="appointment-template" @onclick:stopPropagation="true">
-				<span class="appointment-title">@ca.Title</span>
-				<RadzenButton Size="ButtonSize.ExtraSmall"
-				              Icon="clear"
-				              ButtonStyle="ButtonStyle.Light"
-				              class="remove-button"
-				              Click="() => RemoveContainer(ca.Container)"/>
+			<div class="appointment-title">
+				@ca.Title
 			</div>
 		</div>
 	</Template>
@@ -101,14 +97,14 @@
 		args.Attributes["style"] = $"background: {args.Data.Container.Color}; color: black;";
 	}
 
-	private async Task RemoveContainer(GetContainerResponse c)
+	private async Task RemoveContainer(SchedulerAppointmentSelectEventArgs<ContainerAppointment> c)
 	{
-		var d = await DialogService.Confirm("Are you sure that you want to delete this container? This can't be undone!");
+		var d = await DialogService.Confirm($"Are you sure that you want to delete '{c.Data.Title}' starting from {c.Data.LocalStart:dddd HH:mm} to {c.Data.LocalEnd.ToShortTimeString()}? This can't be undone!");
 		if (d.HasValue && d.Value)
 		{
 			try
 			{
-				await ShiftApi.DeleteContainer(c.Id);
+				await ShiftApi.DeleteContainer(c.Data.Container.Id);
 				await Refresh();
 			}
 			catch (Exception ex)
@@ -127,14 +123,7 @@
 	}
 
 	private static string TextForContainer(GetContainerResponse c)
-	{
-		var localStart = c.Start.ToLocalTime();
-		var localEnd = c.GetEndTime().ToLocalTime();
-		var name = c.Framework?.Name ?? string.Empty;
-		if (localStart.Date == localEnd.Date)
-			return $"{name}\n{localStart:HH:mm} - {localEnd:HH:mm}";
-		return $"{name}\n{localStart:ddd HH:mm} - {localEnd:ddd HH:mm}";
-	}
+		=> c.Framework.Name;
 
 	public record ContainerAppointment(
 		GetContainerResponse Container,

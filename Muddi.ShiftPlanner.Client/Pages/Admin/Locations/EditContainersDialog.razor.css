@@ -1,14 +1,3 @@
-/* Remove padding around the rz-event so the colored block fills its hit area.
-   Without this, clicks on the padding "halo" next to a container hit the
-   appointment instead of the slot beneath, blocking add-on-click. */
-::deep .rz-event {
-    padding: 0;
-}
-
-::deep .rz-event-content {
-    padding: 2px 0 !important;
-}
-
 /* The container-query container. We can't put container-type on
    .appointment-template itself (a container can't query its own size), and
    ::deep can't reach .rz-event-content (it's an ancestor of our scoped
@@ -22,31 +11,9 @@
     width: 100%;
 }
 
-/* Default (wide enough): row layout — title flexes to fill, X stays on the
-   right at its natural width. Below the breakpoint we switch to a stacked
-   layout so the X never overlaps the title. */
-.appointment-template {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 4px;
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 .appointment-title {
     flex: 1 1 auto;
     min-width: 0;
-    white-space: pre-line;
-    overflow-wrap: anywhere;
-}
-
-::deep .remove-button {
-    flex: 0 0 auto;
-    min-width: 0;
-    padding: 2px;
 }
 
 @container (max-width: 80px) {
@@ -56,21 +23,8 @@
     }
 }
 
-/* Narrow: stack vertically with the title on top (full width) and the X
-   pushed to the bottom-right via margin-top: auto on the button. */
 @container (max-width: 40px) {
-    .appointment-template {
-        flex-direction: column-reverse;
-        align-items: stretch;
-        gap: 0;
-    }
-
-    ::deep .remove-button {
-        align-self: flex-end;
-        margin-top: auto;
-    }
-
     .appointment-title {
-        font-size: 11px;
+        font-size: 10px;
     }
 }
