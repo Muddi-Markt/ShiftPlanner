@@ -1,0 +1,30 @@
+/* The container-query container. We can't put container-type on
+   .appointment-template itself (a container can't query its own size), and
+   ::deep can't reach .rz-event-content (it's an ancestor of our scoped
+   elements, not a descendant). So we wrap our content in this host div —
+   it lives inside our .razor and therefore gets the scope attribute, and
+   it sits between .rz-event-content and .appointment-template so the query
+   can size .appointment-template based on it. */
+.appointment-host {
+    container-type: inline-size;
+    height: 100%;
+    width: 100%;
+}
+
+.appointment-title {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+@container (max-width: 80px) {
+    .appointment-title {
+        font-size: 13px;
+        line-height: 1.1;
+    }
+}
+
+@container (max-width: 40px) {
+    .appointment-title {
+        font-size: 10px;
+    }
+}

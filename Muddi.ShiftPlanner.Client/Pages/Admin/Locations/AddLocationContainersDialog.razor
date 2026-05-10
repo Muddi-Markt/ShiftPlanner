@@ -80,8 +80,10 @@
 	protected override async Task OnInitializedAsync()
 	{
 		_frameworks = await ShiftApi.GetAllFrameworks(new(){ SeasonId = ShiftService.CurrentSeason.Id});
-		EntityToEdit.Start = ShiftService.CurrentSeason.StartDate;
-		EntityToEdit.TotalShifts = 1;
+		if (EntityToEdit.Start == default)
+			EntityToEdit.Start = ShiftService.CurrentSeason.StartDate;
+		if (EntityToEdit.TotalShifts == 0)
+			EntityToEdit.TotalShifts = 1;
 	}
 
 	[Parameter]

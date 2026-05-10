@@ -1,17 +1,75 @@
-﻿@inherits UpdateDialogBase<GetLocationResponse>
+@using Radzen.Blazor.Rendering
+@inherits UpdateDialogBase<GetLocationResponse>
+@inject IOptions<AppCustomization> AppCustomization
+@inject ShiftService ShiftService
 
-<RadzenDataList Data="EntityToEdit.Containers!.OrderBy(c => c.Start)" AllowPaging="true" WrapItems="true" PageSize="10">
-	<Template Context="c">
-		<div class="d-flex justify-content-between" style="margin: 0; padding: .25rem; background: @c.Color">
-			<div>@TextForContainers(c)</div>
-			<RadzenButton Size="ButtonSize.Small" Icon="clear" Click="() => RemoveContainer(c)"></RadzenButton>
+<RadzenScheduler @ref="_scheduler"
+                 TItem="ContainerAppointment"
+                 Data="@Appointments"
+                 Date="@_date"
+                 Style="@SchedulerStyle"
+                 StartProperty="@nameof(ContainerAppointment.LocalStart)"
+                 EndProperty="@nameof(ContainerAppointment.LocalEnd)"
+                 TextProperty="@nameof(ContainerAppointment.Title)"
+                 TodayText="Heute"
+                 SelectedIndex="0"
+                 SlotSelect="@OnSlotSelect"
+                 AppointmentSelect="RemoveContainer"
+                 AppointmentRender="@OnAppointmentRender">
+	<ChildContent>
+		<RadzenWeekView Text="Woche"
+		                StartTime="@AppCustomization.Value.StartTimeSpan"
+		                EndTime="@AppCustomization.Value.EndTimeSpan"
+		                MinutesPerSlot="30"
+		                TimeFormat="HH:mm"/>
+		<RadzenDayView Text="Tag"
+		               StartTime="@AppCustomization.Value.StartTimeSpan"
+		               EndTime="@AppCustomization.Value.EndTimeSpan"
+		               MinutesPerSlot="30"
+		               TimeFormat="HH:mm"/>
+	</ChildContent>
+	<Template Context="ca">
+		<div class="appointment-host">
+			<div class="appointment-title">
+				@ca.Title
+			</div>
 		</div>
-
 	</Template>
-</RadzenDataList>
-<RadzenButton Icon="add" Click="AddContainers"></RadzenButton>
+</RadzenScheduler>
+
 
 @code {
+
+	private RadzenScheduler<ContainerAppointment>? _scheduler;
+	private DateTime _date;
+
+	private string SchedulerStyle
+	{
+		get
+		{
+			var hours = (AppCustomization.Value.EndTimeSpan - AppCustomization.Value.StartTimeSpan).TotalHours;
+			var height = (48.125 * hours + 88.75).ToInvariantString();
+			return $"height: {height}px !important;";
+		}
+	}
+
+	private IEnumerable<ContainerAppointment> Appointments =>
+		(EntityToEdit.Containers ?? Enumerable.Empty<GetContainerResponse>())
+		.OrderBy(c => c.Start)
+		.Select(c => new ContainerAppointment(
+			c,
+			c.Start.ToLocalTime(),
+			c.GetEndTime().ToLocalTime(),
+			TextForContainer(c)));
+
+	protected override void OnInitialized()
+	{
+		var earliest = EntityToEdit.Containers?
+			.OrderBy(c => c.Start)
+			.Select(c => (DateTime?)c.Start.ToLocalTime())
+			.FirstOrDefault();
+		_date = earliest ?? ShiftService.CurrentSeason.StartDate.ToLocalTime();
+	}
 
 	protected override Task Create()
 		=> ShiftApi.CreateLocationType(new() { Name = EntityToEdit.Name });
@@ -20,30 +78,39 @@
 	{
 		throw new NotImplementedException();
 	}
-	
-	private async Task AddContainers()
+
+	private async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
 	{
-		var parameter = new Dictionary<string, object> { [nameof(AddLocationContainersDialog.LocationId)] = EntityToEdit.Id };
+		var prefilled = new GetContainerResponse { Start = args.Start };
+		var parameter = new Dictionary<string, object>
+		{
+			[nameof(AddLocationContainersDialog.LocationId)] = EntityToEdit.Id,
+			[nameof(AddLocationContainersDialog.EntityToEdit)] = prefilled,
+		};
 		var hasChanged = await DialogService.OpenAsync<AddLocationContainersDialog>("Füge Container hinzu", parameter);
 		if (hasChanged == true)
 			await Refresh();
 	}
 
-	private async Task RemoveContainer(GetContainerResponse c)
+	private void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<ContainerAppointment> args)
 	{
-		var d = await DialogService.Confirm("Are you sure that you want to delete this container? This can't be undone!");
+		args.Attributes["style"] = $"background: {args.Data.Container.Color}; color: black;";
+	}
+
+	private async Task RemoveContainer(SchedulerAppointmentSelectEventArgs<ContainerAppointment> c)
+	{
+		var d = await DialogService.Confirm($"Are you sure that you want to delete '{c.Data.Title}' starting from {c.Data.LocalStart:dddd HH:mm} to {c.Data.LocalEnd.ToShortTimeString()}? This can't be undone!");
 		if (d.HasValue && d.Value)
 		{
 			try
 			{
-				await ShiftApi.DeleteContainer(c.Id);
+				await ShiftApi.DeleteContainer(c.Data.Container.Id);
 				await Refresh();
 			}
 			catch (Exception ex)
 			{
 				await DialogService.Error(ex);
 			}
-
 		}
 	}
 
@@ -51,15 +118,17 @@
 	{
 		EntityToEdit = await ShiftApi.GetLocationById(EntityToEdit.Id);
 		await InvokeAsync(StateHasChanged);
+		if (_scheduler is not null)
+			await _scheduler.Reload();
 	}
 
-	private static string TextForContainers(GetContainerResponse c)
-	{
-		var localStart = c.Start.ToLocalTime();
-		var localEnd = c.GetEndTime().ToLocalTime();
-		if (localStart.Date == localEnd.Date)
-			return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:HH:mm}";
-		return $"{localStart:ddd, dd.MM. HH:mm} - {localEnd:ddd, dd.MM. HH:mm}";
-	}
+	private static string TextForContainer(GetContainerResponse c)
+		=> c.Framework.Name;
+
+	public record ContainerAppointment(
+		GetContainerResponse Container,
+		DateTime LocalStart,
+		DateTime LocalEnd,
+		string Title);
 
 }
