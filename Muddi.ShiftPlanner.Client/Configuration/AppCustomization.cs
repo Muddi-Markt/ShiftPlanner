@@ -7,6 +7,7 @@ public class AppCustomization
 	public string Title { get; init; } = "Schichtplanner";
 	public string Subtitle { get; init; } = string.Empty;
 	public string Contact { get; init; } = "add@me.de";
+	public string Greeting { get; init; } = "Moin";
 	public string ContactHref => (Contact.Contains('@') ? "mailto:" + Contact : "#");
 	public string StartTime { get; init; } = "08:00:00";
 	public string EndTime { get; init; } = "26:00:00";
