@@ -14,8 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Refit.HttpClientFactory" Version="9.0.2" />
-      <PackageReference Include="Telegram.Bot" Version="22.7.5" />
+      <PackageReference Include="Refit.HttpClientFactory" Version="10.1.6" />
+      <PackageReference Include="Telegram.Bot" Version="22.10.0" />
     </ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@ using Muddi.ShiftPlanner.Server.Database.Contexts;
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints;
 
 public abstract class CrudUpdateEndpoint<TRequest> : CrudEndpoint<TRequest, EmptyResponse>
-	where TRequest : notnull, new()
+	where TRequest : notnull
 {
 	public CrudUpdateEndpoint(ShiftPlannerContext database) : base(database)
 	{

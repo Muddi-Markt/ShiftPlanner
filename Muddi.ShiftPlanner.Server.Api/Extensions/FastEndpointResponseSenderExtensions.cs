@@ -6,8 +6,7 @@ namespace Muddi.ShiftPlanner.Server.Api;
 public static class FastEndpointResponseSenderExtensions
 {
 	extension<TRequest, TResponse>(ResponseSender<TRequest, TResponse> responseSender)
-		where TRequest : notnull, new()
-		where TResponse : new()
+		where TRequest : notnull
 	{
 		public Task<Void> LockedAsync(string reason, CancellationToken ct)
 			=> responseSender.StringAsync(reason, StatusCodes.Status423Locked, cancellation: ct);
