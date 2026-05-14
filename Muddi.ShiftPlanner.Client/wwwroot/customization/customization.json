@@ -5,6 +5,7 @@
     "Contact": "gastro@muddimarkt.org",
     "StartTime": "08:00:00",
     "EndTime": "26:00:00",
-    "Greeting": "Moin"
+    "Greeting": "Moin",
+    "MemberName": "MUDDIs"
   }
 }
