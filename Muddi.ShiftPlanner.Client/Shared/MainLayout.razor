@@ -4,6 +4,7 @@
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager;
 @inject ShiftService ShiftService;
+@inject AppSettingsService AppSettingsService;
 @inject DialogService DialogService;
 @inject TooltipService TooltipService;
 @inject IOptions<AppCustomization> AppCustomization;
@@ -91,7 +92,7 @@
 
 @code {
 
-    [CascadingParameter] public Task<AuthenticationState> AuthStateTask { get; set; }
+    [CascadingParameter] public required Task<AuthenticationState> AuthStateTask { get; set; }
 
     private bool _isMediaMaxWidth768;
 
@@ -108,6 +109,9 @@
             {
                 await ShiftService.Initialize();
                 _locations = ShiftService.GetAllShiftLocations().ToList();
+                // Load app settings now that we have an auth token; this raises
+                // SettingsChanged so App.Settings picks up the persisted values.
+                await AppSettingsService.GetSettingsAsync();
             }
         }
         catch (AccessTokenNotAvailableException)

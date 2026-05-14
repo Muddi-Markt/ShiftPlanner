@@ -17,6 +17,7 @@ builder.Services.AddRadzen();
 builder.Services.AddOauthConnect(builder.Configuration.GetRequiredSection("OAuth"));
 builder.Services.AddShiftApiExtensions(builder.Configuration.GetRequiredSection("ShiftApi"));
 builder.Services.AddScoped<ShiftService>();
+builder.Services.AddSingleton<AppSettingsService>();
 builder.Services.AddBlazorDownloadFile();
 
 builder.Services.AddPWAUpdater();

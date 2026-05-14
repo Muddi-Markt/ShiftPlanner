@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using System.Reflection.Metadata;
 using Muddi.ShiftPlanner.Server.Api.Endpoints.Seasons;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
+using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses.Seasons;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Refit;
@@ -182,6 +184,17 @@ public interface IMuddiShiftApi
 	[Delete("/seasons/{id}")]
 	[Headers("Authorization: Bearer")]
 	Task DeleteSeasons(Guid id);
+
+	#region settings
+
+	[Get("/settings")]
+	Task<GetAppSettingsResponse> GetAppSettings();
+
+	[Put("/settings")]
+	[Headers("Authorization: Bearer")]
+	Task UpdateAppSettings(UpdateAppSettingsRequest request);
+
+	#endregion
 }
 
 public class CustomUrlParameterFormatter : Refit.DefaultUrlParameterFormatter

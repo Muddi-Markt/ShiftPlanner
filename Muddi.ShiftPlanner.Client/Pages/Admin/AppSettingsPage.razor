@@ -1,0 +1,97 @@
+@page "/admin/app-settings"
+@attribute [Authorize(Policy = @Policies.IsAdmin)]
+@using Muddi.ShiftPlanner.Shared.BlazorWASM
+@inject AppSettingsService AppSettingsService
+@inject NotificationService NotificationService
+@implements IDisposable
+
+<RadzenText TextStyle="TextStyle.H4">App Einstellungen</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1">Definiere die Standard-Zeiten für Schicht-Container.</RadzenText>
+
+<div class="row mt-4">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Startzeit"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenTimeSpanPicker @bind-Value="_startTime"/>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Endzeit"/>
+    </div>
+    <div class="col-md-8">
+
+        <RadzenTimeSpanPicker @bind-Value="_endTime"/>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12 text-right">
+        <RadzenButton Click="Save" ButtonStyle="ButtonStyle.Success" Text="Speichern"/>
+        <RadzenButton Click="Cancel" ButtonStyle="ButtonStyle.Danger" Text="Abbrechen" Class="mr-1"/>
+    </div>
+</div>
+
+@code {
+    private TimeSpan _startTime;
+    private TimeSpan _endTime;
+    private ApplicationSettings? _settings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settings = await AppSettingsService.GetSettingsAsync();
+        AppSettingsService.SettingsChanged += OnSettingsChanged;
+        _startTime = _settings.StartTime;
+        _endTime = _settings.EndTime;
+    }
+
+
+    private void OnSettingsChanged(object? sender, ApplicationSettings applicationSettings)
+    {
+        _settings = applicationSettings;
+        _startTime = _settings.StartTime;
+        _endTime = _settings.EndTime;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            await AppSettingsService.UpdateAsync(_startTime, _endTime);
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Erfolgreich",
+                Detail = "Einstellungen gespeichert.",
+                Duration = 3000
+            });
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Fehler",
+                Detail = $"Fehler beim Speichern: {ex.Message}",
+                Duration = 5000
+            });
+        }
+    }
+
+    private void Cancel()
+    {
+        if (_settings is null)
+            return;
+        _startTime = _settings.StartTime;
+        _endTime = _settings.EndTime;
+    }
+
+    public void Dispose()
+    {
+        AppSettingsService.SettingsChanged -= OnSettingsChanged;
+    }
+
+}
