@@ -1,6 +1,7 @@
 @page "/admin/app-settings"
 @attribute [Authorize(Policy = @Policies.IsSuperAdmin)]
 @using Muddi.ShiftPlanner.Shared.BlazorWASM
+@using Muddi.ShiftPlanner.Shared.Entities
 @inject AppSettingsService AppSettingsService
 @inject NotificationService NotificationService
 @implements IDisposable
@@ -79,12 +80,14 @@
 </div>
 
 @code {
+    [CascadingParameter] public required ApplicationSettings Settings { get; set; }
+
     private ApplicationSettings _settings = new();
     private ApplicationSettings _original = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _settings = await AppSettingsService.GetSettingsAsync();
+        _settings = Settings;
         _original = new ApplicationSettings
         {
             Title = _settings.Title,
@@ -95,13 +98,11 @@
             Greeting = _settings.Greeting,
             MemberName = _settings.MemberName
         };
-        AppSettingsService.SettingsChanged += OnSettingsChanged;
-    }
-
-    private void OnSettingsChanged(object? sender, ApplicationSettings applicationSettings)
-    {
-        _settings = applicationSettings;
-        InvokeAsync(StateHasChanged);
+        AppSettingsService.SettingsChanged += (_, s) =>
+        {
+            _settings = s;
+            InvokeAsync(StateHasChanged);
+        };
     }
 
     private async Task Save()
@@ -146,5 +147,11 @@
     public void Dispose()
     {
         AppSettingsService.SettingsChanged -= OnSettingsChanged;
+    }
+
+    private void OnSettingsChanged(object? sender, ApplicationSettings applicationSettings)
+    {
+        _settings = applicationSettings;
+        InvokeAsync(StateHasChanged);
     }
 }

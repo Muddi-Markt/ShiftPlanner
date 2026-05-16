@@ -1,8 +1,8 @@
-﻿@inject AppSettingsService AppSettingsService
+@using Muddi.ShiftPlanner.Shared.Entities
 
 <div class="dashboard-container">
     <div class="dashboard-row">
-        <RadzenCard MouseEnter="@(args => ShowTooltip(args, $"{TotalUsers} {AppSettingsService.Current.MemberName} haben sich registriert!"))">
+        <RadzenCard MouseEnter="@(args => ShowTooltip(args, $"{TotalUsers} {Settings.MemberName} haben sich registriert!"))">
             <div class="metric-card">
                 <div class="metric-icon">
                     <RadzenIcon Icon="group"/>
@@ -10,7 +10,7 @@
                 <div class="metric-content">
 
                     <div class="@MetricValueClass">@TotalUsers</div>
-                    <div class="metric-label">@AppSettingsService.Current.MemberName</div>
+                    <div class="metric-label">@Settings.MemberName</div>
                 </div>
             </div>
         </RadzenCard>
@@ -55,3 +55,7 @@
         </RadzenCard>
     </div>
 </div>
+
+@code {
+    [CascadingParameter] public required ApplicationSettings Settings { get; set; }
+}

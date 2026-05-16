@@ -1,6 +1,5 @@
-﻿@using Muddi.ShiftPlanner.Client.Pages
+@using Muddi.ShiftPlanner.Client.Pages
 @implements IDisposable
-
 
 <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(NotFoundPage)">
 	<Found Context="routeData">
@@ -39,25 +38,6 @@
 	// We need it for release mode
 	private bool ShowContent { get; set; } = true;
 
-	/// <summary>
-	/// App-wide settings shared by all pages. Starts at <see cref="AppSettingsService.Defaults"/>
-	/// and is refreshed once the real values load (triggered post-authentication by <c>MainLayout</c>).
-	/// </summary>
-	public static ApplicationSettings Settings { get; private set; } = AppSettingsService.Defaults;
-
-	[Inject] public required AppSettingsService AppSettingsService { get; set; }
-
-	protected override void OnInitialized()
-	{
-		Settings = AppSettingsService.Current;
-		AppSettingsService.SettingsChanged += AppSettingsServiceOnSettingsChanged;
-	}
-
-	private static void AppSettingsServiceOnSettingsChanged(object? sender, ApplicationSettings e)
-	{
-		Settings = e;
-	}
-
 #if RELEASE
 	[Inject] public required Toolbelt.Blazor.PWA.Updater.Service.IPWAUpdaterService PwaUpdaterService { get; set; }
 	[Inject] public required DialogService DialogService { get; set; }
@@ -81,7 +61,6 @@
 
 	public void Dispose()
 	{
-		AppSettingsService.SettingsChanged -= AppSettingsServiceOnSettingsChanged;
 #if RELEASE
 		PwaUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
 #endif

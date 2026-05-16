@@ -20,14 +20,14 @@ namespace Muddi.ShiftPlanner.Client.Pages.Locations;
 
 public partial class LocationPage
 {
-	[Inject] private AppSettingsService AppSettingsService { get; init; } = default!;
+	[CascadingParameter] public required ApplicationSettings Settings { get; set; }
 
 	private string RadzenStyle
 		=> $"height: {CaclculateHeight()}px !important;";
 
 	private string CaclculateHeight()
 	{
-		var hours = (App.Settings.EndTime - App.Settings.StartTime).TotalHours;
+		var hours = (Settings.EndTime - Settings.StartTime).TotalHours;
 		return (48.125 * hours + 88.75).ToInvariantString();
 	}
 

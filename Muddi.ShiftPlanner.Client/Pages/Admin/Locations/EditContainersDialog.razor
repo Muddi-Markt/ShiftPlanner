@@ -1,6 +1,6 @@
 @using Radzen.Blazor.Rendering
+@using Muddi.ShiftPlanner.Shared.Entities
 @inherits UpdateDialogBase<GetLocationResponse>
-@inject AppSettingsService AppSettingsService
 @inject ShiftService ShiftService
 
 <RadzenScheduler @ref="_scheduler"
@@ -18,13 +18,13 @@
                  AppointmentRender="@OnAppointmentRender">
 	<ChildContent>
 		<RadzenWeekView Text="Woche"
-		                StartTime="@App.Settings.StartTime"
-		                EndTime="@App.Settings.EndTime"
+		                StartTime="@Settings.StartTime"
+		                EndTime="@Settings.EndTime"
 		                MinutesPerSlot="30"
 		                TimeFormat="HH:mm"/>
 		<RadzenDayView Text="Tag"
-		               StartTime="@App.Settings.StartTime"
-		               EndTime="@App.Settings.EndTime"
+		               StartTime="@Settings.StartTime"
+		               EndTime="@Settings.EndTime"
 		               MinutesPerSlot="30"
 		               TimeFormat="HH:mm"/>
 	</ChildContent>
@@ -39,6 +39,7 @@
 
 
 @code {
+	[CascadingParameter] public required ApplicationSettings Settings { get; set; }
 
 	private RadzenScheduler<ContainerAppointment>? _scheduler;
 	private DateTime _date;
@@ -47,7 +48,7 @@
 	{
 		get
 		{
-			var hours = (App.Settings.EndTime - App.Settings.StartTime).TotalHours;
+			var hours = (Settings.EndTime - Settings.StartTime).TotalHours;
 			var height = (48.125 * hours + 88.75).ToInvariantString();
 			return $"height: {height}px !important;";
 		}
