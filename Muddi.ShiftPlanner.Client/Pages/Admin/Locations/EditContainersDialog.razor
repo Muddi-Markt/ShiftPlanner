@@ -1,6 +1,7 @@
 @using Radzen.Blazor.Rendering
 @inherits UpdateDialogBase<GetLocationResponse>
 @inject ShiftService ShiftService
+@inject AppSettingsService AppSettingsService
 
 <RadzenScheduler @ref="_scheduler"
                  TItem="ContainerAppointment"
@@ -38,7 +39,9 @@
 
 
 @code {
-	[CascadingParameter] public required ApplicationSettings Settings { get; set; }
+	//We need to inject the settings service here because dialogs opened via DialogService.OpenAsync<T>()
+	// render outside the layout tree, cascading values from MainLayout don't propagate into them.
+	private ApplicationSettings Settings => AppSettingsService.Current;
 
 	private RadzenScheduler<ContainerAppointment>? _scheduler;
 	private DateTime _date;
