@@ -1,7 +1,6 @@
 @page "/admin/app-settings"
 @attribute [Authorize(Policy = @Policies.IsSuperAdmin)]
 @using Muddi.ShiftPlanner.Shared.BlazorWASM
-@using Muddi.ShiftPlanner.Shared.Entities
 @inject AppSettingsService AppSettingsService
 @inject NotificationService NotificationService
 @implements IDisposable

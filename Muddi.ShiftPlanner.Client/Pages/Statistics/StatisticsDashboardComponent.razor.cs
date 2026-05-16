@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-
-using Muddi.ShiftPlanner.Client.Configuration;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
