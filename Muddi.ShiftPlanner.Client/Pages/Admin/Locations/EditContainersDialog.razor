@@ -1,4 +1,5 @@
 @using Radzen.Blazor.Rendering
+@using Muddi.ShiftPlanner.Shared.Entities
 @inherits UpdateDialogBase<GetLocationResponse>
 @inject ShiftService ShiftService
 @inject AppSettingsService AppSettingsService
@@ -39,9 +40,14 @@
 
 
 @code {
-	//We need to inject the settings service here because dialogs opened via DialogService.OpenAsync<T>()
+	// We need to inject the settings service here because dialogs opened via DialogService.OpenAsync<T>()
 	// render outside the layout tree, cascading values from MainLayout don't propagate into them.
 	private ApplicationSettings Settings => AppSettingsService.Current;
+
+	// EntityToEdit is a [Parameter] from the base class.
+	// Child dialogs (confirm, add-container) can trigger re-renders that reset parameters.
+	// We keep our own copy so Refresh() survives parameter resets.
+	private GetLocationResponse _entity = new();
 
 	private RadzenScheduler<ContainerAppointment>? _scheduler;
 	private DateTime _date;
@@ -57,7 +63,7 @@
 	}
 
 	private IEnumerable<ContainerAppointment> Appointments =>
-		(EntityToEdit.Containers ?? Enumerable.Empty<GetContainerResponse>())
+		(_entity.Containers ?? Enumerable.Empty<GetContainerResponse>())
 		.OrderBy(c => c.Start)
 		.Select(c => new ContainerAppointment(
 			c,
@@ -67,7 +73,8 @@
 
 	protected override void OnInitialized()
 	{
-		var earliest = EntityToEdit.Containers?
+		_entity = EntityToEdit;
+		var earliest = _entity.Containers?
 			.OrderBy(c => c.Start)
 			.Select(c => (DateTime?)c.Start.ToLocalTime())
 			.FirstOrDefault();
@@ -75,7 +82,7 @@
 	}
 
 	protected override Task Create()
-		=> ShiftApi.CreateLocationType(new() { Name = EntityToEdit.Name });
+		=> ShiftApi.CreateLocationType(new() { Name = _entity.Name });
 
 	protected override Task Update()
 	{
@@ -87,7 +94,7 @@
 		var prefilled = new GetContainerResponse { Start = args.Start };
 		var parameter = new Dictionary<string, object>
 		{
-			[nameof(AddLocationContainersDialog.LocationId)] = EntityToEdit.Id,
+			[nameof(AddLocationContainersDialog.LocationId)] = _entity.Id,
 			[nameof(AddLocationContainersDialog.EntityToEdit)] = prefilled,
 		};
 		var hasChanged = await DialogService.OpenAsync<AddLocationContainersDialog>("Füge Container hinzu", parameter);
@@ -119,7 +126,7 @@
 
 	private async Task Refresh()
 	{
-		EntityToEdit = await ShiftApi.GetLocationById(EntityToEdit.Id);
+		_entity = await ShiftApi.GetLocationById(_entity.Id);
 		await InvokeAsync(StateHasChanged);
 		if (_scheduler is not null)
 			await _scheduler.Reload();
