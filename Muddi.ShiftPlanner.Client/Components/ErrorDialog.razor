@@ -1,8 +1,8 @@
 ﻿@inject DialogService DialogService
-@inject IOptions<AppCustomization> AppCustomization;
+@inject AppSettingsService AppSettingsService;
 <div>
     <p>Ein Fehler ist passiert. Das ist nicht schlimm, aber wenn du Hilfe brauchst wende dich bitte an 
-        <a href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
+        <a href="@AppSettingsService.Current.ContactHref">@AppSettingsService.Current.Contact</a></p>
     <p style="white-space: pre-line">@Text</p>
     <RadzenButton Text="Ok" Click="() => DialogService.Close()"></RadzenButton>
 </div>

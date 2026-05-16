@@ -7,7 +7,6 @@
 @inject AppSettingsService AppSettingsService;
 @inject DialogService DialogService;
 @inject TooltipService TooltipService;
-@inject IOptions<AppCustomization> AppCustomization;
 <RadzenDialog/>
 <RadzenNotification/>
 <RadzenTooltip/>
@@ -20,7 +19,7 @@
                     <div class="d-flex align-items-center w-100">
                         <RadzenSidebarToggle Click="@(_ => { _sidebarExpanded = !_sidebarExpanded; _bodyExpanded = !_bodyExpanded; })">
                         </RadzenSidebarToggle>
-                        <RadzenLink class="title" Text="@($"{AppCustomization.Value.Title} {(string.IsNullOrEmpty(_title) ? "" : "» ")}")" Path="/"></RadzenLink>
+                        <RadzenLink class="title" Text="@($"{App.Settings.Title} {(string.IsNullOrEmpty(_title) ? "" : "» ")}")" Path="/"></RadzenLink>
                         <RadzenLabel Text=@_title class="title-page mx-2"></RadzenLabel>
 
                     </div>

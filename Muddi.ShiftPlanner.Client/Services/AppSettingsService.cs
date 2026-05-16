@@ -5,7 +5,7 @@ using Muddi.ShiftPlanner.Shared.Entities;
 namespace Muddi.ShiftPlanner.Client.Services;
 
 /// <summary>
-/// Provides app-wide settings (StartTime, EndTime).
+/// Provides app-wide settings (Title, Subtitle, Contact, StartTime, EndTime, Greeting, MemberName).
 /// Loads the values from the API once and caches them. If the API is unreachable
 /// (e.g. called before authentication) it falls back to <see cref="Defaults"/> without
 /// caching the failure, so a later call retries.
@@ -17,8 +17,13 @@ public class AppSettingsService
 	/// </summary>
 	public static ApplicationSettings Defaults { get; } = new()
 	{
+		Title = "MUDDIs Schicht Planner",
+		Subtitle = string.Empty,
+		Contact = string.Empty,
 		StartTime = new TimeSpan(8, 0, 0),
-		EndTime = new TimeSpan(26, 0, 0)
+		EndTime = new TimeSpan(26, 0, 0),
+		Greeting = "Moin",
+		MemberName = "MUDDIs"
 	};
 
 	private readonly IMuddiShiftApi _api;
@@ -62,12 +67,17 @@ public class AppSettingsService
 		}
 	}
 
-	public async Task UpdateAsync(TimeSpan startTime, TimeSpan endTime)
+	public async Task UpdateAsync(ApplicationSettings settings)
 	{
 		await _api.UpdateAppSettings(new UpdateAppSettingsRequest
 		{
-			StartTime = startTime,
-			EndTime = endTime
+			Title = settings.Title,
+			Subtitle = settings.Subtitle,
+			Contact = settings.Contact,
+			StartTime = settings.StartTime,
+			EndTime = settings.EndTime,
+			Greeting = settings.Greeting,
+			MemberName = settings.MemberName
 		});
 
 		// Re-fetch so callers and the SettingsChanged event see the persisted values.

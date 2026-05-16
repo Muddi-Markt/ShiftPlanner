@@ -14,6 +14,7 @@ public static partial class ServiceCollectionExtensions
         services.AddAuthorizationCore(options =>
         {
             options.AddPolicy(Policies.IsAdmin, policy => policy.RequireRole("admin"));
+            options.AddPolicy(Policies.IsSuperAdmin, policy => policy.RequireRole("super-admin"));
         });
         services.AddOidcAuthentication(options =>
         {

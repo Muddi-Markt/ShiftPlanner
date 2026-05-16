@@ -1,12 +1,13 @@
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
+using Muddi.ShiftPlanner.Server.Database.Entities;
 using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Settings;
 
 /// <summary>
-/// Updates app-wide settings (StartTime, EndTime).
+/// Updates app-wide settings (Title, Subtitle, Contact, StartTime, EndTime, Greeting, MemberName).
 /// Admin-only endpoint. Creates the settings row if it doesn't exist yet.
 /// </summary>
 public class UpdateEndpoint : CrudEndpoint<UpdateAppSettingsRequest, EmptyResponse>
@@ -18,6 +19,7 @@ public class UpdateEndpoint : CrudEndpoint<UpdateAppSettingsRequest, EmptyRespon
 	protected override void CrudConfigure()
 	{
 		Put("/settings");
+		Roles(ApiRoles.SuperAdmin);
 	}
 
 	public override async Task<EmptyResponse> ExecuteAsync(UpdateAppSettingsRequest req, CancellationToken ct)
@@ -26,14 +28,19 @@ public class UpdateEndpoint : CrudEndpoint<UpdateAppSettingsRequest, EmptyRespon
 
 		var settings = new ApplicationSettings
 		{
+			Title = req.Title,
+			Subtitle = req.Subtitle,
+			Contact = req.Contact,
 			StartTime = req.StartTime,
-			EndTime = req.EndTime
+			EndTime = req.EndTime,
+			Greeting = req.Greeting,
+			MemberName = req.MemberName
 		};
 
 		if (entity is null)
 		{
 			// First time — insert the row
-			entity = new() { Settings = settings };
+			entity = new AppSettingsEntity { Settings = settings };
 			Database.AppSettings.Add(entity);
 		}
 		else

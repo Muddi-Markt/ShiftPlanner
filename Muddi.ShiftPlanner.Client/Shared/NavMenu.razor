@@ -12,7 +12,9 @@
                     <Authorized>
                         @foreach (var location in ShiftService.GetAllShiftLocations())
                         {
-                            <RadzenPanelMenuItem Text="@($"{location.Name} ({location.PercentageAlreadyAssignedShifts}%)")" Path="@location.Path"/>
+                            <RadzenPanelMenuItem
+                                Text="@($"{location.Name} ({location.PercentageAlreadyAssignedShifts}%)")"
+                                Path="@location.Path"/>
                         }
                     </Authorized>
                 </AuthorizeView>
@@ -22,14 +24,17 @@
                         <RadzenPanelMenuItem Text="ShiftTypes" Path="/admin/shift-types"></RadzenPanelMenuItem>
                         <RadzenPanelMenuItem Text="Frameworks" Path="/admin/frameworks"></RadzenPanelMenuItem>
                         <RadzenPanelMenuItem Text="Locations" Path="/admin/locations"></RadzenPanelMenuItem>
-                        <RadzenPanelMenuItem Text="Einstellungen" Path="/admin/app-settings"></RadzenPanelMenuItem>
+                        <AuthorizeView Policy="@Policies.IsSuperAdmin" Context="nctx">
+                            <RadzenPanelMenuItem Text="Einstellungen" Path="/admin/app-settings"></RadzenPanelMenuItem>
+                        </AuthorizeView>
                     </RadzenPanelMenuItem>
-                    <RadzenPanelMenuItem Text="Statikstiken für Admins" Path="/statistics/employees"></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Text="Statikstiken für Admins"
+                                         Path="/statistics/employees"></RadzenPanelMenuItem>
                     <RadzenPanelMenuItem Text="Export" Path="/admin/export"></RadzenPanelMenuItem>
                 </AuthorizeView>
             </RadzenPanelMenu>
             <div class="position-absolute w-100" style="bottom: 0">
-                <AuthorizeView Policy="@Policies.IsAdmin">
+                <AuthorizeView Policy="@Policies.IsSuperAdmin">
                     <Authorized>
                         <RadzenDropDown TValue="Season"
                                         Style="width: 100%; background: #333333; border: 0; text-align: center; color: #fff"
@@ -41,9 +46,9 @@
 
                     </Authorized>
                     <NotAuthorized>
-                        <RadzenTextBox 
+                        <RadzenTextBox
                             Style="width: 100%; background: #333333; border: 0; text-align: center;"
-                            Value="@ShiftService.CurrentSeason.Name" 
+                            Value="@ShiftService.CurrentSeason.Name"
                             Disabled="true"></RadzenTextBox>
                     </NotAuthorized>
                 </AuthorizeView>

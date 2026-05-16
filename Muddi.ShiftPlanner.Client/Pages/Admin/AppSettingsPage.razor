@@ -1,19 +1,64 @@
 @page "/admin/app-settings"
-@attribute [Authorize(Policy = @Policies.IsAdmin)]
+@attribute [Authorize(Policy = @Policies.IsSuperAdmin)]
 @using Muddi.ShiftPlanner.Shared.BlazorWASM
 @inject AppSettingsService AppSettingsService
 @inject NotificationService NotificationService
 @implements IDisposable
 
-<RadzenText TextStyle="TextStyle.H4">App Einstellungen</RadzenText>
-<RadzenText TextStyle="TextStyle.Body1">Definiere die Standard-Zeiten für Schicht-Container.</RadzenText>
+<RadzenText TextStyle="TextStyle.H4">Globale Einstellungen</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1">Definiere die Standard-Zeiten und allgemeine Einstellungen.</RadzenText>
 
 <div class="row mt-4">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Titel"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenTextBox @bind-Value="_settings.Title"/>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Untertitel"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenTextBox @bind-Value="_settings.Subtitle"/>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Kontakt-Email"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenTextBox @bind-Value="_settings.Contact"/>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Grüßwort"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenTextBox @bind-Value="_settings.Greeting"/>
+    </div>
+</div>
+
+<div class="row mt-2">
+    <div class="col-md-4 align-items-center d-flex">
+        <RadzenLabel Text="Mitglieder-Name"/>
+    </div>
+    <div class="col-md-8">
+        <RadzenTextBox @bind-Value="_settings.MemberName"/>
+    </div>
+</div>
+
+<div class="row mt-2">
     <div class="col-md-4 align-items-center d-flex">
         <RadzenLabel Text="Startzeit"/>
     </div>
     <div class="col-md-8">
-        <RadzenTimeSpanPicker @bind-Value="_startTime"/>
+        <RadzenTimeSpanPicker @bind-Value="_settings.StartTime"/>
     </div>
 </div>
 
@@ -22,8 +67,7 @@
         <RadzenLabel Text="Endzeit"/>
     </div>
     <div class="col-md-8">
-
-        <RadzenTimeSpanPicker @bind-Value="_endTime"/>
+        <RadzenTimeSpanPicker @bind-Value="_settings.EndTime"/>
     </div>
 </div>
 
@@ -35,24 +79,28 @@
 </div>
 
 @code {
-    private TimeSpan _startTime;
-    private TimeSpan _endTime;
-    private ApplicationSettings? _settings;
+    private ApplicationSettings _settings = new();
+    private ApplicationSettings _original = new();
 
     protected override async Task OnInitializedAsync()
     {
         _settings = await AppSettingsService.GetSettingsAsync();
+        _original = new ApplicationSettings
+        {
+            Title = _settings.Title,
+            Subtitle = _settings.Subtitle,
+            Contact = _settings.Contact,
+            StartTime = _settings.StartTime,
+            EndTime = _settings.EndTime,
+            Greeting = _settings.Greeting,
+            MemberName = _settings.MemberName
+        };
         AppSettingsService.SettingsChanged += OnSettingsChanged;
-        _startTime = _settings.StartTime;
-        _endTime = _settings.EndTime;
     }
-
 
     private void OnSettingsChanged(object? sender, ApplicationSettings applicationSettings)
     {
         _settings = applicationSettings;
-        _startTime = _settings.StartTime;
-        _endTime = _settings.EndTime;
         InvokeAsync(StateHasChanged);
     }
 
@@ -60,7 +108,7 @@
     {
         try
         {
-            await AppSettingsService.UpdateAsync(_startTime, _endTime);
+            await AppSettingsService.UpdateAsync(_settings);
             NotificationService.Notify(new NotificationMessage
             {
                 Severity = NotificationSeverity.Success,
@@ -83,15 +131,20 @@
 
     private void Cancel()
     {
-        if (_settings is null)
-            return;
-        _startTime = _settings.StartTime;
-        _endTime = _settings.EndTime;
+        _settings = new ApplicationSettings
+        {
+            Title = _original.Title,
+            Subtitle = _original.Subtitle,
+            Contact = _original.Contact,
+            StartTime = _original.StartTime,
+            EndTime = _original.EndTime,
+            Greeting = _original.Greeting,
+            MemberName = _original.MemberName
+        };
     }
 
     public void Dispose()
     {
         AppSettingsService.SettingsChanged -= OnSettingsChanged;
     }
-
 }
