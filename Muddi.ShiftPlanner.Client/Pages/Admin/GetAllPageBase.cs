@@ -4,7 +4,6 @@ using Muddi.ShiftPlanner.Shared.BlazorWASM;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
 using Radzen;
 using Radzen.Blazor;
-using Refit;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Admin;
 

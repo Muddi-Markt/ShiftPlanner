@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Authentication;
-using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Principal;
+﻿using System.Security.Claims;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
 

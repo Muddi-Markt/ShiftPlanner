@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
-using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using Muddi.ShiftPlanner.Client.Components;
-using Muddi.ShiftPlanner.Client.Configuration;
 using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Client.Shared;
@@ -22,14 +20,14 @@ namespace Muddi.ShiftPlanner.Client.Pages.Locations;
 
 public partial class LocationPage
 {
-	[Inject] private IOptions<AppCustomization> AppCustomization { get; init; } = default!;
+	[CascadingParameter] public required ApplicationSettings Settings { get; set; }
 
 	private string RadzenStyle
 		=> $"height: {CaclculateHeight()}px !important;";
 
 	private string CaclculateHeight()
 	{
-		var hours = (AppCustomization.Value.EndTimeSpan - AppCustomization.Value.StartTimeSpan).TotalHours;
+		var hours = (Settings.EndTime - Settings.StartTime).TotalHours;
 		return (48.125 * hours + 88.75).ToInvariantString();
 	}
 

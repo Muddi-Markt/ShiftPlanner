@@ -34,7 +34,6 @@ const offlineAssetsExclude = [
 const skipIntegrityCheck = [
     /appsettings\.json$/,
     /manifest\.json$/,
-    /customization\//,
     /_content\/Radzen\.Blazor\// //ignore Radzen.Blazor, SRI failes here, I dont know why TODO get SRI working with Radzen
 ];
 

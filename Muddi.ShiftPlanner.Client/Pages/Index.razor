@@ -1,15 +1,14 @@
-﻿@page "/"
+@page "/"
 @using Muddi.ShiftPlanner.Client.Pages.Statistics
 @attribute [Authorize]
-@inject IOptions<AppCustomization> AppCustomization;
 <AuthorizeView>
 	<Authorized>
-		<h2>@AppCustomization.Value.Greeting @(context.User.Identity?.Name)!</h2>
+		<h2>@Settings.Greeting @(context.User.Identity?.Name)!</h2>
 		<br/>
 		<StatisticsDashboardComponent/>
 		<DisplayNextShiftsComponent/>
 		<br/>
-		<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
+		<p>Wenn du Hilfe benötigst wendest du dich am Besten an <a href="@Settings.ContactHref">@Settings.Contact</a></p>
 	</Authorized>
 
 	<NotAuthorized>
@@ -17,3 +16,7 @@
 		<a href="/authentication/login">Login</a>
 	</NotAuthorized>
 </AuthorizeView>
+
+@code {
+	[CascadingParameter] public required ApplicationSettings Settings { get; set; }
+}

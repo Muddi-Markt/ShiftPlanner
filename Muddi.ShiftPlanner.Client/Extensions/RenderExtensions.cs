@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Muddi.ShiftPlanner.Client.Entities;
-using Muddi.ShiftPlanner.Client.Services;
+﻿using Muddi.ShiftPlanner.Client.Entities;
 using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Entities;
 using Radzen;

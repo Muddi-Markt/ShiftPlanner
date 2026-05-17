@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Options;
-using Muddi.ShiftPlanner.Client.Configuration;
 using Muddi.ShiftPlanner.Client.Services;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
@@ -25,7 +23,7 @@ public partial class StatisticsDashboardComponent : ComponentBase, IDisposable
 	[Inject] public required TooltipService TooltipService { get; set; }
 	[Inject] public required IMuddiShiftApi ShiftApi { get; set; }
 	[Inject] public required ShiftService ShiftService { get; set; }
-	[Inject] public required IOptions<AppCustomization> AppCustomization { get; set; }
+
 
 	protected override async Task OnInitializedAsync()
 	{

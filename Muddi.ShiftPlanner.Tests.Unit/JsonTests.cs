@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using FluentAssertions;
-using Muddi.ShiftPlanner.Client.Configuration;
+using Muddi.ShiftPlanner.Shared.Entities;
 using Xunit;
 
 namespace Muddi.ShiftPlanner.Tests.Unit;
@@ -8,7 +8,7 @@ namespace Muddi.ShiftPlanner.Tests.Unit;
 public class JsonTests
 {
 	[Fact]
-	public void ShouldDeserializeAppCustomization_WhenValid()
+	public void ShouldDeserializeApplicationSettings_WhenValid()
 	{
 		string json = """
 		              {
@@ -16,69 +16,48 @@ public class JsonTests
 		              "Subtitle": "Auf eine HAMMER-mäßige Kieler Woche 2023!",
 		              "Contact": "gastro@muddimarkt.org",
 		              "Greeting": "Buongiorno",
+		              "MemberName": "MUDDIs",
 		              "StartTime": "08:00:00",
 		              "EndTime": "26:00:00"
 		              }
 		              """;
 
-		var customization = JsonSerializer.Deserialize<AppCustomization>(json);
+		var settings = JsonSerializer.Deserialize<ApplicationSettings>(json);
 
-		customization.Should().NotBeNull();
-		customization.Title.Should().Be("MUDDIs Schicht Planner");
-		customization.Subtitle.Should().Be("Auf eine HAMMER-mäßige Kieler Woche 2023!");
-		customization.Contact.Should().Be("gastro@muddimarkt.org");
-		customization.Greeting.Should().Be("Buongiorno");
-		customization.StartTimeSpan.TotalHours.Should().Be(8);
-		customization.EndTimeSpan.TotalHours.Should().Be(26);
+		settings.Should().NotBeNull();
+		settings!.Title.Should().Be("MUDDIs Schicht Planner");
+		settings.Subtitle.Should().Be("Auf eine HAMMER-mäßige Kieler Woche 2023!");
+		settings.Contact.Should().Be("gastro@muddimarkt.org");
+		settings.Greeting.Should().Be("Buongiorno");
+		settings.MemberName.Should().Be("MUDDIs");
+		settings.StartTime.TotalHours.Should().Be(8);
+		settings.EndTime.TotalHours.Should().Be(26);
 	}
 
 	[Fact]
-	public void ShouldDeserializeAppCustomization_WhenValidWithDifferentTimeFormats()
+	public void ShouldDeserializeApplicationSettings_WithMinValues()
 	{
 		string json = """
 		              {
-		              "Title": "MUDDIs Schicht Planner",
-		              "Subtitle": "Auf eine HAMMER-mäßige Kieler Woche 2023!",
-		              "Contact": "gastro@muddimarkt.org",
-		              "Greeting": "Ciao",
-		              "StartTime": "08:00",
-		              "EndTime": "1.02:00:00"
-		              }
-		              """;
-
-		var customization = JsonSerializer.Deserialize<AppCustomization>(json);
-
-		customization.Should().NotBeNull();
-		customization.Title.Should().Be("MUDDIs Schicht Planner");
-		customization.Subtitle.Should().Be("Auf eine HAMMER-mäßige Kieler Woche 2023!");
-		customization.Contact.Should().Be("gastro@muddimarkt.org");
-		customization.Greeting.Should().Be("Ciao");
-		customization.StartTimeSpan.TotalHours.Should().Be(8);
-		customization.EndTimeSpan.TotalHours.Should().Be(26);
-	}
-
-	[Fact]
-	public void ShouldDeserializeAppCustomization_WithMinValues()
-	{
-		string json = """
-		              {
-		              "Title": "MUDDIs Schicht Planner",
+		              "Title": "Test Planner",
 		              "Subtitle": "",
 		              "Contact": "test@example.com",
 		              "Greeting": "",
+		              "MemberName": "TestGroup",
 		              "StartTime": "00:00:00",
 		              "EndTime": "00:00:00"
 		              }
 		              """;
 
-		var customization = JsonSerializer.Deserialize<AppCustomization>(json);
+		var settings = JsonSerializer.Deserialize<ApplicationSettings>(json);
 
-		customization.Should().NotBeNull();
-		customization.Title.Should().Be("MUDDIs Schicht Planner");
-		customization.Subtitle.Should().Be("");
-		customization.Contact.Should().Be("test@example.com");
-		customization.Greeting.Should().Be("");
-		customization.StartTimeSpan.TotalHours.Should().Be(0);
-		customization.EndTimeSpan.TotalHours.Should().Be(0);
+		settings.Should().NotBeNull();
+		settings!.Title.Should().Be("Test Planner");
+		settings.Subtitle.Should().Be("");
+		settings.Contact.Should().Be("test@example.com");
+		settings.Greeting.Should().Be("");
+		settings.MemberName.Should().Be("TestGroup");
+		settings.StartTime.TotalHours.Should().Be(0);
+		settings.EndTime.TotalHours.Should().Be(0);
 	}
 }

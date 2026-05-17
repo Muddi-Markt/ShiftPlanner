@@ -1,6 +1,5 @@
-﻿@using Muddi.ShiftPlanner.Client.Pages
+@using Muddi.ShiftPlanner.Client.Pages
 @implements IDisposable
-
 
 <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(NotFoundPage)">
 	<Found Context="routeData">
@@ -58,18 +57,13 @@
 		await Task.Delay(1000);
 		await PwaUpdaterService.SkipWaitingAsync();
 	}
-
-	public void Dispose()
-	{
-		PwaUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
-	}
-
-#else
-
-	public void Dispose()
-	{
-		//Empty
-	}
-
 #endif
+
+	public void Dispose()
+	{
+#if RELEASE
+		PwaUpdaterService.NextVersionIsWaiting -= PWAUpdaterService_NextVersionIsWaiting;
+#endif
+	}
+
 }

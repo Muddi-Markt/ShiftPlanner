@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
+﻿using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -8,7 +7,6 @@ using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
-using Radzen;
 using Refit;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Locations;

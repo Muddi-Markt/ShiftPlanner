@@ -1,23 +1,22 @@
-﻿@attribute [AllowAnonymous]
+@attribute [AllowAnonymous]
 @page "/help"
 @using System.Reflection
 @using System.Text.Encodings.Web
 @using System.Text.Json
 @using Muddi.ShiftPlanner.Shared.Contracts.v1
-@inject IOptions<AppCustomization> AppCustomization;
 <h3>Hilfe</h3>
 
 <p>Wenn du Hilfe benötigst wendest du dich am Besten an <a
-        href="@AppCustomization.Value.ContactHref">@AppCustomization.Value.Contact</a></p>
+        href="@Settings.ContactHref">@Settings.Contact</a></p>
 <p>Version: @AssemblyVersion?.ToString()</p>
 <p>Programmiert mit ❤️ von Max :)</p>
-<AuthorizeView Roles="@ApiRoles.Admin">
+<AuthorizeView Roles="@ApiRoles.SuperAdmin">
 
     <Authorized>
-        <h5>customization.json</h5>
+        <h5>App Einstellungen (DB)</h5>
         <code>
             <pre>
-                @JsonSerializer.Serialize(AppCustomization.Value, JsonSerializerOptions)
+                @JsonSerializer.Serialize(Settings, JsonSerializerOptions)
             </pre>
         </code>
     </Authorized>
@@ -25,6 +24,7 @@
 
 
 @code {
+    [CascadingParameter] public required ApplicationSettings Settings { get; set; }
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {

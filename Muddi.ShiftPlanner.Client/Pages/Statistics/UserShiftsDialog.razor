@@ -1,5 +1,4 @@
 ﻿@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
-@using Muddi.ShiftPlanner.Client.Services
 @inject ShiftService ShiftService;
 <RadzenDataList Data="UserShifts.OrderBy(s => s.LocationId).ThenBy(s => s.Start)" AllowPaging="true" WrapItems="true" PageSize="10">
 	<Template Context="c">
