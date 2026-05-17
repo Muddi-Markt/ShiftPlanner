@@ -111,10 +111,9 @@ jobs:
       - name: Define Tags
         run: |
           if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
-            TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.SHORT_SHA }}"
+            TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:dev-${{ env.SHORT_SHA }}"
           else
-            TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ github.sha }},"
-            TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.FULL_VERSION }},"
+            TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.FULL_VERSION }},"
             if [[ "${{ env.STABLE_RELEASE }}" == 'true' ]]; then
               TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.MINOR }},"
               TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.MAJOR }},"
