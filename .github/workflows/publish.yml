@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'release/v*'
+  workflow_dispatch:
 env:
   REGISTRY: ghcr.io
 
@@ -54,12 +55,20 @@ jobs:
           fi
           echo "Full Version: $FULL_VERSION"
 
+      - name: Set commit hash for manual dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "Short SHA: $SHORT_SHA"
+
       - name: Update version in index.html and service worker
-        if: matrix.app.name == 'client'
+        if: github.event_name == 'push' && matrix.app.name == 'client'
         run: |
           sed -i 's/{{VERSION}}/${{ env.FULL_VERSION }}/g' Muddi.ShiftPlanner.Client/wwwroot/index.html
           sed -i "s/{{VERSION}}/${{ env.FULL_VERSION }}/g" Muddi.ShiftPlanner.Client/wwwroot/service-worker.published.js
       - name: Update assembly versions in AssemblyInfo.cs
+        if: github.event_name == 'push'
         run: |
           VERSION=${{ env.FULL_VERSION }}
           CLEAN_VERSION=${VERSION#v}
@@ -79,11 +88,15 @@ jobs:
 
       - name: Define Tags
         run: |
-          TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ github.sha }},"
-          TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.FULL_VERSION }},"
-          if [[ ${{ env.STABLE_RELEASE }} == 'true' ]]; then
-            TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.MINOR }},"
-            TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.MAJOR }},"
+          if [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+            TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.SHORT_SHA }}"
+          else
+            TAGS="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ github.sha }},"
+            TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.FULL_VERSION }},"
+            if [[ ${{ env.STABLE_RELEASE }} == 'true' ]]; then
+              TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.MINOR }},"
+              TAGS+="${{ env.REGISTRY }}/${{ env.lower_repo }}/${{ matrix.app.name }}:${{ env.MAJOR }},"
+            fi
           fi
           echo "TAGS=$TAGS" >> $GITHUB_ENV
           echo "Using tags: $TAGS"
