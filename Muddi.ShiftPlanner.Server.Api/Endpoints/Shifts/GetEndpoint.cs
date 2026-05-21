@@ -29,8 +29,14 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftResponse>
 			.FirstOrDefaultAsync(s => s.Id == id, cancellationToken: ct);
 		if (entity is null)
 			return null;
-		var employee = await _keycloakService.GetUserByIdAsync(entity.EmployeeKeycloakId);
 
+		// Blocked shifts have no user assigned
+		if (entity.EmployeeKeycloakId == default && !string.IsNullOrEmpty(entity.BlockReason))
+		{
+			return entity.MapToShiftResponse(Guid.Empty, "FREI");
+		}
+
+		var employee = await _keycloakService.GetUserByIdAsync(entity.EmployeeKeycloakId);
 		return entity.MapToShiftResponse(employee.MapToEmployeeResponse(User));
 	}
 }

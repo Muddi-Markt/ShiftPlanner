@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Security.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -7,6 +8,8 @@ using Muddi.ShiftPlanner.Shared;
 using Muddi.ShiftPlanner.Shared.Contracts.v1;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses;
+using Muddi.ShiftPlanner.Shared.Entities;
+using Radzen;
 using Refit;
 
 namespace Muddi.ShiftPlanner.Client.Pages.Locations;
@@ -19,6 +22,7 @@ public partial class EditShiftDialog
 	private ClaimsPrincipal? _user;
 	private bool _isAdmin;
 	private bool _isShiftUser;
+	private bool _isShiftBlocked;
 	private HashSet<GetShiftTypesResponse> _availableShiftTypes = new();
 	private HashSet<GetEmployeeResponse>? _employeesToSelect;
 
@@ -57,8 +61,12 @@ public partial class EditShiftDialog
 			{
 				var allUser = await ShiftApi.GetAllEmployees();
 				_employeesToSelect = new(allUser);
-				EntityToEdit.EmployeeId = _employeesToSelect.FirstOrDefault(e => e.Id == EntityToEdit.EmployeeId)?.Id ?? default;
+				EntityToEdit.EmployeeId = _employeesToSelect.FirstOrDefault(e => e.Id == EntityToEdit.EmployeeId)?.Id ??
+				                          default;
 			}
+
+			// Sync blocked state from existing BlockReason
+			_isShiftBlocked = !string.IsNullOrEmpty(EntityToEdit.BlockReason);
 		}
 		catch (AccessTokenNotAvailableException)
 		{
@@ -78,39 +86,86 @@ public partial class EditShiftDialog
 		{
 			var res = await ShiftService.AddShiftToContainer(EntityToEdit.ContainerId, new CreateShiftRequest
 			{
-				EmployeeKeycloakId = EntityToEdit.EmployeeId,
+				EmployeeKeycloakId = _isShiftBlocked ? default : EntityToEdit.EmployeeId,
 				ShiftTypeId = EntityToEdit.Type.Id,
-				Start = EntityToEdit.Start
+				Start = EntityToEdit.Start,
+				BlockReason = _isShiftBlocked ? EntityToEdit.BlockReason : null
 			});
 			EntityToEdit.Id = res;
 		}
 		catch (ApiException apiException)
 		{
-			if (apiException.StatusCode != HttpStatusCode.Conflict) throw;
-			//TODO Find the shift Guid and catch it and show which location the shift is
-			await DialogService.Error("Du hast schon ne Schicht um die Zeit!");
+			if (apiException.StatusCode == HttpStatusCode.Conflict)
+				//TODO Find the shift Guid and catch it and show which location the shift is
+				throw new ArgumentException("Du hast schon eine Schicht um diese Zeit!", apiException);
+			throw;
 		}
 	}
 
 	protected override async Task Update()
 	{
 		if (!(_isAdmin || _isShiftUser))
-			return;
+			throw new UnauthorizedAccessException("Du hast keine Berechtigung, diese Schicht zu bearbeiten.");
+		// Prevent unblocking without assigning a user — avoids ghost shifts with placeholder GUIDs
+		if (!_isShiftBlocked && EntityToEdit.EmployeeId == Mappers.NotAssignedEmployee.KeycloakId)
+		{
+			throw new ArgumentException(
+				"Bitte wähle einen Mitarbeiter aus, um die Schicht zu entsperren oder lösche diese Schicht um sie frei zu machen.");
+		}
+
 		try
 		{
 			await ShiftApi.UpdateShift(EntityToEdit.Id, new CreateShiftRequest
 			{
 				EmployeeKeycloakId = EntityToEdit.EmployeeId,
 				ShiftTypeId = EntityToEdit.Type.Id,
-				Start = EntityToEdit.Start
+				Start = EntityToEdit.Start,
+				BlockReason = _isShiftBlocked ? EntityToEdit.BlockReason : null
 			});
 		}
 		catch (ApiException apiException)
 		{
-			if (apiException.StatusCode != HttpStatusCode.Conflict) throw;
-			//TODO Find the shift Guid and catch it and show which location the shift is
-			await DialogService.Error("Du hast schon ne Schicht um die Zeit!");
+			if (apiException.StatusCode == HttpStatusCode.Conflict)
+				//TODO Find the shift Guid and catch it and show which location the shift is
+				throw new ArgumentException("Du hast schon eine Schicht um diese Zeit!", apiException);
+			throw;
 		}
+	}
+
+	private void OnBlockChanged(ChangeEventArgs args)
+	{
+		_isShiftBlocked = (bool)args.Value;
+		// Warn when blocking a shift that has a user assigned
+		if (_isShiftBlocked && EntityToEdit.EmployeeId != default)
+		{
+			// Async operation in event handler - fire and forget for the dialog
+			_ = ShowBlockWarningAsync();
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task ShowBlockWarningAsync()
+	{
+		var confirmed = await DialogService.Confirm(
+			$"{EntityToEdit.EmployeeFullName} wird von dieser Schicht entfernt. Die Schicht wird stattdessen gesperrt.",
+			"Schicht sperren");
+		if (confirmed is not true)
+		{
+			_isShiftBlocked = false;
+			StateHasChanged();
+		}
+	}
+
+	public async new Task UpdateAndClose()
+	{
+		if (_isShiftBlocked && string.IsNullOrWhiteSpace(EntityToEdit.BlockReason))
+		{
+			await DialogService.Error("Bitte geben Sie eine Begründung für die Sperrung ein.", "Validierung");
+			return;
+		}
+
+		await base.UpdateAndClose();
 	}
 
 

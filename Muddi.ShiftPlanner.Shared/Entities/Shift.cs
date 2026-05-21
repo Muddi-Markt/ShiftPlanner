@@ -37,6 +37,7 @@ public class Shift : IEquatable<Shift>
 	public Guid ContainerId { get; }
 	public Guid LocationId { get; }
 	public Guid Id { get; }
+	public string? BlockReason { get; set; }
 
 	public bool Equals(Shift? other)
 	{

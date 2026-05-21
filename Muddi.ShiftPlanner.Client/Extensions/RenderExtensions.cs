@@ -54,13 +54,29 @@ public static class RenderExtensions
 		var shift = dayAppointment.Shift;
 
 		//DayView
-		if (shift.User == Mappers.NotAssignedEmployee)
+		// Blocked shifts - check before free shifts, since blocked shifts also have NotAssignedEmployee as user
+		if (!string.IsNullOrEmpty(shift.BlockReason))
 		{
-			args.Attributes["style"] += $"background: #ffffffD0; color:{shift.Type.Color};";
+			var bgColor = !string.IsNullOrEmpty(shift.Type.Color)
+				? shift.Type.Color
+				: "#999999";
+			args.Attributes["style"] += $"background: {bgColor}; opacity: 0.45; color: white;";
+			args.Attributes["title"] = "Gesperrt: " + shift.BlockReason;
 			return;
 		}
 
-		args.Attributes["style"] += $"background: {shift.Type.Color};";
+		// Free shifts - plain white
+		if (shift.User == Mappers.NotAssignedEmployee)
+		{
+			var textColor = !string.IsNullOrEmpty(shift.Type.Color)
+				? shift.Type.Color
+				: "#333333";
+			args.Attributes["style"] += $"background: #ffffff; color:{textColor}; border: 1px solid {textColor};";
+			return;
+		}
+
+		var normalBg = !string.IsNullOrEmpty(shift.Type.Color) ? shift.Type.Color : "#cccccc";
+		args.Attributes["style"] += $"background: {normalBg};";
 		if (shift.User.KeycloakId == userKeycloakId)
 		{
 			args.Attributes["style"] += "outline: 2px dashed #852121;";

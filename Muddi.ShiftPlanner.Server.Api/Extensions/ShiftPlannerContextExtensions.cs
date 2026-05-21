@@ -16,7 +16,8 @@ public static class ShiftPlannerContextExtensions
 			EmployeeKeycloakId = req.EmployeeKeycloakId,
 			Start = req.Start,
 			End = endTime,
-			Type = type
+			Type = type,
+			BlockReason = req.BlockReason
 		};
 
 

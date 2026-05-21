@@ -1,3 +1,18 @@
 .row {
     margin: 10px -15px;
 }
+
+.shift-blocked-section {
+    margin-top: 8px;
+    padding: 8px;
+    border: 1px solid var(--secondary);
+    border-radius: 4px;
+    background: rgba(222, 8, 8, 0.05);
+}
+
+.shift-blocked-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}

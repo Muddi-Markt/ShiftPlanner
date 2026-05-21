@@ -145,7 +145,8 @@ public partial class LocationPage
 			EmployeeFullName = _user.GetFullName(),
 			Start = startTime,
 			End = startTime + container.Framework.TimePerShift,
-			Type = shift.Type.MapToShiftTypeResponse()
+			Type = shift.Type.MapToShiftTypeResponse(),
+			BlockReason = null
 		};
 		var param = new Dictionary<string, object>
 		{
@@ -178,6 +179,21 @@ public partial class LocationPage
 
 		if (args.Data is not DayAppointment dayAppointment)
 			throw new NotSupportedException("Unknown appointment type" + args.Data.GetType());
+
+		//If the shift is blocked (has BlockReason), open edit dialog
+		if (!string.IsNullOrEmpty(dayAppointment.Shift.BlockReason))
+		{
+			var blockedParams = new Dictionary<string, object>
+			{
+				[nameof(EditShiftDialog.EntityToEdit)] = dayAppointment.Shift.MapToShiftResponse()
+			};
+			var blockedRes = await DialogService.OpenAsync<EditShiftDialog>("Bearbeite Schicht", blockedParams);
+			if (blockedRes is true)
+			{
+				await ForceReloadScheduler();
+			}
+			return;
+		}
 
 		//If the user is not assigned, create a new shift
 		if (dayAppointment.Shift.User == Mappers.NotAssignedEmployee)

@@ -1,4 +1,5 @@
-﻿using Muddi.ShiftPlanner.Shared.Entities;
+using Muddi.ShiftPlanner.Shared;
+using Muddi.ShiftPlanner.Shared.Entities;
 
 namespace Muddi.ShiftPlanner.Client.Entities;
 
@@ -24,15 +25,29 @@ public class DayAppointment : Appointment
 		Shift = shift;
 		LocalStartTime = shift.StartTime.ToLocalTime() + shift.Type.StartingTimeShift;
 		LocalEndTime = shift.EndTime.ToLocalTime() + shift.Type.StartingTimeShift;
-		if (shift.Duration < TimeSpan.FromMinutes(60))
+		if (!string.IsNullOrEmpty(shift.BlockReason))
+		{
+			Title = shift.Type.Name + "\nGesperrt: " + shift.BlockReason + "\n" + TimeString;
+		}
+		else if (shift.User == Mappers.NotAssignedEmployee)
+		{
+			Title = shift.Type.Name + "\nFREI";
+		}
+		else if (shift.Duration < TimeSpan.FromMinutes(60))
+		{
 			Title = shift.Type.Name;
+		}
 		else if (shift.Duration < TimeSpan.FromMinutes(90))
+		{
 			Title = shift.Type.Name + "\n"
-			                        + shift.User.Name + "\n";
+			        + shift.User.Name + "\n";
+		}
 		else
+		{
 			Title = shift.Type.Name + "\n"
-			                        + shift.User.Name + "\n"
-			                        + TimeString;
+			        + shift.User.Name + "\n"
+			        + TimeString;
+		}
 	}
 
 	private string TimeString

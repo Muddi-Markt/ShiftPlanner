@@ -6,4 +6,5 @@ public class CreateShiftRequest
 	public Guid EmployeeKeycloakId { get; set; }
 	public DateTime Start { get; set; }
 	public Guid ShiftTypeId { get; set; }
+	public string? BlockReason { get; set; }
 }
