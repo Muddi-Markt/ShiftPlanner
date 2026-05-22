@@ -142,21 +142,19 @@ public partial class EditShiftDialog
 
 		await InvokeAsync(StateHasChanged);
 
-		// Focus the textarea after the render cycle completes
+		// Focus the textbox after the render cycle completes
 		if (_isShiftBlocked)
 		{
 			EntityToEdit.EmployeeId = Mappers.NotAssignedEmployee.KeycloakId;
 			_ = InvokeAsync(async () =>
 			{
-				// if (_reasonTextAreaRef is null)
-				// return;
-				await Task.Delay(100);
+				await Task.Yield();
 				await _blockReasonTextBox.FocusAsync();
 			});
 		}
 	}
 
-	public new async Task UpdateAndClose()
+	protected override async Task UpdateAndClose()
 	{
 		if (_isShiftBlocked && string.IsNullOrWhiteSpace(EntityToEdit.BlockReason))
 		{
