@@ -116,7 +116,8 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .HasColumnName("id");
 
                     b.Property<string>("BlockReason")
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("block_reason");
 
                     b.Property<Guid>("EmployeeKeycloakId")

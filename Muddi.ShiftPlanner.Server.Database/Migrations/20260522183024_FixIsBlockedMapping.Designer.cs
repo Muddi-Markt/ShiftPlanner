@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Muddi.ShiftPlanner.Server.Database.Migrations
 {
     [DbContext(typeof(ShiftPlannerContext))]
-    [Migration("20260520193245_AddBlockReasonToShift")]
-    partial class AddBlockReasonToShift
+    [Migration("20260522183024_FixIsBlockedMapping")]
+    partial class FixIsBlockedMapping
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -119,7 +119,8 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                         .HasColumnName("id");
 
                     b.Property<string>("BlockReason")
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("block_reason");
 
                     b.Property<Guid>("EmployeeKeycloakId")
