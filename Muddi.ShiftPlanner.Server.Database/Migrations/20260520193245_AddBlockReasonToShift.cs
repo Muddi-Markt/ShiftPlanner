@@ -14,6 +14,7 @@ namespace Muddi.ShiftPlanner.Server.Database.Migrations
                 name: "block_reason",
                 table: "shifts",
                 type: "text",
+                maxLength: 50,
                 nullable: true);
         }
 
