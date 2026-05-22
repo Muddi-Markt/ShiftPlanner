@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Muddi.ShiftPlanner.Server.Database.Migrations
 {
     [DbContext(typeof(ShiftPlannerContext))]
-    [Migration("20260522183024_FixIsBlockedMapping")]
-    partial class FixIsBlockedMapping
+    [Migration("20260522184147_AddBlockReasonToShift")]
+    partial class AddBlockReasonToShift
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

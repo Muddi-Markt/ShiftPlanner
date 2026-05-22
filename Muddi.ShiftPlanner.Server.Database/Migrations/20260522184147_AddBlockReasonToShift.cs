@@ -5,34 +5,25 @@
 namespace Muddi.ShiftPlanner.Server.Database.Migrations
 {
     /// <inheritdoc />
-    public partial class FixIsBlockedMapping : Migration
+    public partial class AddBlockReasonToShift : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
+            migrationBuilder.AddColumn<string>(
                 name: "block_reason",
                 table: "shifts",
                 type: "character varying(50)",
                 maxLength: 50,
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
+            migrationBuilder.DropColumn(
                 name: "block_reason",
-                table: "shifts",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "character varying(50)",
-                oldMaxLength: 50,
-                oldNullable: true);
+                table: "shifts");
         }
     }
 }
