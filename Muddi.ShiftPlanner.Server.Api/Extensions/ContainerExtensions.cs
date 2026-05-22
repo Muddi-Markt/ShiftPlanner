@@ -52,7 +52,7 @@ public static class ShiftService
 		foreach (var shift in container.Shifts.Where(s => s.Start == startTime))
 		{
 			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
-			if (shift.EmployeeKeycloakId != default || !string.IsNullOrEmpty(shift.BlockReason))
+			if (!shift.IsBlocked)
 			{
 				q.AvailableCount--;
 			}
@@ -79,7 +79,7 @@ public static class ShiftService
 
 		// Skip blocked shifts in overlap check - blocked shifts are not assigned to any user
 		var assignableShifts = existingShifts
-			.Where(s => !(s.EmployeeKeycloakId == default && !string.IsNullOrEmpty(s.BlockReason)))
+			.Where(s => !s.IsBlocked)
 			.ToList();
 
 		// Calculate the end time of the requested shift

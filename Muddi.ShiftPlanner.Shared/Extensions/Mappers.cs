@@ -34,8 +34,8 @@ public static class Mappers
 			dto.End.ToUniversalTime(),
 			dto.Type.MapToShiftType(),
 			dto.ContainerId,
-			dto.LocationId);
-		shift.BlockReason = dto.BlockReason;
+			dto.LocationId,
+			dto.BlockReason);
 		return shift;
 	}
 

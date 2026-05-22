@@ -8,7 +8,8 @@ public class Shift : IEquatable<Shift>
 		DateTime endTime, 
 		ShiftType type, 
 		Guid containerId,
-		Guid locationId)
+		Guid locationId,
+		string? blockReason = null)
 	{
 		User = user;
 		StartTime = startTime;
@@ -17,6 +18,7 @@ public class Shift : IEquatable<Shift>
 		ContainerId = containerId;
 		LocationId = locationId;
 		Id = id;
+		BlockReason = blockReason;
 	}
 	
 	public Shift(EmployeeBase user, DateTime startTime, DateTime endTime, ShiftType type, Guid locationId = default, Guid containerId = default)
@@ -28,6 +30,7 @@ public class Shift : IEquatable<Shift>
 		Id = Guid.NewGuid();
 		LocationId = locationId;
 		ContainerId = containerId;
+		BlockReason = null;
 	}
 	public EmployeeBase User { get; }
 	public DateTime StartTime { get; }
@@ -38,6 +41,11 @@ public class Shift : IEquatable<Shift>
 	public Guid LocationId { get; }
 	public Guid Id { get; }
 	public string? BlockReason { get; set; }
+
+	/// <summary>
+	/// Returns true when this shift is blocked (no real employee assigned).
+	/// </summary>
+	public bool IsBlocked => User.KeycloakId == default && !string.IsNullOrEmpty(BlockReason);
 
 	public bool Equals(Shift? other)
 	{

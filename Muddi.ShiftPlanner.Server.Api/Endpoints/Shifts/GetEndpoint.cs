@@ -31,7 +31,7 @@ public class GetEndpoint : CrudGetEndpoint<GetShiftResponse>
 			return null;
 
 		// Blocked shifts have no user assigned
-		if (entity.EmployeeKeycloakId == default && !string.IsNullOrEmpty(entity.BlockReason))
+		if (entity.IsBlocked)
 		{
 			return entity.MapToShiftResponse(Guid.Empty, "FREI");
 		}
