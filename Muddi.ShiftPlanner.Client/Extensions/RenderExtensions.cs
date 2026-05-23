@@ -25,8 +25,9 @@ public static class RenderExtensions
 				{
 					var c = container.BackgroundColor;
 					var maxTimeShift = container.Framework.RolesCount.Select(x => x.Key.StartingTimeShift).Max();
-					
-					if (args.Start >= container.StartTime.ToLocalTime() && args.Start < container.EndTime.Add(maxTimeShift).ToLocalTime())
+
+					if (args.Start >= container.StartTime.ToLocalTime() &&
+					    args.Start < container.EndTime.Add(maxTimeShift).ToLocalTime())
 						args.Attributes["style"] = $"background: {c};";
 				}
 
@@ -55,12 +56,22 @@ public static class RenderExtensions
 
 		//DayView
 		// Blocked shifts - check before free shifts, since blocked shifts also have NotAssignedEmployee as user
-		if (!string.IsNullOrEmpty(shift.BlockReason))
+		if (shift.IsBlocked)
 		{
-			var bgColor = !string.IsNullOrEmpty(shift.Type.Color)
+			var color = !string.IsNullOrEmpty(shift.Type.Color)
 				? shift.Type.Color
-				: "#999999";
-			args.Attributes["style"] += $"background: {bgColor}; opacity: 0.45; color: white;";
+				: "#666";
+			args.Attributes["style"] += $"""
+			                             color: #666;
+			                             border: 1px solid {color};
+			                             background: repeating-linear-gradient(
+			                               45deg,
+			                               #ebebeb,       /* Stripe 1 color */
+			                               #ebebeb 15px,  /* Stripe 1 width */
+			                               #cdcdcd 15px,  /* Stripe 2 color starts immediately */
+			                               #cdcdcd 30px   /* Stripe 2 width ends */
+			                             );
+			                             """;
 			args.Attributes["title"] = "Gesperrt: " + shift.BlockReason;
 			return;
 		}
