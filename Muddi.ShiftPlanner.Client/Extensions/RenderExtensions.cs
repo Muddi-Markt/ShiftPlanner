@@ -12,7 +12,7 @@ public static class RenderExtensions
 	public static void SetSlotRenderStyle(this SchedulerSlotRenderEventArgs args,
 		IReadOnlyList<ShiftContainer> containers)
 	{
-		switch (args.View.Text)
+		switch (args.View?.Text)
 		{
 			// Highlight today in month view
 			case "Monat" when args.Start.Date == DateTime.Today:
@@ -33,6 +33,8 @@ public static class RenderExtensions
 
 				break;
 			}
+			default: 
+				throw new NotSupportedException($"View {args.View?.Text} not supported");
 		}
 	}
 
@@ -45,13 +47,17 @@ public static class RenderExtensions
 		{
 			var from = weekAppointment.AvailableShifts;
 			var to = weekAppointment.TotalShifts;
-			double num = Convert.ToInt32(40 + 40 * from / to) / 100.0;
+
+			double num = from == 0 || to == 0
+				? .4
+				: Convert.ToInt32(40 + 40 * from / to) / 100.0;
 			args.Attributes["style"] = $"background: rgb(0,0,0,{num.ToInvariantString()});";
+			
 			return;
 		}
 
 		if (args.Data is not DayAppointment dayAppointment)
-			throw new NotSupportedException("Unknown appointment type" + args.Data.GetType());
+			throw new NotSupportedException("Unknown appointment type" + args.Data?.GetType());
 		var shift = dayAppointment.Shift;
 
 		//DayView
@@ -65,6 +71,7 @@ public static class RenderExtensions
 			                             color: #666;
 			                             border: 1px solid {color};
 			                             background: repeating-linear-gradient(
+
 			                               45deg,
 			                               #ebebeb,       /* Stripe 1 color */
 			                               #ebebeb 15px,  /* Stripe 1 width */
