@@ -1,6 +1,9 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Muddi.ShiftPlanner.Shared.Api;
 using Muddi.ShiftPlanner.Shared.Contracts.v1.Requests;
 using Muddi.ShiftPlanner.Shared.Entities;
+using Microsoft.JSInterop;
 
 namespace Muddi.ShiftPlanner.Client.Services;
 
@@ -12,23 +15,23 @@ namespace Muddi.ShiftPlanner.Client.Services;
 /// </summary>
 public class AppSettingsService
 {
+	private const string LocalStorageKey = "appSettings";
+
 	/// <summary>
 	/// Values used until the real settings load, or whenever the API is unreachable.
 	/// </summary>
-	public static ApplicationSettings Defaults { get; } = new()
+	private static readonly ApplicationSettings Defaults = new();
+
+	private static readonly JsonSerializerOptions JsonSerializerOptions = new()
 	{
-		Title = "MUDDIs Schicht Planner",
-		Subtitle = string.Empty,
-		Contact = string.Empty,
-		StartTime = new TimeSpan(8, 0, 0),
-		EndTime = new TimeSpan(26, 0, 0),
-		Greeting = "Moin",
-		MemberName = "MUDDIs"
+		PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 	};
 
 	private readonly IMuddiShiftApi _api;
+	private readonly IJSRuntime _jsRuntime;
+	private readonly ILogger<AppSettingsService> _logger;
 	private Lazy<Task<ApplicationSettings>> _lazySettings;
-	private ApplicationSettings _current = Defaults;
+
 
 	/// <summary>
 	/// Raised when the effective settings change — on the first successful load and on every update.
@@ -38,11 +41,13 @@ public class AppSettingsService
 	/// <summary>
 	/// The most recently known settings. Equals <see cref="Defaults"/> until the first successful load.
 	/// </summary>
-	public ApplicationSettings Current => _current;
+	public ApplicationSettings Current { get; private set; } = Defaults;
 
-	public AppSettingsService(IMuddiShiftApi api)
+	public AppSettingsService(IMuddiShiftApi api, IJSRuntime jsRuntime, ILogger<AppSettingsService> logger)
 	{
 		_api = api;
+		_jsRuntime = jsRuntime;
+		_logger = logger;
 		_lazySettings = new Lazy<Task<ApplicationSettings>>(LoadAsync);
 	}
 
@@ -89,14 +94,46 @@ public class AppSettingsService
 	{
 		var response = await _api.GetAppSettings();
 		SetCurrent(response.Settings);
+		await SaveToLocalStorageAsync(response.Settings);
 		return response.Settings;
+	}
+
+	private async Task SaveToLocalStorageAsync(ApplicationSettings settings)
+	{
+		try
+		{
+			var json = JsonSerializer.Serialize(settings, JsonSerializerOptions);
+			await _jsRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Failed to save settings to localStorage");
+		}
+	}
+
+	/// <summary>
+	/// Loads settings from localStorage, returning null if nothing is cached.
+	/// </summary>
+	public async Task<ApplicationSettings?> GetCachedSettingsAsync()
+	{
+		try
+		{
+			var json = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", LocalStorageKey);
+			if (string.IsNullOrEmpty(json)) return null;
+			return JsonSerializer.Deserialize<ApplicationSettings>(json, JsonSerializerOptions);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Failed to load settings from localStorage");
+			return null;
+		}
 	}
 
 	private void SetCurrent(ApplicationSettings settings)
 	{
-		if (_current == settings)
+		if (Current == settings)
 			return;
-		_current = settings;
+		Current = settings;
 		SettingsChanged?.Invoke(this, settings);
 	}
 }
