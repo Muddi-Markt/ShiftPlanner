@@ -25,7 +25,7 @@ public class DayAppointment : Appointment
 		Shift = shift;
 		LocalStartTime = shift.StartTime.ToLocalTime() + shift.Type.StartingTimeShift;
 		LocalEndTime = shift.EndTime.ToLocalTime() + shift.Type.StartingTimeShift;
-		if (!string.IsNullOrEmpty(shift.BlockReason))
+		if (shift.IsBlocked)
 		{
 			Title = shift.Type.Name + "\nGesperrt: " + shift.BlockReason + "\n" + TimeString;
 		}

@@ -181,9 +181,9 @@ public partial class LocationPage
 			throw new NotSupportedException("Unknown appointment type" + args.Data.GetType());
 
 		//If the shift is blocked (has BlockReason), open edit dialog
-		if (!string.IsNullOrEmpty(dayAppointment.Shift.BlockReason))
+		if (dayAppointment.Shift.IsBlocked)
 		{
-			var blockedParams = new Dictionary<string, object>
+			var blockedParams = new Dictionary<string, object?>
 			{
 				[nameof(EditShiftDialog.EntityToEdit)] = dayAppointment.Shift.MapToShiftResponse()
 			};
@@ -192,6 +192,7 @@ public partial class LocationPage
 			{
 				await ForceReloadScheduler();
 			}
+
 			return;
 		}
 
