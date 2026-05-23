@@ -1,4 +1,4 @@
-﻿@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
+@using Muddi.ShiftPlanner.Shared.Contracts.v1.Responses
 @using Muddi.ShiftPlanner.Client.Pages.Admin;
 @inject ShiftService ShiftService;
 @inherits UpdateDialogBase<GetShiftResponse>
@@ -9,9 +9,10 @@
 	{
 		<h3>Admin Mode</h3>
 	}
+
 	<div class="row">
 		<div class="col-md-4 align-items-center d-flex">
-			<RadzenLabel Text="Muddi"/>
+			<RadzenLabel Text="@AppSettingsService.Current.MemberName"/>
 		</div>
 		<div class="col-md-8">
 			@if (_employeesToSelect is null)
@@ -24,6 +25,7 @@
 			else
 			{
 				<RadzenDropDown
+					Disabled="_isShiftBlocked"
 					ValueProperty="Id"
 					TextProperty="FullName"
 					@bind-Value="EntityToEdit.EmployeeId"
@@ -40,7 +42,8 @@
 			<RadzenLabel Text="Start"/>
 		</div>
 		<div class="col-md-8">
-			<RadzenTextBox Style="width:200px;" Name="Start" Value="@EntityToEdit.StartToDisplayString()" ReadOnly="true"/>
+			<RadzenTextBox Style="width:200px;" Name="Start" Value="@EntityToEdit.StartToDisplayString()"
+			               ReadOnly="true"/>
 		</div>
 	</div>
 	<div class="row">
@@ -74,18 +77,20 @@
 				}
 				else
 				{
-					<RadzenTextBox Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")" ReadOnly="true"></RadzenTextBox>
+					<RadzenTextBox Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")"
+					               ReadOnly="true"></RadzenTextBox>
 				}
 			}
 			else
 			{
-				<RadzenTextBox Name="Type" Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")" ReadOnly="true"/>
+				<RadzenTextBox Name="Type" Value="@(EntityToEdit.Type?.Name ?? "Keine freien Slots frei")"
+				               ReadOnly="true"/>
 			}
 		</div>
 
-		
+
 	</div>
-	@if (EntityToEdit.Type?.Description is {} description)
+	@if (EntityToEdit.Type?.Description is { } description)
 	{
 		<div class="row">
 			<div class="col-md-4 align-items-center d-flex">
@@ -98,7 +103,38 @@
 			</div>
 		</div>
 	}
-	@if ((_isShiftUser || _isAdmin) && EntityToEdit.Id != default)
+
+	@if (_isAdmin)
+	{
+		<div class="row">
+			<div class="col-md-4 align-items-center d-flex">
+				<RadzenCheckBox
+					TValue="bool"
+					Value="_isShiftBlocked"
+					ValueChanged="@OnBlockChanged"/>
+			</div>
+			<div class="col-md-8">
+				<label>Schicht sperren</label>
+			</div>
+		</div>
+		@if (_isShiftBlocked)
+		{
+			<div class="row">
+				<div class="col-md-4 align-items-center d-flex">
+					<RadzenLabel Text="Begründung:"/>
+				</div>
+				<div class="col-md-8">
+					<RadzenTextBox
+						@ref="_blockReasonTextBox"
+						@bind-Value="EntityToEdit.BlockReason"
+						Style="width:300px;"
+						Placeholder="Grund für die Sperrung eingeben..."/>
+				</div>
+			</div>
+		}
+	}
+
+	@if ((_isShiftUser || _isAdmin) && EntityToEdit.Id != Guid.Empty)
 	{
 		<div class="row">
 			<div class="col-md-4 align-items-center d-flex">

@@ -24,13 +24,19 @@ public static class Mappers
 
 	public static Shift MapToShift(this GetShiftResponse dto)
 	{
-		return new Shift(dto.Id,
-			new Employee(dto.EmployeeId, "", dto.EmployeeFullName),
+		// Blocked shifts don't have a real user
+		var user = !string.IsNullOrEmpty(dto.BlockReason)
+			? NotAssignedEmployee
+			: new Employee(dto.EmployeeId, "", dto.EmployeeFullName);
+		var shift = new Shift(dto.Id,
+			user,
 			dto.Start.ToUniversalTime(),
 			dto.End.ToUniversalTime(),
 			dto.Type.MapToShiftType(),
 			dto.ContainerId,
-			dto.LocationId);
+			dto.LocationId,
+			dto.BlockReason);
+		return shift;
 	}
 
 	public static GetShiftResponse MapToShiftResponse(this Shift dto)
@@ -43,7 +49,8 @@ public static class Mappers
 			EmployeeFullName = dto.User.Name,
 			Start = dto.StartTime,
 			End = dto.EndTime,
-			Type = dto.Type.MapToShiftTypeResponse()
+			Type = dto.Type.MapToShiftTypeResponse(),
+			BlockReason = dto.BlockReason
 		};
 	}
 

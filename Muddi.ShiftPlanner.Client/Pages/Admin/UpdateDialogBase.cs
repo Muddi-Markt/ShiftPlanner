@@ -16,7 +16,7 @@ public abstract class UpdateDialogBase<TResponse> : ComponentBase , IUpdateDialo
 	protected abstract Task Create();
 	protected abstract Task Update();
 	
-	protected async Task UpdateAndClose()
+	protected virtual async Task UpdateAndClose()
 	{
 		try
 		{

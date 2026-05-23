@@ -28,7 +28,9 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsRequest, GetShiftRe
 		}
 
 		var res = await query
-			.Select(t => t.MapToShiftResponse(t.EmployeeKeycloakId, null))
+			.Select(t => t.IsBlocked
+				? t.MapToShiftResponse(Guid.Empty, "FREI")
+				: t.MapToShiftResponse(t.EmployeeKeycloakId, null))
 			.ToListAsync(ct);
 		return res;
 	}

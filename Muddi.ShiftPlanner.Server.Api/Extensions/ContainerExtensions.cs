@@ -52,7 +52,10 @@ public static class ShiftService
 		foreach (var shift in container.Shifts.Where(s => s.Start == startTime))
 		{
 			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
-			q.AvailableCount--;
+			if (!shift.IsBlocked)
+			{
+				q.AvailableCount--;
+			}
 		}
 
 		return counter;
@@ -74,11 +77,16 @@ public static class ShiftService
 			.AsNoTracking()
 			.ToListAsync();
 
+		// Skip blocked shifts in overlap check - blocked shifts are not assigned to any user
+		var assignableShifts = existingShifts
+			.Where(s => !s.IsBlocked)
+			.ToList();
+
 		// Calculate the end time of the requested shift
 		var requestedShiftEnd = req.Start.Add(container.Framework.TimePerShift);
 
 		// Now perform the overlap check in memory (after fetching data)
-		var overlappingShift = existingShifts.FirstOrDefault(entity =>
+		var overlappingShift = assignableShifts.FirstOrDefault(entity =>
 		{
 			var existingShiftEnd = entity.Start.Add(entity.ShiftContainer.Framework.TimePerShift);
 

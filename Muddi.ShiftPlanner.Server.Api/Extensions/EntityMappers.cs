@@ -14,6 +14,7 @@ public static class EntityMappers
 		shiftResponse.LocationId = shift.ShiftContainer.Location.Id;
 		shiftResponse.EmployeeId = user.Id;
 		shiftResponse.EmployeeFullName = user.FullName;
+		shiftResponse.BlockReason = shift.BlockReason;
 
 		return shiftResponse;
 	}
@@ -26,6 +27,7 @@ public static class EntityMappers
 		shiftResponse.LocationId = shift.ShiftContainer.Location.Id;
 		shiftResponse.EmployeeId = employeeId;
 		shiftResponse.EmployeeFullName = employeeFullName;
+		shiftResponse.BlockReason = shift.BlockReason;
 
 		return shiftResponse;
 	}

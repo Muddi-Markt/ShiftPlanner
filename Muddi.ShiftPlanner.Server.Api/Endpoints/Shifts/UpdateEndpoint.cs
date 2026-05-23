@@ -1,9 +1,6 @@
-﻿using System.Data.SqlTypes;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Muddi.ShiftPlanner.Server.Api.Services;
 using Muddi.ShiftPlanner.Server.Database.Contexts;
-using Muddi.ShiftPlanner.Shared.Contracts.v1;
-using Namotion.Reflection;
 
 namespace Muddi.ShiftPlanner.Server.Api.Endpoints.Shifts;
 
@@ -37,14 +34,13 @@ public class UpdateEndpoint : CrudUpdateEndpoint<CreateShiftRequest>
 		}
 
 		var shift = container.Shifts.First(s => s.Id == request.Id);
-		//If only the shift type is changed, ignore the ShiftType id when checking
-		//whether the user has a same shift at the same time (as it is only this one,
-		//which will be updated
+		//Ignore this shift when checking if the user has a shift at the same time,
+		//because we are updating this very shift. This applies regardless of whether
+		//the shift type changes or not (e.g., admin blocking a shift without changing type).
 		Guid ignoreUserHasShiftAtGivenTime = shift.EmployeeKeycloakId == request.EmployeeKeycloakId
 		                                     && shift.Start == request.Start
-		                                     && shift.Type.Id != request.ShiftTypeId
 			? shift.Type.Id
-			: default;
+			: Guid.Empty;
 
 
 		var failure = await Database.PreAddShiftSanityCheck(container, request, User, ignoreUserHasShiftAtGivenTime);
@@ -55,10 +51,25 @@ public class UpdateEndpoint : CrudUpdateEndpoint<CreateShiftRequest>
 		shift.Start = request.Start.ToUniversalTime();
 		if (shift.Type.Id != request.ShiftTypeId)
 		{
-			shift.Type = container.Framework.ShiftTypeCounts.First(x => x.ShiftType.Id == request.ShiftTypeId).ShiftType;
+			shift.Type = container.Framework.ShiftTypeCounts.First(x => x.ShiftType.Id == request.ShiftTypeId)
+				.ShiftType;
 		}
 
 		shift.EmployeeKeycloakId = request.EmployeeKeycloakId;
+
+		// Only admins are allowed to block/unblock shifts
+		if (User.IsInRole(ApiRoles.Admin))
+		{
+			if (request.BlockReason?.Length > 50)
+				throw new ArgumentException("Length is not allowed to be greater than 50 characters");
+			shift.BlockReason = request.BlockReason;
+		}
+		else if (!string.IsNullOrEmpty(request.BlockReason))
+		{
+			await Send.ForbiddenAsync("Only administrators can block or unblock shifts.", ct);
+			return;
+		}
+
 		Database.Shifts.Update(shift);
 		await Database.SaveChangesAsync(ct);
 	}

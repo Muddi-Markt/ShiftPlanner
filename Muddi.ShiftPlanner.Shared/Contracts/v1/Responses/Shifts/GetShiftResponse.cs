@@ -10,4 +10,5 @@ public class GetShiftResponse : IMuddiResponse
 	public DateTime Start { get; set; }
 	public DateTime End { get; set; }
 	public GetShiftTypesResponse? Type { get; set; }
+	public string? BlockReason { get; set; }
 }

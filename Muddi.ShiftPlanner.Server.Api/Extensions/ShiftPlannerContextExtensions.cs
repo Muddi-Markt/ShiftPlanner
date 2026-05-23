@@ -5,7 +5,8 @@ namespace Muddi.ShiftPlanner.Server.Api.Extensions;
 
 public static class ShiftPlannerContextExtensions
 {
-	public static ShiftEntity AddShiftToContainer(this ShiftPlannerContext database, CreateShiftRequest req, ShiftContainerEntity container)
+	public static ShiftEntity AddShiftToContainer(this ShiftPlannerContext database, CreateShiftRequest req,
+		ShiftContainerEntity container)
 	{
 		var endTime = req.Start + container.Framework.TimePerShift;
 		var type = container.Framework.ShiftTypeCounts.Single(stc => stc.ShiftType.Id == req.ShiftTypeId).ShiftType;
@@ -13,10 +14,12 @@ public static class ShiftPlannerContextExtensions
 		var shift = new ShiftEntity
 		{
 			Id = Guid.NewGuid(),
+			ShiftContainer = container,
 			EmployeeKeycloakId = req.EmployeeKeycloakId,
 			Start = req.Start,
 			End = endTime,
-			Type = type
+			Type = type,
+			BlockReason = req.BlockReason
 		};
 
 

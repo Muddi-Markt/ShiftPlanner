@@ -49,6 +49,19 @@ public class AddShiftEndpoint : CrudEndpoint<CreateShiftRequest, DefaultCreateRe
 		if (await SendErrorIfValidationFailure(failure))
 			return;
 
+		// Only admins are allowed to block shifts
+		if (!User.IsInRole(ApiRoles.Admin) && !string.IsNullOrEmpty(req.BlockReason))
+		{
+			await Send.ForbiddenAsync("Only administrators can block shifts.", ct);
+			return;
+		}
+
+		if (User.IsInRole(ApiRoles.Admin) && req.BlockReason?.Length > 50)
+		{
+			await Send.BadRequestAsync("Block reason cannot exceed 50 characters.", ct);
+			return;
+		}
+
 		var shift = Database.AddShiftToContainer(req, container);
 		await Send.CreatedAtAsync<Endpoints.Shifts.GetEndpoint>(new { shift.Id },
 			new() { Id = shift.Id },

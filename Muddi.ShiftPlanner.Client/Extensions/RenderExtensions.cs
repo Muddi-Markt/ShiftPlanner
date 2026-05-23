@@ -25,8 +25,9 @@ public static class RenderExtensions
 				{
 					var c = container.BackgroundColor;
 					var maxTimeShift = container.Framework.RolesCount.Select(x => x.Key.StartingTimeShift).Max();
-					
-					if (args.Start >= container.StartTime.ToLocalTime() && args.Start < container.EndTime.Add(maxTimeShift).ToLocalTime())
+
+					if (args.Start >= container.StartTime.ToLocalTime() &&
+					    args.Start < container.EndTime.Add(maxTimeShift).ToLocalTime())
 						args.Attributes["style"] = $"background: {c};";
 				}
 
@@ -54,13 +55,39 @@ public static class RenderExtensions
 		var shift = dayAppointment.Shift;
 
 		//DayView
-		if (shift.User == Mappers.NotAssignedEmployee)
+		// Blocked shifts - check before free shifts, since blocked shifts also have NotAssignedEmployee as user
+		if (shift.IsBlocked)
 		{
-			args.Attributes["style"] += $"background: #ffffffD0; color:{shift.Type.Color};";
+			var color = !string.IsNullOrEmpty(shift.Type.Color)
+				? shift.Type.Color
+				: "#666";
+			args.Attributes["style"] += $"""
+			                             color: #666;
+			                             border: 1px solid {color};
+			                             background: repeating-linear-gradient(
+			                               45deg,
+			                               #ebebeb,       /* Stripe 1 color */
+			                               #ebebeb 15px,  /* Stripe 1 width */
+			                               #cdcdcd 15px,  /* Stripe 2 color starts immediately */
+			                               #cdcdcd 30px   /* Stripe 2 width ends */
+			                             );
+			                             """;
+			args.Attributes["title"] = "Gesperrt: " + shift.BlockReason;
 			return;
 		}
 
-		args.Attributes["style"] += $"background: {shift.Type.Color};";
+		// Free shifts - plain white
+		if (shift.User == Mappers.NotAssignedEmployee)
+		{
+			var textColor = !string.IsNullOrEmpty(shift.Type.Color)
+				? shift.Type.Color
+				: "#333333";
+			args.Attributes["style"] += $"background: #ffffff; color:{textColor}; border: 1px solid {textColor};";
+			return;
+		}
+
+		var normalBg = !string.IsNullOrEmpty(shift.Type.Color) ? shift.Type.Color : "#cccccc";
+		args.Attributes["style"] += $"background: {normalBg};";
 		if (shift.User.KeycloakId == userKeycloakId)
 		{
 			args.Attributes["style"] += "outline: 2px dashed #852121;";

@@ -52,6 +52,11 @@ public class GetAllEndpoint : CrudGetAllEndpoint<GetAllShiftsForLocationRequest,
 
 	private async Task<GetShiftResponse> MapToShiftResponse(ShiftEntity shift)
 	{
+		// Blocked shifts have no user assigned
+		if (shift.IsBlocked)
+		{
+			return shift.MapToShiftResponse(Guid.Empty, "FREI");
+		}
 		var user = await _keycloakService.GetUserByIdAsync(shift.EmployeeKeycloakId);
 		return shift.MapToShiftResponse(user.MapToEmployeeResponse(User));
 	}
