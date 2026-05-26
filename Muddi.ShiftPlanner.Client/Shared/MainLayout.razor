@@ -11,7 +11,14 @@
 <RadzenTooltip/>
 <RadzenContextMenu/>
 <CascadingValue Value="this">
-    @if (_settings is not null)
+    @if (_settings is null)
+    {
+        <div class="muddi-plain-content mt-5">
+            <LoadingSpinner/>
+            <p>Lade Einstellungen...</p>
+        </div>
+    }
+    else
     {
         <CascadingValue Value="_settings" IsFixed="false">
             <RadzenLayout>
@@ -98,7 +105,6 @@
             </RadzenLayout>
         </CascadingValue>
     }
-
 </CascadingValue>
 <RadzenMediaQuery Query="(max-width: 768px)" Change="MediaQueryCallback"></RadzenMediaQuery>
 
@@ -115,7 +121,7 @@
     {
         // Try cached settings first to fasten up first display
         _settings = await AppSettingsService.GetCachedOrDefaultSettingsAsync();
-        
+
 
         AppSettingsService.SettingsChanged += (_, appSettings) =>
         {
@@ -130,10 +136,6 @@
             _bodyExpanded = true;
             InvokeAsync(StateHasChanged);
         };
-    }
-
-    protected override void OnInitialized()
-    {
     }
 
     protected override async Task OnParametersSetAsync()
