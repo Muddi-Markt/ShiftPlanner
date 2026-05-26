@@ -114,18 +114,19 @@ public class AppSettingsService
 	/// <summary>
 	/// Loads settings from localStorage, returning null if nothing is cached.
 	/// </summary>
-	public async Task<ApplicationSettings?> GetCachedSettingsAsync()
+	public async Task<ApplicationSettings> GetCachedOrDefaultSettingsAsync()
 	{
 		try
 		{
 			var json = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", LocalStorageKey);
-			if (string.IsNullOrEmpty(json)) return null;
-			return JsonSerializer.Deserialize<ApplicationSettings>(json, JsonSerializerOptions);
+			if (string.IsNullOrEmpty(json))
+				return Defaults;
+			return JsonSerializer.Deserialize<ApplicationSettings>(json, JsonSerializerOptions) ?? Defaults;
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, "Failed to load settings from localStorage");
-			return null;
+			return Defaults;
 		}
 	}
 
