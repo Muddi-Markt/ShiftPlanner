@@ -173,7 +173,17 @@ public partial class EditShiftDialog
 			var ask = await DialogService.Confirm("Bist du sicher, dass du die Schicht löschen willst?");
 			if (ask is true)
 			{
-				await ShiftApi.DeleteShift(EntityToEdit.Id);
+				try
+				{
+					await ShiftApi.DeleteShift(EntityToEdit.Id);
+				}
+				catch (ApiException apiException) when (apiException.StatusCode == HttpStatusCode.Locked)
+				{
+					await DialogService.Error(
+						$"Die Schicht kann nicht gelöscht werden, da dies zu kurzfristig ist. Damit wir den Überblick behalten schreibe uns bitte über Instagram oder per mail (s.o.) damit wir deine Schicht neu besetzten können.",
+						"Schicht gelöscht");
+				}
+
 				DialogService.Close(true); //return true, as we have changed the entity (deleted it)
 			}
 		}
