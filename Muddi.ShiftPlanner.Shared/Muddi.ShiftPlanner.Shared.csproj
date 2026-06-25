@@ -12,6 +12,6 @@
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="MappingGenerator" Version="2023.7.64" />
-      <PackageReference Include="Refit" Version="10.1.6" />
+      <PackageReference Include="Refit" Version="12.0.0" />
     </ItemGroup>
 </Project>
