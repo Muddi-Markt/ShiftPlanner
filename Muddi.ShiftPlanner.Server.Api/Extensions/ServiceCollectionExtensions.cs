@@ -70,6 +70,9 @@ public static class ServiceCollectionExtensions
 		var authority = muddiConfig["Authority"];
 		var authorityUri = new Uri(authority!);
 		var baseUrl = authorityUri.GetLeftPart(UriPartial.Authority);
+		var realm = authorityUri.Segments[^1].Trim('/');
+
+		services.AddSingleton(new KeycloakRealm(realm));
 
 		var serviceClientId = muddiConfig["ClientId"];
 		var serviceClientSecret = muddiConfig["ClientSecret"];
