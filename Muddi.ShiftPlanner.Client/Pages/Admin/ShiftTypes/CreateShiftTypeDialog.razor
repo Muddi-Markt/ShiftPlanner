@@ -83,6 +83,10 @@
 	}
 
 	protected override Task Update()
-		=> ShiftApi.UpdateShiftType(EntityToEdit);
+	{
+		// the numeric input binds to _startingTimeShift (minutes); copy it back before sending the entity
+		EntityToEdit.StartingTimeShift = TimeSpan.FromMinutes(_startingTimeShift);
+		return ShiftApi.UpdateShiftType(EntityToEdit);
+	}
 
 }
