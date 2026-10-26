@@ -10,14 +10,15 @@ services:
     ports:
       - "5280:8080"
     environment:
-      Database__USER: ${MUDDI_POSTGRES_USER}
-      Database__PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
-      Database__Name: ${MUDDI_POSTGRES_DB}
+      Database__USER: ${SHIFT_PLANNER_POSTGRES_USER}
+      Database__PASSWORD: ${SHIFT_PLANNER_POSTGRES_PASSWORD}
+      Database__Name: ${SHIFT_PLANNER_POSTGRES_DB}
       Database__HOST: postgres
       Database__PORT: 5432
-      MuddiConnect__ClientId: ${MUDDI_CLIENT_ID}
-      MuddiConnect__ClientSecret: ${MUDDI_CLIENT_SECRET}
-      Cors__Origins__0: https://your-client-url.com
+      MuddiConnect__Authority: http://keycloak:8080/realms/${SHIFT_PLANNER_KEYCLOAK_REALM}
+      MuddiConnect__ClientId: ${SHIFT_PLANNER_CLIENT_ID}
+      MuddiConnect__ClientSecret: ${SHIFT_PLANNER_CLIENT_SECRET}
+      Cors__Origins__0: ${SHIFT_PLANNER_CLIENT_URL}
   shift-planner-client:
     restart: unless-stopped
     image: ghcr.io/muddi-markt/shiftplanner/client:v1.4
@@ -61,9 +62,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ChangeMeBetterNow
-      MUDDI_POSTGRES_USER: ${MUDDI_POSTGRES_USER}
-      MUDDI_POSTGRES_PASSWORD: ${MUDDI_POSTGRES_PASSWORD}
-      MUDDI_POSTGRES_DB: shift_planner
+      SHIFT_PLANNER_POSTGRES_USER: ${SHIFT_PLANNER_POSTGRES_USER}
+      SHIFT_PLANNER_POSTGRES_PASSWORD: ${SHIFT_PLANNER_POSTGRES_PASSWORD}
+      SHIFT_PLANNER_POSTGRES_DB: ${SHIFT_PLANNER_POSTGRES_DB}
       KEYCLOAK_POSTGRES_PASSWORD: ${KEYCLOAK_POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgres/data
