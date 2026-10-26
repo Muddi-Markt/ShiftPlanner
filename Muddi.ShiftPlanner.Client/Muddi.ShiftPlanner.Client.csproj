@@ -8,6 +8,7 @@
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<UserSecretsId>f5fa7a12-a190-46d0-a49c-12c122043c5d</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -69,7 +69,7 @@ See [deploy readme](./Docker/deployment/muddi-shift-planner/Readme.md)
 First install dotnet 10 sdk and docker, then:
 
 ```shell
-cd Docker/muddi-shiftplanner-compose/
+cd Docker/development/muddi-shift-planner-dev/
 docker compose up
 ```
 
@@ -99,7 +99,17 @@ if you want to use the alerting service:
 
 ### Building Images
 
-To build, run the .sh files in ./Docker. You may have to change the tag.
+Build from the repo root (BuildKit is required, the Dockerfiles use `--platform`):
+
+```shell
+buildx build --load -f Muddi.ShiftPlanner.Client/Dockerfile -t <tag> .
+buildx build --load -f Muddi.ShiftPlanner.Server.Api/Dockerfile -t <tag> .
+```
+
+`--load` imports the image into the local docker daemon. (Plain `docker build` only works if your
+docker CLI already defaults to BuildKit — otherwise it fails on the `--platform` directive.)
+
+Change the tag as needed.
 
 ### Running
 
