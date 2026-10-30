@@ -10,7 +10,7 @@ namespace Muddi.ShiftPlanner.Services.Alerting.Inbound;
 /// <summary>
 /// Long polling, so the bot needs no public URL. Handles private messages and button presses.
 /// </summary>
-public class TelegramUpdateReceiver : BackgroundService
+public class TelegramUpdateReceiver : BackgroundService, IUpdateHandler
 {
 	private readonly ITelegramBotClient _bot;
 	private readonly TelegramChannel _channel;
@@ -31,14 +31,14 @@ public class TelegramUpdateReceiver : BackgroundService
 		var options = new ReceiverOptions { AllowedUpdates = [UpdateType.Message, UpdateType.CallbackQuery] };
 		try
 		{
-			await _bot.ReceiveAsync(HandleUpdateAsync, HandleErrorAsync, options, stoppingToken);
+			await _bot.ReceiveAsync(this, options, stoppingToken);
 		}
 		catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
 		{
 		}
 	}
 
-	private async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken ct)
+	public async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken ct)
 	{
 		switch (update)
 		{
@@ -71,7 +71,7 @@ public class TelegramUpdateReceiver : BackgroundService
 		return await handler.HandleAsync(NotificationChannel.Telegram, chatId.ToString(), command, ct);
 	}
 
-	private async Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, HandleErrorSource source,
+	public async Task HandleErrorAsync(ITelegramBotClient bot, Exception exception, HandleErrorSource source,
 		CancellationToken ct)
 	{
 		_logger.LogWarning(exception, "Telegram {Source}", source);
