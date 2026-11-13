@@ -46,9 +46,14 @@ public partial class DisplayNextShiftsComponent : IDisposable
 		if (authState.User.Identity?.IsAuthenticated == true)
 		{
 			var shifts = await ShiftService.GetAllShiftsFromUser(authState.User, 6, DateTime.UtcNow);
-			_myShifts = new(shifts.Select(s => s.ToAppointment()));
+			_myShifts = shifts
+				.Select(shift => shift.ToAppointment())
+				.ToList();
 			var availableShifts = await ShiftService.GetAllAvailableShifts(12, DateTime.UtcNow);
-			_freeShifts = [..availableShifts.Select(s => s.ToAppointment())];
+			_freeShifts = availableShifts
+				.Where(shift => !shift.IsBlocked)
+				.Select(shift => shift.ToAppointment())
+				.ToList();
 			await InvokeAsync(StateHasChanged);
 		}
 	}
