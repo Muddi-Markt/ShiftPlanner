@@ -52,10 +52,8 @@ public static class ShiftService
 		foreach (var shift in container.Shifts.Where(s => s.Start == startTime))
 		{
 			var q = counter.Single(c => c.Type.Id == shift.Type.Id);
-			if (!shift.IsBlocked)
-			{
-				q.AvailableCount--;
-			}
+			// Blocked shifts also occupy a slot, so they must not be offered as available
+			q.AvailableCount--;
 		}
 
 		return counter;
